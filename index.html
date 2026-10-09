@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fcfcfb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Battery">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<title>Battery — Daily Mood & Energy</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f4f4f2;
+    --surface: #fcfcfb;
+    --border: #e4e3df;
+    --grid: #ecebe7;
+    --text: #0b0b0b;
+    --text-2: #52514e;
+    --text-3: #8a8984;
+    --accent: #2a78d6;
+    --accent-soft: #e6effa;
+    --danger: #e34948;
+    --danger-soft: #fdecec;
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --bg: #111110;
+      --surface: #1a1a19;
+      --border: #2c2c2a;
+      --grid: #262624;
+      --text: #ffffff;
+      --text-2: #c3c2b7;
+      --text-3: #8a8984;
+      --accent: #3987e5;
+      --accent-soft: #1d2a3b;
+      --danger: #e66767;
+      --danger-soft: #3a1f1f;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+  main { max-width: 560px; margin: 0 auto; padding: 20px 16px; }
+  h1 { font-size: 22px; font-weight: 650; margin: 4px 0 16px; letter-spacing: -0.01em; }
+  h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+       color: var(--text-3); margin: 0 0 10px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+          padding: 16px; margin-bottom: 14px; }
+  .muted { color: var(--text-3); }
+  .hidden { display: none !important; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+
+  /* Tabs */
+  nav.tabs {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    display: flex; justify-content: center; gap: 8px;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    background: var(--surface); border-top: 1px solid var(--border);
+  }
+  nav.tabs button {
+    flex: 1; max-width: 200px; border: 0; background: transparent; padding: 10px;
+    border-radius: 10px; font-weight: 600; color: var(--text-3);
+  }
+  nav.tabs button[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); }
+
+  /* Chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 1px solid var(--border); background: transparent; border-radius: 999px;
+    padding: 7px 14px; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .chip[aria-pressed="true"] { background: var(--text); color: var(--surface); border-color: var(--text); }
+  .chip .x { opacity: .5; font-size: 13px; margin-right: -4px; padding: 0 2px; }
+  .chip .x:hover { opacity: 1; }
+  .chip.add { border-style: dashed; color: var(--text-2); }
+  .add-row { display: flex; gap: 8px; margin-top: 10px; }
+
+  input[type=text], textarea, input[type=time], input[type=date] {
+    font: inherit; color: var(--text); background: var(--bg);
+    border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; width: 100%;
+  }
+  textarea { resize: vertical; min-height: 64px; }
+  input:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  /* Questions */
+  .q { margin-top: 18px; }
+  .q:first-child { margin-top: 0; }
+  .q-title { font-weight: 600; margin-bottom: 8px; display: flex; justify-content: space-between; }
+  .q-title .num { color: var(--text-3); font-weight: 500; font-size: 13px; }
+  .opts { display: grid; gap: 6px; }
+  .opts.emoji { grid-template-columns: repeat(4, 1fr); }
+  .opt {
+    text-align: left; border: 1px solid var(--border); background: transparent;
+    border-radius: 10px; padding: 10px 12px; font-size: 14px;
+  }
+  .opts.emoji .opt { text-align: center; font-size: 28px; padding: 8px 0; }
+  .opt[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+
+  .btn {
+    border: 0; border-radius: 12px; padding: 13px 16px; font-weight: 600; width: 100%;
+    background: var(--accent); color: #fff;
+  }
+  .btn:disabled { opacity: .35; cursor: not-allowed; }
+  .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); width: auto; padding: 10px 16px; }
+  .btn.flag { background: var(--danger-soft); color: var(--danger); border: 1px solid transparent; }
+  .row { display: flex; gap: 10px; align-items: center; }
+  .row > * { flex: 1; }
+  .live-score { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .live-score .val { font-size: 22px; font-weight: 650; font-variant-numeric: tabular-nums; }
+
+  /* Battery icon */
+  .battery { display: inline-flex; align-items: center; gap: 2px; vertical-align: middle; }
+  .battery .body { width: 34px; height: 16px; border: 2px solid var(--text-2); border-radius: 4px; padding: 1.5px; }
+  .battery .fill { height: 100%; border-radius: 1.5px; background: var(--accent); }
+  .battery .cap { width: 3px; height: 7px; background: var(--text-2); border-radius: 0 2px 2px 0; }
+  .battery.zero .body { border-color: var(--danger); }
+  .battery.zero .cap { background: var(--danger); }
+
+  /* Analysis */
+  .day-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .day-nav button { border: 1px solid var(--border); background: var(--surface); border-radius: 10px;
+                    width: 40px; height: 40px; font-size: 18px; }
+  .day-nav button:disabled { opacity: .3; cursor: default; }
+  .day-nav .label { font-weight: 600; }
+  .hero { display: flex; gap: 12px; }
+  .hero > div { flex: 1; }
+  .hero .big { font-size: 34px; font-weight: 650; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .hero .cap-l { font-size: 13px; color: var(--text-3); margin-top: 2px; }
+
+  .chart-wrap { position: relative; }
+  svg text { font: 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: var(--text-3); }
+  .tooltip {
+    position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 10px; font-size: 13px; box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    white-space: nowrap; transform: translate(-50%, -100%); margin-top: -12px; z-index: 2;
+  }
+  .tooltip strong { font-size: 15px; font-variant-numeric: tabular-nums; }
+  .tooltip .sub { color: var(--text-2); }
+  .empty { text-align: center; color: var(--text-3); padding: 28px 0; }
+
+  .seg { display: inline-flex; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 3px; }
+  .seg button { border: 0; background: transparent; padding: 6px 12px; border-radius: 7px; font-size: 13px; font-weight: 600; color: var(--text-2); }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 10px; }
+  .card-head h2 { margin: 0; }
+
+  .bar-row { display: grid; grid-template-columns: 96px 1fr 64px; align-items: center; gap: 10px; padding: 5px 0; }
+  .bar-row .name { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar-track { height: 14px; position: relative; background:
+      repeating-linear-gradient(to right, var(--grid) 0 1px, transparent 1px 25%); border-radius: 0; }
+  .bar { height: 100%; background: var(--accent); border-radius: 0 4px 4px 0; min-width: 2px; }
+  .bar-row .v { font-size: 14px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+  .bar-row .v small { display: block; font-weight: 400; color: var(--text-3); font-size: 11px; }
+  .bar-row.none .name, .bar-row.none .v { color: var(--text-3); font-weight: 400; }
+  .flag-note { margin-top: 10px; font-size: 13px; color: var(--text-2); display: flex; align-items: center; gap: 6px; }
+
+  .entry { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid var(--border); align-items: flex-start; }
+  .entry:first-child { border-top: 0; padding-top: 0; }
+  .entry .time { width: 62px; flex: none; color: var(--text-3); font-size: 13px; font-variant-numeric: tabular-nums; padding-top: 1px; }
+  .entry .main { flex: 1; min-width: 0; }
+  .entry .cat { font-weight: 600; }
+  .entry .cat.flag { color: var(--danger); }
+  .entry .det { color: var(--text-2); font-size: 14px; word-wrap: break-word; }
+  .entry .scores { color: var(--text-3); font-size: 12px; margin-top: 2px; }
+  .entry .right { text-align: right; flex: none; }
+  .entry .score { font-weight: 650; font-variant-numeric: tabular-nums; }
+  .entry .del { border: 0; background: transparent; color: var(--text-3); font-size: 12px; padding: 4px 0; }
+  .entry .del:hover { color: var(--danger); }
+
+  /* Modal */
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: flex-end;
+              justify-content: center; z-index: 20; padding: 16px; }
+  .modal { background: var(--surface); border-radius: 18px; padding: 20px; width: 100%; max-width: 480px; margin-bottom: env(safe-area-inset-bottom); }
+  .modal h3 { margin: 0 0 6px; font-size: 18px; }
+  .modal p { margin: 0 0 14px; color: var(--text-2); font-size: 14px; }
+
+  .toast { position: fixed; left: 50%; bottom: calc(90px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+           background: var(--text); color: var(--surface); padding: 10px 16px; border-radius: 10px; font-size: 14px;
+           opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 30; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<main>
+  <!-- LOG TAB -->
+  <section id="tab-log">
+    <h1>How's your battery?</h1>
+
+    <button class="btn flag" id="flag-btn" style="margin-bottom:14px">⚑ Log a red flag moment</button>
+
+    <div class="card">
+      <h2>Activity</h2>
+      <div class="chips" id="cat-chips"></div>
+      <div class="add-row hidden" id="add-cat-row">
+        <input type="text" id="new-cat" placeholder="New category name" maxlength="24">
+        <button class="btn ghost" id="add-cat-save">Add</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Details</h2>
+      <textarea id="details" placeholder="What were you doing?"></textarea>
+      <div class="row" style="margin-top:10px">
+        <label class="muted" for="log-time" style="flex:0 0 auto;font-size:14px">Time</label>
+        <input type="time" id="log-time">
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Check in</h2>
+      <div id="questions"></div>
+    </div>
+
+    <div class="card">
+      <div class="live-score">
+        <span class="muted">Battery score</span>
+        <span class="row" style="flex:0 0 auto;gap:10px">
+          <span class="val" id="live-val">–</span>
+          <span id="live-battery"></span>
+        </span>
+      </div>
+      <button class="btn" id="save-btn" disabled>Save entry</button>
+    </div>
+  </section>
+
+  <!-- ANALYSIS TAB -->
+  <section id="tab-data" class="hidden">
+    <h1>Your data</h1>
+
+    <div class="day-nav">
+      <button id="day-prev" aria-label="Previous day">‹</button>
+      <div class="label" id="day-label"></div>
+      <button id="day-next" aria-label="Next day">›</button>
+    </div>
+
+    <div class="card">
+      <div class="hero">
+        <div><div class="big" id="hero-latest">–</div><div class="cap-l">Latest battery</div></div>
+        <div><div class="big" id="hero-avg">–</div><div class="cap-l">Day average</div></div>
+        <div><div class="big" id="hero-count">0</div><div class="cap-l">Entries</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Battery over the day</h2>
+      <div class="chart-wrap" id="chart-wrap"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>By activity</h2>
+        <div class="seg" id="range-seg">
+          <button data-range="week" aria-pressed="true">Week</button>
+          <button data-range="month" aria-pressed="false">Month</button>
+          <button data-range="all" aria-pressed="false">All time</button>
+        </div>
+      </div>
+      <div id="cat-bars"></div>
+    </div>
+
+    <div class="card">
+      <h2>Entries</h2>
+      <div id="entry-list"></div>
+    </div>
+
+    <div class="card">
+      <h2>Backup</h2>
+      <p class="muted" style="margin:0 0 12px;font-size:14px">Your data lives only on this device. Export a backup file now and then, or to move to a new phone.</p>
+      <div class="row">
+        <button class="btn ghost" id="export-btn">Export</button>
+        <button class="btn ghost" id="import-btn">Import</button>
+      </div>
+      <input type="file" id="import-file" accept="application/json,.json" class="hidden">
+    </div>
+  </section>
+</main>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" data-tab="log" aria-selected="true">Log</button>
+  <button role="tab" data-tab="data" aria-selected="false">Data</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  // ---------- Config ----------
+  const DEFAULT_CATS = ['Exercise', 'Creative', 'Academic', 'Project', 'Social', 'Outdoor', 'Relaxation'];
+
+  const QUESTIONS = [
+    { key: 'energy', title: 'Energy', options: [
+      [4, 'I can walk up 3 flights of stairs'],
+      [3, 'I can walk up 2 flights of stairs'],
+      [2, 'I can walk up 1 flight of stairs'],
+      [1, "I'm wiped"],
+    ]},
+    { key: 'mood', title: 'Mood', emoji: true, options: [
+      [4, '😁', 'Beaming smile'],
+      [3, '🙂', 'Calm smile'],
+      [2, '😐', 'Flat'],
+      [1, '🙁', 'Frown'],
+    ]},
+    { key: 'fulfillment', title: 'Fulfillment', options: [
+      [4, 'That activity was very worth my time'],
+      [3, 'That activity was worth my time'],
+      [2, 'That activity passed the time'],
+      [1, 'I wish I spent that time differently'],
+    ]},
+    { key: 'hope', title: 'Hope', options: [
+      [4, 'I am very excited for the future'],
+      [3, 'I am moderately excited'],
+      [2, 'I am indifferent'],
+      [1, 'I am dreading the future'],
+    ]},
+    { key: 'connectedness', title: 'Connectedness', options: [
+      [4, 'I feel very connected'],
+      [3, 'Somewhat connected'],
+      [2, 'Neutral'],
+      [1, 'Alone'],
+    ]},
+  ];
+
+  // ---------- Storage ----------
+  const LS_ENTRIES = 'battery.entries.v1';
+  const LS_CATS = 'battery.customCats.v1';
+  const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+  let entries = load(LS_ENTRIES, []);
+  let customCats = load(LS_CATS, []);
+  const saveEntries = () => localStorage.setItem(LS_ENTRIES, JSON.stringify(entries));
+  const saveCats = () => localStorage.setItem(LS_CATS, JSON.stringify(customCats));
+  const allCats = () => [...DEFAULT_CATS, ...customCats];
+
+  // ---------- Helpers ----------
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, props = {}, ...kids) => {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(props)) {
+      if (k === 'class') n.className = v;
+      else if (k === 'text') n.textContent = v;
+      else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+      else n.setAttribute(k, v);
+    }
+    kids.flat().forEach(c => c != null && n.append(c));
+    return n;
+  };
+  const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const fmt = (n) => (Math.round(n * 100) / 100).toFixed(1);
+  const pad = (n) => String(n).padStart(2, '0');
+  const timeStr = (d) => d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const dayKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+  const avg = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length;
+
+  function batteryIcon(score) {
+    const pct = Math.max(0, Math.min(1, score / 4)) * 100;
+    return el('span', { class: 'battery' + (score === 0 ? ' zero' : ''), 'aria-hidden': 'true' },
+      el('span', { class: 'body' }, el('span', { class: 'fill', style: `width:${pct}%` })),
+      el('span', { class: 'cap' }));
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  // ---------- Tabs ----------
+  document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('nav.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+    $('tab-log').classList.toggle('hidden', b.dataset.tab !== 'log');
+    $('tab-data').classList.toggle('hidden', b.dataset.tab !== 'data');
+    if (b.dataset.tab === 'data') renderData();
+    window.scrollTo(0, 0);
+  }));
+
+  // ---------- Log form ----------
+  const form = { category: null, answers: {}, order: [] };
+
+  function renderCats() {
+    const box = $('cat-chips'); box.replaceChildren();
+    allCats().forEach(c => {
+      const isCustom = customCats.includes(c);
+      const chip = el('button', { class: 'chip', 'aria-pressed': form.category === c, onclick: () => { form.category = c; renderCats(); updateSave(); } }, c);
+      if (isCustom) {
+        chip.append(el('span', { class: 'x', title: 'Remove category', role: 'button', 'aria-label': `Remove ${c}`, text: '✕', onclick: (e) => {
+          e.stopPropagation();
+          if (!confirm(`Remove the "${c}" category? Past entries keep their label.`)) return;
+          customCats = customCats.filter(x => x !== c); saveCats();
+          if (form.category === c) form.category = null;
+          renderCats(); updateSave();
+        }}));
+      }
+      box.append(chip);
+    });
+    box.append(el('button', { class: 'chip add', onclick: () => { $('add-cat-row').classList.toggle('hidden'); $('new-cat').focus(); } }, '+ Custom'));
+  }
+
+  function addCategory() {
+    const name = $('new-cat').value.trim();
+    if (!name) return;
+    if (allCats().some(c => c.toLowerCase() === name.toLowerCase())) { toast('That category already exists'); return; }
+    customCats.push(name); saveCats();
+    form.category = name;
+    $('new-cat').value = ''; $('add-cat-row').classList.add('hidden');
+    renderCats(); updateSave();
+  }
+  $('add-cat-save').addEventListener('click', addCategory);
+  $('new-cat').addEventListener('keydown', e => { if (e.key === 'Enter') addCategory(); });
+
+  function renderQuestions() {
+    const box = $('questions'); box.replaceChildren();
+    form.order.forEach((q, i) => {
+      const opts = el('div', { class: 'opts' + (q.emoji ? ' emoji' : ''), role: 'group', 'aria-label': q.title });
+      q.options.forEach(([val, label, aria]) => {
+        opts.append(el('button', {
+          class: 'opt', 'aria-pressed': form.answers[q.key] === val, title: aria || label, 'aria-label': aria || label,
+          onclick: () => { form.answers[q.key] = val; renderQuestions(); updateSave(); }
+        }, label));
+      });
+      box.append(el('div', { class: 'q' },
+        el('div', { class: 'q-title' }, el('span', { text: q.title }), el('span', { class: 'num', text: `${i + 1}/5` })),
+        opts));
+    });
+  }
+
+  function currentScore() {
+    const vals = Object.values(form.answers);
+    return vals.length ? avg(vals) : null;
+  }
+
+  function updateSave() {
+    const s = currentScore();
+    const done = Object.keys(form.answers).length === QUESTIONS.length;
+    $('live-val').textContent = s == null ? '–' : fmt(s) + (done ? '' : '…');
+    $('live-battery').replaceChildren(batteryIcon(s ?? 0));
+    $('save-btn').disabled = !(form.category && done);
+    $('save-btn').textContent = !form.category ? 'Pick an activity' : !done ? `Answer ${QUESTIONS.length - Object.keys(form.answers).length} more` : 'Save entry';
+  }
+
+  function nowTime() { const d = new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+
+  // Timestamp from the time field (today); if that time is in the future, assume it was yesterday.
+  function tsFromTimeField() {
+    const v = $('log-time').value;
+    const d = new Date();
+    if (v) {
+      const [h, m] = v.split(':').map(Number);
+      d.setHours(h, m, 0, 0);
+      if (d.getTime() > Date.now() + 60000) d.setDate(d.getDate() - 1);
+    }
+    return d.getTime();
+  }
+
+  function resetForm() {
+    form.category = null; form.answers = {}; form.order = shuffle(QUESTIONS);
+    $('details').value = ''; $('log-time').value = nowTime();
+    renderCats(); renderQuestions(); updateSave();
+  }
+
+  $('save-btn').addEventListener('click', () => {
+    const battery = currentScore();
+    entries.push({
+      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+      ts: tsFromTimeField(), type: 'activity', category: form.category,
+      details: $('details').value.trim(), answers: { ...form.answers }, battery,
+    });
+    saveEntries();
+    toast(`Saved · battery ${fmt(battery)}`);
+    resetForm(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // ---------- Red flag ----------
+  $('flag-btn').addEventListener('click', openFlagModal);
+  function openFlagModal() {
+    const note = el('textarea', { placeholder: 'What happened? (optional)' });
+    const close = () => bg.remove();
+    const bg = el('div', { class: 'modal-bg', onclick: (e) => { if (e.target === bg) close(); } },
+      el('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true' },
+        el('h3', { text: '⚑ Red flag moment' }),
+        el('p', { text: 'This logs an entry with a battery score of 0 at the current time.' }),
+        note,
+        el('div', { class: 'row', style: 'margin-top:14px' },
+          el('button', { class: 'btn ghost', onclick: close }, 'Cancel'),
+          el('button', { class: 'btn', style: 'background:var(--danger)', onclick: () => {
+            entries.push({
+              id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+              ts: Date.now(), type: 'redflag', category: null, details: note.value.trim(), answers: null, battery: 0,
+            });
+            saveEntries(); close(); toast('Red flag logged');
+          }}, 'Log red flag'))));
+    document.body.append(bg); note.focus();
+  }
+
+  // ---------- Analysis ----------
+  let viewDay = startOfDay(new Date());
+  let range = 'week';
+
+  $('day-prev').addEventListener('click', () => { viewDay.setDate(viewDay.getDate() - 1); renderData(); });
+  $('day-next').addEventListener('click', () => { viewDay.setDate(viewDay.getDate() + 1); renderData(); });
+  document.querySelectorAll('#range-seg button').forEach(b => b.addEventListener('click', () => {
+    range = b.dataset.range;
+    document.querySelectorAll('#range-seg button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    renderCatBars();
+  }));
+
+  function dayEntries() {
+    const k = dayKey(viewDay);
+    return entries.filter(e => dayKey(new Date(e.ts)) === k).sort((a, b) => a.ts - b.ts);
+  }
+
+  function renderData() {
+    const today = startOfDay(new Date());
+    const diff = Math.round((today - viewDay) / 86400000);
+    $('day-label').textContent = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday'
+      : viewDay.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+    $('day-next').disabled = diff <= 0;
+
+    const de = dayEntries();
+    $('hero-latest').textContent = de.length ? fmt(de[de.length - 1].battery) : '–';
+    $('hero-avg').textContent = de.length ? fmt(avg(de.map(e => e.battery))) : '–';
+    $('hero-count').textContent = de.length;
+
+    renderChart(de);
+    renderCatBars();
+    renderEntryList(de);
+  }
+
+  function renderChart(de) {
+    const wrap = $('chart-wrap'); wrap.replaceChildren();
+    if (!de.length) { wrap.append(el('div', { class: 'empty', text: 'No entries for this day yet.' })); return; }
+
+    const W = Math.max(280, wrap.clientWidth || 500), H = 220;
+    const m = { t: 12, r: 12, b: 26, l: 28 };
+    const hours = de.map(e => { const d = new Date(e.ts); return d.getHours() + d.getMinutes() / 60; });
+    const x0 = Math.min(6, Math.floor(Math.min(...hours)));
+    const x1 = Math.max(22, Math.ceil(Math.max(...hours)));
+    const X = (h) => m.l + (h - x0) / (x1 - x0) * (W - m.l - m.r);
+    const Y = (v) => m.t + (1 - v / 4) * (H - m.t - m.b);
+    const NS = 'http://www.w3.org/2000/svg';
+    const s = (tag, attrs) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; };
+
+    const svg = s('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', role: 'img', 'aria-label': 'Battery score over the day' });
+    svg.style.display = 'block'; svg.style.overflow = 'visible';
+
+    // Grid + y labels
+    for (let v = 0; v <= 4; v++) {
+      svg.append(s('line', { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: 'var(--grid)', 'stroke-width': 1 }));
+      const t = s('text', { x: m.l - 8, y: Y(v) + 4, 'text-anchor': 'end' }); t.textContent = v; svg.append(t);
+    }
+    // X labels every 3h
+    for (let h = Math.ceil(x0 / 3) * 3; h <= x1; h += 3) {
+      const t = s('text', { x: X(h), y: H - 6, 'text-anchor': 'middle' });
+      t.textContent = h === 0 || h === 24 ? '12a' : h === 12 ? '12p' : h < 12 ? `${h}a` : `${h - 12}p`;
+      svg.append(t);
+    }
+    // Line
+    const pts = de.map((e, i) => [X(hours[i]), Y(e.battery)]);
+    if (pts.length > 1) {
+      svg.append(s('path', { d: 'M' + pts.map(p => p.join(',')).join('L'), fill: 'none', stroke: 'var(--accent)',
+        'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+    }
+    // Crosshair (hidden until hover)
+    const cross = s('line', { y1: m.t, y2: H - m.b, stroke: 'var(--text-3)', 'stroke-width': 1, 'stroke-dasharray': '3 3', visibility: 'hidden' });
+    svg.append(cross);
+    // Markers (red flags in red, with surface ring)
+    const dots = pts.map(([px, py], i) => {
+      const flag = de[i].type === 'redflag';
+      const c = s('circle', { cx: px, cy: py, r: 5, fill: flag ? 'var(--danger)' : 'var(--accent)', stroke: 'var(--surface)', 'stroke-width': 2 });
+      svg.append(c); return c;
+    });
+
+    const tip = el('div', { class: 'tooltip hidden' });
+    wrap.append(svg, tip);
+
+    const hide = () => { tip.classList.add('hidden'); cross.setAttribute('visibility', 'hidden'); dots.forEach(d => d.setAttribute('r', 5)); };
+    const show = (clientX) => {
+      const rect = svg.getBoundingClientRect();
+      const sx = (clientX - rect.left) * (W / rect.width);
+      let best = 0; pts.forEach((p, i) => { if (Math.abs(p[0] - sx) < Math.abs(pts[best][0] - sx)) best = i; });
+      const e = de[best], [px, py] = pts[best];
+      cross.setAttribute('x1', px); cross.setAttribute('x2', px); cross.setAttribute('visibility', 'visible');
+      dots.forEach((d, i) => d.setAttribute('r', i === best ? 7 : 5));
+      tip.replaceChildren(
+        el('strong', { text: fmt(e.battery) }), ' ',
+        el('span', { class: 'sub', text: `${e.type === 'redflag' ? '⚑ Red flag' : e.category} · ${timeStr(new Date(e.ts))}` }));
+      tip.classList.remove('hidden');
+      const left = px * (rect.width / W), top = py * (rect.height / H);
+      tip.style.left = Math.min(Math.max(left, 80), rect.width - 80) + 'px';
+      tip.style.top = top + 'px';
+    };
+    svg.addEventListener('pointermove', e => show(e.clientX));
+    svg.addEventListener('pointerdown', e => show(e.clientX));
+    svg.addEventListener('pointerleave', hide);
+  }
+
+  function renderCatBars() {
+    const box = $('cat-bars'); box.replaceChildren();
+    const cutoff = range === 'week' ? Date.now() - 7 * 86400000 : range === 'month' ? Date.now() - 30 * 86400000 : -Infinity;
+    const inRange = entries.filter(e => e.ts >= cutoff);
+    const acts = inRange.filter(e => e.type === 'activity');
+    const flags = inRange.filter(e => e.type === 'redflag').length;
+
+    // Include current categories plus any old categories still present in entries
+    const names = [...new Set([...allCats(), ...acts.map(e => e.category)])];
+    const rows = names.map(n => {
+      const xs = acts.filter(e => e.category === n).map(e => e.battery);
+      return { n, count: xs.length, v: xs.length ? avg(xs) : null };
+    }).sort((a, b) => (b.v ?? -1) - (a.v ?? -1));
+
+    if (!acts.length) box.append(el('div', { class: 'empty', text: 'No activities logged in this period.' }));
+    else rows.forEach(r => {
+      box.append(el('div', { class: 'bar-row' + (r.v == null ? ' none' : '') },
+        el('div', { class: 'name', title: r.n, text: r.n }),
+        el('div', { class: 'bar-track' }, r.v == null ? null : el('div', { class: 'bar', style: `width:${r.v / 4 * 100}%` })),
+        el('div', { class: 'v' }, r.v == null ? '–' : fmt(r.v), el('small', { text: r.count ? `${r.count} log${r.count > 1 ? 's' : ''}` : '' }))));
+    });
+    if (flags) box.append(el('div', { class: 'flag-note' }, el('span', { style: 'color:var(--danger)', text: '⚑' }),
+      `${flags} red flag moment${flags > 1 ? 's' : ''} in this period`));
+  }
+
+  function renderEntryList(de) {
+    const box = $('entry-list'); box.replaceChildren();
+    if (!de.length) { box.append(el('div', { class: 'empty', text: 'Nothing logged.' })); return; }
+    const short = { energy: 'E', mood: 'M', fulfillment: 'F', hope: 'H', connectedness: 'C' };
+    de.slice().reverse().forEach(e => {
+      const flag = e.type === 'redflag';
+      box.append(el('div', { class: 'entry' },
+        el('div', { class: 'time', text: timeStr(new Date(e.ts)) }),
+        el('div', { class: 'main' },
+          el('div', { class: 'cat' + (flag ? ' flag' : ''), text: flag ? '⚑ Red flag' : e.category }),
+          e.details ? el('div', { class: 'det', text: e.details }) : null,
+          e.answers ? el('div', { class: 'scores', text: QUESTIONS.map(q => `${short[q.key]} ${e.answers[q.key]}`).join(' · ') }) : null),
+        el('div', { class: 'right' },
+          el('div', { class: 'row', style: 'gap:8px;justify-content:flex-end' }, el('span', { class: 'score', text: fmt(e.battery) }), batteryIcon(e.battery)),
+          el('button', { class: 'del', onclick: () => {
+            if (!confirm('Delete this entry?')) return;
+            entries = entries.filter(x => x.id !== e.id); saveEntries(); renderData();
+          }}, 'Delete'))));
+    });
+  }
+
+  // ---------- Backup ----------
+  $('export-btn').addEventListener('click', async () => {
+    const data = JSON.stringify({ app: 'battery', version: 1, exportedAt: new Date().toISOString(), entries, customCats }, null, 2);
+    const name = `battery-backup-${dayKey(new Date())}.json`;
+    const file = new File([data], name, { type: 'application/json' });
+    // On phones, the share sheet lets you save to Files, AirDrop, email, etc.
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: 'Battery backup' }); return; }
+      catch (err) { if (err.name === 'AbortError') return; }
+    }
+    const a = el('a', { href: URL.createObjectURL(file), download: name });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+
+  $('import-btn').addEventListener('click', () => $('import-file').click());
+  $('import-file').addEventListener('change', async (ev) => {
+    const f = ev.target.files[0]; ev.target.value = '';
+    if (!f) return;
+    let data;
+    try { data = JSON.parse(await f.text()); } catch { toast("That file isn't a valid backup"); return; }
+    if (!data || data.app !== 'battery' || !Array.isArray(data.entries)) { toast("That file isn't a Battery backup"); return; }
+
+    // Merge rather than replace: keep existing entries, add any not already present.
+    const have = new Set(entries.map(e => e.id));
+    const valid = data.entries.filter(e => e && e.id && typeof e.ts === 'number' && typeof e.battery === 'number');
+    const added = valid.filter(e => !have.has(e.id));
+    entries = entries.concat(added); saveEntries();
+    const cats = (Array.isArray(data.customCats) ? data.customCats : []).filter(c => typeof c === 'string' && !allCats().includes(c));
+    customCats = customCats.concat(cats); saveCats();
+
+    renderCats(); renderData();
+    toast(added.length ? `Imported ${added.length} entr${added.length === 1 ? 'y' : 'ies'}` : 'Nothing new to import');
+  });
+
+  window.addEventListener('resize', () => { if (!$('tab-data').classList.contains('hidden')) renderChart(dayEntries()); });
+
+  resetForm();
+
+  // Opening the app at ".../#flag" jumps straight to the red flag dialog (for shortcuts).
+  const checkHash = () => {
+    if (location.hash === '#flag') { history.replaceState(null, '', location.pathname); openFlagModal(); }
+  };
+  checkHash();
+  window.addEventListener('hashchange', checkHash);
+
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js');
+})();
+</script>
+</body>
+</html>
