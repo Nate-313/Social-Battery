@@ -71,7 +71,7 @@
     background: var(--surface); border-top: 1px solid var(--border);
   }
   nav.tabs button {
-    flex: 1; max-width: 200px; border: 0; background: transparent; padding: 10px;
+    flex: 1; max-width: 160px; border: 0; background: transparent; padding: 10px;
     border-radius: 10px; font-weight: 600; color: var(--text-3);
   }
   nav.tabs button[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); }
@@ -124,7 +124,7 @@
   /* Battery icon */
   .battery { display: inline-flex; align-items: center; gap: 2px; vertical-align: middle; }
   .battery .body { width: 34px; height: 16px; border: 2px solid var(--text-2); border-radius: 4px; padding: 1.5px; }
-  .battery .fill { height: 100%; border-radius: 1.5px; background: var(--accent); }
+  .battery .fill { display: block; height: 100%; border-radius: 1.5px; background: var(--accent); }
   .battery .cap { width: 3px; height: 7px; background: var(--text-2); border-radius: 0 2px 2px 0; }
   .battery.zero .body { border-color: var(--danger); }
   .battery.zero .cap { background: var(--danger); }
@@ -179,11 +179,36 @@
   .entry .score { font-weight: 650; font-variant-numeric: tabular-nums; }
   .entry .del { border: 0; background: transparent; color: var(--text-3); font-size: 12px; padding: 4px 0; }
   .entry .del:hover { color: var(--danger); }
+  .entry .acts { display: flex; gap: 14px; justify-content: flex-end; }
+  .entry .acts .edit:hover { color: var(--accent); }
+  .entry.stale .score, .entry.stale .battery { opacity: .45; }
+
+  /* Streak + insights */
+  .streak { margin: -8px 0 14px; font-size: 14px; color: var(--text-2); }
+  .insights { list-style: none; margin: 0; padding: 0; }
+  .insights li { display: flex; gap: 10px; padding: 10px 0; border-top: 1px solid var(--border); font-size: 14px; color: var(--text-2); }
+  .insights li:first-child { border-top: 0; padding-top: 0; }
+  .insights li:last-child { padding-bottom: 0; }
+  .insights .ic { flex: none; width: 20px; text-align: center; }
+  .insights strong { color: var(--text); font-weight: 600; }
+  .trend-sum { font-size: 14px; color: var(--text-2); margin: -4px 0 12px; }
+  .sub-h { margin-top: 18px; }
+
+  /* Friends */
+  .code-box { font-size: 26px; font-weight: 650; letter-spacing: .12em; font-variant-numeric: tabular-nums; }
+  .note { margin: 10px 0 0; font-size: 14px; color: var(--text-3); }
+  label.check { display: flex; gap: 10px; align-items: center; font-size: 14px; margin-top: 12px; }
+  label.check input { width: 18px; height: 18px; accent-color: var(--accent); }
+  .btn.small { padding: 6px 12px; font-size: 13px; }
+  .btn.danger-text { color: var(--danger); }
 
   /* Modal */
   .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: flex-end;
               justify-content: center; z-index: 20; padding: 16px; }
-  .modal { background: var(--surface); border-radius: 18px; padding: 20px; width: 100%; max-width: 480px; margin-bottom: env(safe-area-inset-bottom); }
+  .modal { background: var(--surface); border-radius: 18px; padding: 20px; width: 100%; max-width: 480px; margin-bottom: env(safe-area-inset-bottom);
+           max-height: calc(100dvh - 32px); overflow-y: auto; }
+  .modal .field { margin-top: 16px; }
+  .modal .field h2 { margin-bottom: 8px; }
   .modal h3 { margin: 0 0 6px; font-size: 18px; }
   .modal p { margin: 0 0 14px; color: var(--text-2); font-size: 14px; }
 
@@ -198,6 +223,7 @@
   <!-- LOG TAB -->
   <section id="tab-log">
     <h1>How's your battery?</h1>
+    <div class="streak hidden" id="streak"></div>
 
     <button class="btn flag" id="flag-btn" style="margin-bottom:14px">⚑ Log a red flag moment</button>
 
@@ -260,6 +286,31 @@
     </div>
 
     <div class="card">
+      <h2>Entries</h2>
+      <div id="entry-list"></div>
+    </div>
+
+    <div class="card">
+      <h2>Insights</h2>
+      <ul class="insights" id="insights"></ul>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>Trends</h2>
+        <div class="seg" id="trend-seg">
+          <button data-days="7" aria-pressed="true">Week</button>
+          <button data-days="30" aria-pressed="false">Month</button>
+          <button data-days="90" aria-pressed="false">3 months</button>
+        </div>
+      </div>
+      <div class="trend-sum" id="trend-sum"></div>
+      <div class="chart-wrap" id="trend-wrap"></div>
+      <h2 class="sub-h">Check-in breakdown</h2>
+      <div id="trend-breakdown"></div>
+    </div>
+
+    <div class="card">
       <div class="card-head">
         <h2>By activity</h2>
         <div class="seg" id="range-seg">
@@ -272,11 +323,6 @@
     </div>
 
     <div class="card">
-      <h2>Entries</h2>
-      <div id="entry-list"></div>
-    </div>
-
-    <div class="card">
       <h2>Backup</h2>
       <p class="muted" style="margin:0 0 12px;font-size:14px">Your data lives only on this device. Export a backup file now and then, or to move to a new phone.</p>
       <div class="row">
@@ -286,15 +332,71 @@
       <input type="file" id="import-file" accept="application/json,.json" class="hidden">
     </div>
   </section>
+
+  <!-- FRIENDS TAB -->
+  <section id="tab-friends" class="hidden">
+    <h1>Friends</h1>
+
+    <div class="card hidden" id="friends-off">
+      <h2>Not set up yet</h2>
+      <p class="muted" style="margin:0;font-size:14px">Friends need a free Supabase database. Add your project's URL and key to <code>config.js</code> (see the README), then reload.</p>
+    </div>
+
+    <div class="card hidden" id="friends-join">
+      <h2>Share with friends</h2>
+      <p class="muted" style="margin:0 0 12px;font-size:14px">Friends you add will see your name, your latest battery score, the activity, and when you logged it. Your details text and check-in answers stay on this device.</p>
+      <input type="text" id="join-name" placeholder="Your name" maxlength="40" autocomplete="nickname">
+      <button class="btn" id="join-btn" style="margin-top:10px">Start sharing</button>
+    </div>
+
+    <div class="hidden" id="friends-on">
+      <div class="card">
+        <h2>Your friend code</h2>
+        <div class="row">
+          <div class="code-box" id="my-code">–</div>
+          <button class="btn ghost" id="share-code" style="flex:0 0 auto">Share</button>
+        </div>
+        <p class="note">Send this to a friend. When either of you adds the other, you'll both see each other.</p>
+      </div>
+
+      <div class="card">
+        <h2>Add a friend</h2>
+        <div class="add-row" style="margin-top:0">
+          <input type="text" id="friend-code" placeholder="Friend code, e.g. K7M-Q2X" maxlength="12" autocapitalize="characters" autocomplete="off">
+          <button class="btn ghost" id="add-friend">Add</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Friends' batteries</h2>
+          <button class="btn ghost small" id="refresh-friends">Refresh</button>
+        </div>
+        <div id="friend-list"></div>
+      </div>
+
+      <div class="card">
+        <h2>Sharing settings</h2>
+        <div class="add-row" style="margin-top:0">
+          <input type="text" id="my-name" placeholder="Your name" maxlength="40" autocomplete="nickname">
+          <button class="btn ghost" id="save-name">Save</button>
+        </div>
+        <label class="check"><input type="checkbox" id="share-flags"> Share red flag moments too</label>
+        <button class="btn ghost danger-text" id="leave-btn" style="margin-top:14px">Stop sharing</button>
+      </div>
+    </div>
+  </section>
 </main>
 
 <nav class="tabs" role="tablist">
   <button role="tab" data-tab="log" aria-selected="true">Log</button>
   <button role="tab" data-tab="data" aria-selected="false">Data</button>
+  <button role="tab" data-tab="friends" aria-selected="false">Friends</button>
 </nav>
 
 <div class="toast" id="toast"></div>
 
+<script src="config.js"></script>
 <script>
 (() => {
   // ---------- Config ----------
@@ -339,7 +441,7 @@
   const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
   let entries = load(LS_ENTRIES, []);
   let customCats = load(LS_CATS, []);
-  const saveEntries = () => localStorage.setItem(LS_ENTRIES, JSON.stringify(entries));
+  const saveEntries = () => { localStorage.setItem(LS_ENTRIES, JSON.stringify(entries)); queueSync(); };
   const saveCats = () => localStorage.setItem(LS_CATS, JSON.stringify(customCats));
   const allCats = () => [...DEFAULT_CATS, ...customCats];
 
@@ -364,6 +466,13 @@
   const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
   const avg = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length;
 
+  const svgEl = (tag, attrs, text) => {
+    const n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  };
+
   function batteryIcon(score) {
     const pct = Math.max(0, Math.min(1, score / 4)) * 100;
     return el('span', { class: 'battery' + (score === 0 ? ' zero' : ''), 'aria-hidden': 'true' },
@@ -377,14 +486,20 @@
     clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
   }
 
+  const newId = () => crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
+  const DAY = 86400000;
+
   // ---------- Tabs ----------
-  document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('click', () => {
-    document.querySelectorAll('nav.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
-    $('tab-log').classList.toggle('hidden', b.dataset.tab !== 'log');
-    $('tab-data').classList.toggle('hidden', b.dataset.tab !== 'data');
-    if (b.dataset.tab === 'data') renderData();
+  const TABS = ['log', 'data', 'friends'];
+  function showTab(name) {
+    document.querySelectorAll('nav.tabs button').forEach(x => x.setAttribute('aria-selected', x.dataset.tab === name));
+    TABS.forEach(t => $('tab-' + t).classList.toggle('hidden', t !== name));
+    if (name === 'data') renderData();
+    if (name === 'friends') renderFriendsTab();
     window.scrollTo(0, 0);
-  }));
+  }
+  const currentTab = () => TABS.find(t => !$('tab-' + t).classList.contains('hidden'));
+  document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
 
   // ---------- Log form ----------
   const form = { category: null, answers: {}, order: [] };
@@ -420,20 +535,22 @@
   $('add-cat-save').addEventListener('click', addCategory);
   $('new-cat').addEventListener('keydown', e => { if (e.key === 'Enter') addCategory(); });
 
-  function renderQuestions() {
-    const box = $('questions'); box.replaceChildren();
-    form.order.forEach((q, i) => {
-      const opts = el('div', { class: 'opts' + (q.emoji ? ' emoji' : ''), role: 'group', 'aria-label': q.title });
-      q.options.forEach(([val, label, aria]) => {
-        opts.append(el('button', {
-          class: 'opt', 'aria-pressed': form.answers[q.key] === val, title: aria || label, 'aria-label': aria || label,
-          onclick: () => { form.answers[q.key] = val; renderQuestions(); updateSave(); }
-        }, label));
-      });
-      box.append(el('div', { class: 'q' },
-        el('div', { class: 'q-title' }, el('span', { text: q.title }), el('span', { class: 'num', text: `${i + 1}/5` })),
-        opts));
+  function questionGroup(q, i, selected, onPick) {
+    const opts = el('div', { class: 'opts' + (q.emoji ? ' emoji' : ''), role: 'group', 'aria-label': q.title });
+    q.options.forEach(([val, label, aria]) => {
+      opts.append(el('button', {
+        class: 'opt', 'aria-pressed': selected === val, title: aria || label, 'aria-label': aria || label,
+        onclick: () => onPick(val)
+      }, label));
     });
+    return el('div', { class: 'q' },
+      el('div', { class: 'q-title' }, el('span', { text: q.title }), el('span', { class: 'num', text: `${i + 1}/${QUESTIONS.length}` })),
+      opts);
+  }
+
+  function renderQuestions() {
+    $('questions').replaceChildren(...form.order.map((q, i) =>
+      questionGroup(q, i, form.answers[q.key], val => { form.answers[q.key] = val; renderQuestions(); updateSave(); })));
   }
 
   function currentScore() {
@@ -467,13 +584,30 @@
   function resetForm() {
     form.category = null; form.answers = {}; form.order = shuffle(QUESTIONS);
     $('details').value = ''; $('log-time').value = nowTime();
-    renderCats(); renderQuestions(); updateSave();
+    renderCats(); renderQuestions(); updateSave(); renderStreak();
+  }
+
+  // Consecutive days with at least one entry, ending today (or yesterday, if today isn't logged yet).
+  function computeStreak() {
+    const days = new Set(entries.map(e => dayKey(new Date(e.ts))));
+    const d = startOfDay(new Date());
+    const loggedToday = days.has(dayKey(d));
+    if (!loggedToday) d.setDate(d.getDate() - 1);
+    let n = 0;
+    while (days.has(dayKey(d))) { n++; d.setDate(d.getDate() - 1); }
+    return { n, loggedToday };
+  }
+
+  function renderStreak() {
+    const { n, loggedToday } = computeStreak();
+    $('streak').classList.toggle('hidden', n === 0);
+    $('streak').textContent = `🔥 ${n}-day streak` + (loggedToday ? '' : ' · log today to keep it going');
   }
 
   $('save-btn').addEventListener('click', () => {
     const battery = currentScore();
     entries.push({
-      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+      id: newId(),
       ts: tsFromTimeField(), type: 'activity', category: form.category,
       details: $('details').value.trim(), answers: { ...form.answers }, battery,
     });
@@ -482,26 +616,77 @@
     resetForm(); window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
+  // ---------- Modals ----------
+  // build(close) returns the modal's contents; returns the close function.
+  function openModal(build) {
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    const close = () => { bg.remove(); document.removeEventListener('keydown', onKey); };
+    const bg = el('div', { class: 'modal-bg', onclick: (e) => { if (e.target === bg) close(); } },
+      el('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true' }, build(close)));
+    document.addEventListener('keydown', onKey);
+    document.body.append(bg);
+    return close;
+  }
+
   // ---------- Red flag ----------
   $('flag-btn').addEventListener('click', openFlagModal);
   function openFlagModal() {
     const note = el('textarea', { placeholder: 'What happened? (optional)' });
-    const close = () => bg.remove();
-    const bg = el('div', { class: 'modal-bg', onclick: (e) => { if (e.target === bg) close(); } },
-      el('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true' },
-        el('h3', { text: '⚑ Red flag moment' }),
-        el('p', { text: 'This logs an entry with a battery score of 0 at the current time.' }),
-        note,
-        el('div', { class: 'row', style: 'margin-top:14px' },
-          el('button', { class: 'btn ghost', onclick: close }, 'Cancel'),
-          el('button', { class: 'btn', style: 'background:var(--danger)', onclick: () => {
-            entries.push({
-              id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
-              ts: Date.now(), type: 'redflag', category: null, details: note.value.trim(), answers: null, battery: 0,
-            });
-            saveEntries(); close(); toast('Red flag logged');
-          }}, 'Log red flag'))));
-    document.body.append(bg); note.focus();
+    openModal(close => [
+      el('h3', { text: '⚑ Red flag moment' }),
+      el('p', { text: 'This logs an entry with a battery score of 0 at the current time.' }),
+      note,
+      el('div', { class: 'row', style: 'margin-top:14px' },
+        el('button', { class: 'btn ghost', onclick: close }, 'Cancel'),
+        el('button', { class: 'btn', style: 'background:var(--danger)', onclick: () => {
+          entries.push({ id: newId(), ts: Date.now(), type: 'redflag', category: null, details: note.value.trim(), answers: null, battery: 0 });
+          saveEntries(); close(); renderStreak(); toast('Red flag logged');
+          if (currentTab() === 'data') renderData();
+        }}, 'Log red flag')),
+    ]);
+    note.focus();
+  }
+
+  // ---------- Edit entry ----------
+  function openEditModal(entry) {
+    const isFlag = entry.type === 'redflag';
+    const d = new Date(entry.ts);
+    const draft = { category: entry.category, answers: { ...(entry.answers || {}) } };
+    const dateIn = el('input', { type: 'date', value: dayKey(d), max: dayKey(new Date()), 'aria-label': 'Date' });
+    const timeIn = el('input', { type: 'time', value: `${pad(d.getHours())}:${pad(d.getMinutes())}`, 'aria-label': 'Time' });
+    const details = el('textarea', { placeholder: isFlag ? 'What happened? (optional)' : 'What were you doing?' });
+    details.value = entry.details || '';
+    const chips = el('div', { class: 'chips' });
+    const qs = el('div');
+    const renderChips = () => chips.replaceChildren(...[...new Set([...allCats(), entry.category].filter(Boolean))].map(c =>
+      el('button', { class: 'chip', 'aria-pressed': draft.category === c, onclick: () => { draft.category = c; renderChips(); } }, c)));
+    const renderQs = () => qs.replaceChildren(...QUESTIONS.map((q, i) =>
+      questionGroup(q, i, draft.answers[q.key], val => { draft.answers[q.key] = val; renderQs(); })));
+    if (!isFlag) { renderChips(); renderQs(); }
+
+    const save = (close) => {
+      const [y, mo, da] = dateIn.value.split('-').map(Number);
+      const [h, mi] = timeIn.value.split(':').map(Number);
+      if (!y || isNaN(h) || isNaN(mi)) { toast('Pick a date and time'); return; }
+      const ts = new Date(y, mo - 1, da, h, mi).getTime();
+      if (ts > Date.now() + 60000) { toast("That time hasn't happened yet"); return; }
+      const e = entries.find(x => x.id === entry.id);
+      if (!e) { close(); return; }
+      e.ts = ts; e.details = details.value.trim();
+      if (!isFlag) { e.category = draft.category; e.answers = { ...draft.answers }; e.battery = avg(Object.values(e.answers)); }
+      saveEntries(); close(); renderData(); renderStreak(); toast('Entry updated');
+    };
+
+    openModal(close => [
+      el('h3', { text: isFlag ? '⚑ Edit red flag' : 'Edit entry' }),
+      isFlag ? null : el('div', { class: 'field' }, el('h2', { text: 'Activity' }), chips),
+      el('div', { class: 'field' }, el('h2', { text: 'Details' }), details,
+        el('div', { class: 'row', style: 'margin-top:10px' }, dateIn, timeIn)),
+      isFlag ? null : el('div', { class: 'field' }, el('h2', { text: 'Check in' }), qs),
+      el('div', { class: 'row', style: 'margin-top:18px' },
+        el('button', { class: 'btn ghost', onclick: close }, 'Cancel'),
+        el('button', { class: 'btn', onclick: () => save(close) }, 'Save changes')),
+    ]);
   }
 
   // ---------- Analysis ----------
@@ -536,6 +721,8 @@
     renderChart(de);
     renderCatBars();
     renderEntryList(de);
+    renderInsights();
+    renderTrends();
   }
 
   function renderChart(de) {
@@ -645,16 +832,359 @@
           e.answers ? el('div', { class: 'scores', text: QUESTIONS.map(q => `${short[q.key]} ${e.answers[q.key]}`).join(' · ') }) : null),
         el('div', { class: 'right' },
           el('div', { class: 'row', style: 'gap:8px;justify-content:flex-end' }, el('span', { class: 'score', text: fmt(e.battery) }), batteryIcon(e.battery)),
-          el('button', { class: 'del', onclick: () => {
-            if (!confirm('Delete this entry?')) return;
-            entries = entries.filter(x => x.id !== e.id); saveEntries(); renderData();
-          }}, 'Delete'))));
+          el('div', { class: 'acts' },
+            el('button', { class: 'del edit', onclick: () => openEditModal(e) }, 'Edit'),
+            el('button', { class: 'del', onclick: () => {
+              if (!confirm('Delete this entry?')) return;
+              entries = entries.filter(x => x.id !== e.id); saveEntries(); renderData(); renderStreak();
+            }}, 'Delete')))));
     });
   }
 
+  // ---------- Insights ----------
+  const BUCKETS = [['morning', 5, 12], ['afternoon', 12, 17], ['evening', 17, 22], ['night', 22, 29]];
+  const bucketOf = (ts) => { let h = new Date(ts).getHours(); if (h < 5) h += 24; return BUCKETS.find(([, a, b]) => h >= a && h < b)[0]; };
+
+  // Average battery per group key, keeping only groups with at least `min` entries.
+  function groupAvg(xs, keyOf, valOf = e => e.battery, min = 2) {
+    const g = new Map();
+    xs.forEach(e => { const k = keyOf(e); if (!g.has(k)) g.set(k, []); g.get(k).push(valOf(e)); });
+    return [...g].filter(([, v]) => v.length >= min).map(([k, v]) => ({ k, v: avg(v), n: v.length })).sort((a, b) => b.v - a.v);
+  }
+
+  function computeInsights() {
+    const out = []; // [icon, ...text parts]; strong() marks the key phrase
+    const strong = (t) => el('strong', { text: t });
+    const now = Date.now();
+    const recent = entries.filter(e => e.ts >= now - 30 * DAY);
+    const acts = recent.filter(e => e.type === 'activity');
+
+    const { n: streak, loggedToday } = computeStreak();
+    if (streak >= 2) out.push(['🔥', strong(`${streak}-day logging streak.`), loggedToday ? ' Nice work.' : ' Log today to keep it going.']);
+
+    const thisWk = entries.filter(e => e.ts >= now - 7 * DAY);
+    const lastWk = entries.filter(e => e.ts >= now - 14 * DAY && e.ts < now - 7 * DAY);
+    if (thisWk.length >= 2 && lastWk.length >= 2) {
+      const a = avg(thisWk.map(e => e.battery)), b = avg(lastWk.map(e => e.battery)), d = a - b;
+      out.push(Math.abs(d) < 0.1
+        ? ['➖', 'Your battery is ', strong('steady'), ` compared with last week (${fmt(a)}).`]
+        : [d > 0 ? '📈' : '📉', 'Your average is ', strong(`${d > 0 ? 'up' : 'down'} ${fmt(Math.abs(d))}`), ` from last week (${fmt(a)} vs ${fmt(b)}).`]);
+    }
+
+    const cats = groupAvg(acts, e => e.category);
+    if (cats.length >= 2) {
+      const best = cats[0], worst = cats[cats.length - 1];
+      if (best.v - worst.v >= 0.2) out.push(['⚡', strong(best.k), ` charges you up most (${fmt(best.v)}); `, strong(worst.k), ` drains you most (${fmt(worst.v)}).`]);
+    }
+
+    const times = groupAvg(recent, e => bucketOf(e.ts));
+    if (times.length >= 2) {
+      const hi = times[0], lo = times[times.length - 1];
+      if (hi.v - lo.v >= 0.3) out.push(['🕒', 'Your battery runs lowest in the ', strong(lo.k), ` (${fmt(lo.v)}) and highest in the `, strong(hi.k), ` (${fmt(hi.v)}).`]);
+    }
+
+    const answered = acts.filter(e => e.answers);
+    if (answered.length >= 3) {
+      const subs = QUESTIONS.map(q => ({ t: q.title, v: avg(answered.map(e => e.answers[q.key])) })).sort((a, b) => b.v - a.v);
+      const hi = subs[0], lo = subs[subs.length - 1];
+      if (hi.v - lo.v >= 0.2) out.push(['📊', strong(lo.t), ` is your lowest check-in score (${fmt(lo.v)}); `, strong(hi.t), ` is your highest (${fmt(hi.v)}).`]);
+    }
+
+    const flags = thisWk.filter(e => e.type === 'redflag').length;
+    if (flags) out.push(['⚑', strong(`${flags} red flag moment${flags > 1 ? 's' : ''}`), ' in the past 7 days.']);
+    return out;
+  }
+
+  function renderInsights() {
+    const items = computeInsights();
+    $('insights').replaceChildren(...(items.length
+      ? items.map(([ic, ...parts]) => el('li', {}, el('span', { class: 'ic', 'aria-hidden': 'true', text: ic }), el('span', {}, ...parts)))
+      : [el('li', { class: 'empty', style: 'display:block' }, 'Log a few more check-ins to see insights.')]));
+  }
+
+  // ---------- Trends ----------
+  let trendDays = 7;
+  document.querySelectorAll('#trend-seg button').forEach(b => b.addEventListener('click', () => {
+    trendDays = Number(b.dataset.days);
+    document.querySelectorAll('#trend-seg button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    renderTrends();
+  }));
+
+  // One bucket per calendar day for the last n days (oldest first), each holding that day's entries.
+  function dailySeries(n, endOffset = 0) {
+    const today = startOfDay(new Date());
+    const days = [];
+    for (let i = n - 1 + endOffset; i >= endOffset; i--) {
+      const d = new Date(today); d.setDate(d.getDate() - i);
+      days.push({ d, xs: [] });
+    }
+    const idx = new Map(days.map((x, i) => [dayKey(x.d), i]));
+    entries.forEach(e => { const i = idx.get(dayKey(new Date(e.ts))); if (i != null) days[i].xs.push(e); });
+    return days;
+  }
+
+  function renderTrends() {
+    const days = dailySeries(trendDays);
+    const inRange = days.flatMap(x => x.xs);
+    $('trend-sum').textContent = inRange.length
+      ? `Average ${fmt(avg(inRange.map(e => e.battery)))} across ${inRange.length} entr${inRange.length === 1 ? 'y' : 'ies'} on ${days.filter(x => x.xs.length).length} day${days.filter(x => x.xs.length).length === 1 ? '' : 's'}`
+      : '';
+    renderTrendChart(days);
+
+    // Sub-score averages for this period, compared with the period before it.
+    const box = $('trend-breakdown'); box.replaceChildren();
+    const answered = inRange.filter(e => e.answers);
+    const prev = dailySeries(trendDays, trendDays).flatMap(x => x.xs).filter(e => e.answers);
+    if (!answered.length) { box.append(el('div', { class: 'empty', text: 'No check-ins in this period.' })); return; }
+    QUESTIONS.forEach(q => {
+      const v = avg(answered.map(e => e.answers[q.key]));
+      const pv = prev.length ? avg(prev.map(e => e.answers[q.key])) : null;
+      const d = pv == null ? null : v - pv;
+      const delta = d == null ? '' : Math.abs(d) < 0.05 ? 'no change' : `${d > 0 ? '▲' : '▼'} ${fmt(Math.abs(d))}`;
+      box.append(el('div', { class: 'bar-row', title: pv == null ? '' : `Previous ${trendDays} days: ${fmt(pv)}` },
+        el('div', { class: 'name', text: q.title }),
+        el('div', { class: 'bar-track' }, el('div', { class: 'bar', style: `width:${v / 4 * 100}%` })),
+        el('div', { class: 'v' }, fmt(v), el('small', { text: delta }))));
+    });
+  }
+
+  function renderTrendChart(days) {
+    const wrap = $('trend-wrap'); wrap.replaceChildren();
+    if (!days.some(x => x.xs.length)) { wrap.append(el('div', { class: 'empty', text: 'No entries in this period.' })); return; }
+
+    const n = days.length;
+    const W = Math.max(280, wrap.clientWidth || 500), H = 180;
+    const m = { t: 12, r: 14, b: 26, l: 28 };
+    const X = (i) => m.l + (n === 1 ? 0.5 : i / (n - 1)) * (W - m.l - m.r);
+    const Y = (v) => m.t + (1 - v / 4) * (H - m.t - m.b);
+    const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', role: 'img', 'aria-label': `Daily average battery, last ${n} days` });
+    svg.style.display = 'block'; svg.style.overflow = 'visible';
+
+    for (let v = 0; v <= 4; v++) {
+      svg.append(svgEl('line', { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: 'var(--grid)', 'stroke-width': 1 }));
+      svg.append(svgEl('text', { x: m.l - 8, y: Y(v) + 4, 'text-anchor': 'end' }, v));
+    }
+    // Date labels counted back from today so today is always labeled.
+    const step = n <= 7 ? 1 : n <= 30 ? 7 : 21;
+    for (let i = n - 1; i >= 0; i -= step) {
+      const label = n <= 7 ? days[i].d.toLocaleDateString([], { weekday: 'short' }) : days[i].d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+      svg.append(svgEl('text', { x: X(i), y: H - 6, 'text-anchor': i === n - 1 && n > 7 ? 'end' : 'middle' }, label));
+    }
+
+    const pts = days.map((x, i) => x.xs.length ? { i, x: X(i), y: Y(avg(x.xs.map(e => e.battery))), day: x } : null);
+    // Only connect consecutive logged days; a gap in logging is a gap in the line.
+    let d = '';
+    pts.forEach((p, i) => { if (p) d += (pts[i - 1] ? 'L' : 'M') + p.x + ',' + p.y; });
+    if (/L/.test(d)) svg.append(svgEl('path', { d, fill: 'none', stroke: 'var(--accent)', 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+
+    const cross = svgEl('line', { y1: m.t, y2: H - m.b, stroke: 'var(--text-3)', 'stroke-width': 1, 'stroke-dasharray': '3 3', visibility: 'hidden' });
+    svg.append(cross);
+    const real = pts.filter(Boolean);
+    const dots = real.map(p => {
+      const c = svgEl('circle', { cx: p.x, cy: p.y, r: 4, fill: 'var(--accent)', stroke: 'var(--surface)', 'stroke-width': 2 });
+      svg.append(c); return c;
+    });
+
+    const tip = el('div', { class: 'tooltip hidden' });
+    wrap.append(svg, tip);
+    const hide = () => { tip.classList.add('hidden'); cross.setAttribute('visibility', 'hidden'); dots.forEach(c => c.setAttribute('r', 4)); };
+    const show = (clientX) => {
+      const rect = svg.getBoundingClientRect();
+      const sx = (clientX - rect.left) * (W / rect.width);
+      let best = 0; real.forEach((p, i) => { if (Math.abs(p.x - sx) < Math.abs(real[best].x - sx)) best = i; });
+      const p = real[best];
+      cross.setAttribute('x1', p.x); cross.setAttribute('x2', p.x); cross.setAttribute('visibility', 'visible');
+      dots.forEach((c, i) => c.setAttribute('r', i === best ? 6 : 4));
+      const cnt = p.day.xs.length;
+      tip.replaceChildren(el('strong', { text: fmt(avg(p.day.xs.map(e => e.battery))) }), ' ',
+        el('span', { class: 'sub', text: `${p.day.d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })} · ${cnt} entr${cnt === 1 ? 'y' : 'ies'}` }));
+      tip.classList.remove('hidden');
+      tip.style.left = Math.min(Math.max(p.x * (rect.width / W), 90), rect.width - 90) + 'px';
+      tip.style.top = p.y * (rect.height / H) + 'px';
+    };
+    svg.addEventListener('pointermove', e => show(e.clientX));
+    svg.addEventListener('pointerdown', e => show(e.clientX));
+    svg.addEventListener('pointerleave', hide);
+  }
+
+  // ---------- Friends ----------
+  // Friends sync through a Supabase project (see config.js and supabase/schema.sql).
+  // Each device has a random secret that identifies it; the database is reachable only
+  // through the battery_* functions, which never return anyone's secret or details text.
+  const CFG = window.BATTERY_CONFIG || {};
+  const SOCIAL_ON = !!(CFG.supabaseUrl && CFG.supabaseAnonKey);
+  const LS_SOCIAL = 'battery.social.v1';
+  const LS_FRIENDS = 'battery.friendsCache.v1';
+  let social = load(LS_SOCIAL, null); // { secret, name, code, shareFlags, dirty }
+  let friends = load(LS_FRIENDS, null);
+  const saveSocial = () => social ? localStorage.setItem(LS_SOCIAL, JSON.stringify(social)) : localStorage.removeItem(LS_SOCIAL);
+  const saveFriends = () => friends ? localStorage.setItem(LS_FRIENDS, JSON.stringify(friends)) : localStorage.removeItem(LS_FRIENDS);
+  const normCode = (c) => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const showCode = (c) => c ? c.slice(0, 3) + '-' + c.slice(3) : '–';
+  const randomSecret = () => Array.from(crypto.getRandomValues(new Uint8Array(32)), b => b.toString(16).padStart(2, '0')).join('');
+
+  async function rpc(fn, args) {
+    const key = CFG.supabaseAnonKey;
+    const headers = { apikey: key, 'Content-Type': 'application/json' };
+    if (key.startsWith('eyJ')) headers.Authorization = `Bearer ${key}`; // legacy JWT anon keys
+    const res = await fetch(`${CFG.supabaseUrl.replace(/\/+$/, '')}/rest/v1/rpc/${fn}`, { method: 'POST', headers, body: JSON.stringify(args) });
+    const body = await res.json().catch(() => null);
+    if (!res.ok) throw new Error(body?.message || `Request failed (${res.status})`);
+    return body;
+  }
+
+  // The entry friends see: your most recent activity (and red flag, if you opted in).
+  const latestShared = () => entries
+    .filter(e => e.type === 'activity' || social.shareFlags)
+    .reduce((a, e) => !a || e.ts > a.ts ? e : a, null);
+
+  async function syncStatus() {
+    if (!SOCIAL_ON || !social) return;
+    const me = social;
+    const e = latestShared();
+    me.dirty = true; saveSocial();
+    const code = await rpc('battery_sync', {
+      p_secret: me.secret, p_name: me.name,
+      p_battery: e ? e.battery : null,
+      p_category: e && e.type === 'activity' ? e.category : null,
+      p_is_flag: !!e && e.type === 'redflag',
+      p_logged_at: e ? new Date(e.ts).toISOString() : null,
+    });
+    if (social !== me) return; // stopped sharing meanwhile
+    me.code = code; me.dirty = false; saveSocial();
+  }
+
+  let syncTimer;
+  function queueSync() {
+    if (!SOCIAL_ON || !social) return;
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(() => syncStatus().catch(() => {}), 600);
+  }
+  window.addEventListener('online', () => { if (social?.dirty) queueSync(); });
+
+  const relTime = (ts) => {
+    const mins = Math.round((Date.now() - ts) / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.round(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.round(hrs / 24);
+    return days === 1 ? 'yesterday' : `${days}d ago`;
+  };
+
+  function renderFriendsTab() {
+    $('friends-off').classList.toggle('hidden', SOCIAL_ON);
+    $('friends-join').classList.toggle('hidden', !SOCIAL_ON || !!social);
+    $('friends-on').classList.toggle('hidden', !SOCIAL_ON || !social);
+    if (!SOCIAL_ON || !social) return;
+    $('my-code').textContent = showCode(social.code);
+    $('my-name').value = social.name;
+    $('share-flags').checked = !!social.shareFlags;
+    if (!social.code || social.dirty) syncStatus().then(() => $('my-code').textContent = showCode(social?.code)).catch(() => {});
+    renderFriendList();
+    loadFriends();
+  }
+
+  async function loadFriends() {
+    if (!social) return;
+    try {
+      friends = await rpc('battery_friends', { p_secret: social.secret });
+      saveFriends();
+    } catch {
+      if (!friends) $('friend-list').replaceChildren(el('div', { class: 'empty', text: "Couldn't load friends. Check your connection." }));
+      return;
+    }
+    renderFriendList();
+  }
+
+  function renderFriendList() {
+    const box = $('friend-list');
+    if (!friends) { box.replaceChildren(el('div', { class: 'empty', text: 'Loading…' })); return; }
+    if (!friends.length) { box.replaceChildren(el('div', { class: 'empty', text: 'No friends yet. Share your code or add theirs.' })); return; }
+    const sorted = friends.slice().sort((a, b) => (b.logged_at ? Date.parse(b.logged_at) : 0) - (a.logged_at ? Date.parse(a.logged_at) : 0));
+    box.replaceChildren(...sorted.map(f => {
+      const ts = f.logged_at ? Date.parse(f.logged_at) : null;
+      const has = f.battery != null && ts;
+      const status = !has ? 'No check-ins yet' : `${f.is_flag ? '⚑ Red flag' : f.category || 'Check-in'} · ${relTime(ts)}`;
+      return el('div', { class: 'entry' + (has && Date.now() - ts > DAY ? ' stale' : '') },
+        el('div', { class: 'main' },
+          el('div', { class: 'cat', text: f.name }),
+          el('div', { class: 'det' + (f.is_flag ? ' flag' : ''), style: f.is_flag ? 'color:var(--danger)' : '', text: status })),
+        el('div', { class: 'right' },
+          has ? el('div', { class: 'row', style: 'gap:8px;justify-content:flex-end' },
+            el('span', { class: 'score', text: fmt(Number(f.battery)) }), batteryIcon(Number(f.battery))) : null,
+          el('button', { class: 'del', onclick: async () => {
+            if (!confirm(`Remove ${f.name}? You'll stop seeing each other.`)) return;
+            try { await rpc('battery_remove_friend', { p_secret: social.secret, p_code: f.code }); }
+            catch (err) { toast(err.message); return; }
+            friends = friends.filter(x => x.code !== f.code); saveFriends(); renderFriendList();
+          }}, 'Remove')));
+    }));
+  }
+
+  $('join-btn').addEventListener('click', async () => {
+    const name = $('join-name').value.trim();
+    if (!name) { toast('Enter a name your friends will recognize'); $('join-name').focus(); return; }
+    const btn = $('join-btn'); btn.disabled = true; btn.textContent = 'Setting up…';
+    social = { secret: randomSecret(), name, code: null, shareFlags: false, dirty: true };
+    try { await syncStatus(); }
+    catch (err) { social = null; saveSocial(); toast(err.message === 'Failed to fetch' ? "Couldn't connect. Are you online?" : err.message); }
+    btn.disabled = false; btn.textContent = 'Start sharing';
+    friends = social ? [] : null; saveFriends();
+    renderFriendsTab();
+    if (social && $('friend-code').value) addFriend(); // arrived from an invite link
+  });
+
+  $('share-code').addEventListener('click', async () => {
+    if (!social?.code) return;
+    const url = `${location.origin}${location.pathname}#add=${social.code}`;
+    const text = `Add me on Battery! My friend code is ${showCode(social.code)}`;
+    if (navigator.share) {
+      try { await navigator.share({ title: 'Battery', text, url }); return; }
+      catch (err) { if (err.name === 'AbortError') return; }
+    }
+    try { await navigator.clipboard.writeText(`${text}\n${url}`); toast('Invite link copied'); }
+    catch { toast(`Your code is ${showCode(social.code)}`); }
+  });
+
+  async function addFriend() {
+    const code = normCode($('friend-code').value);
+    if (code.length !== 6) { toast('Friend codes are 6 characters'); return; }
+    if (code === social.code) { toast("That's your own code"); return; }
+    try {
+      const name = await rpc('battery_add_friend', { p_secret: social.secret, p_code: code });
+      $('friend-code').value = '';
+      toast(`Added ${name}`);
+      loadFriends();
+    } catch (err) { toast(err.message === 'Failed to fetch' ? "Couldn't connect. Are you online?" : err.message); }
+  }
+  $('add-friend').addEventListener('click', addFriend);
+  $('friend-code').addEventListener('keydown', e => { if (e.key === 'Enter') addFriend(); });
+  $('refresh-friends').addEventListener('click', () => { loadFriends(); toast('Refreshing…'); });
+
+  $('save-name').addEventListener('click', () => {
+    const name = $('my-name').value.trim();
+    if (!name) { toast('Name can’t be empty'); return; }
+    social.name = name; saveSocial();
+    syncStatus().then(() => toast('Name updated')).catch(() => toast('Saved; will sync when online'));
+  });
+  $('share-flags').addEventListener('change', (e) => { social.shareFlags = e.target.checked; saveSocial(); queueSync(); });
+
+  $('leave-btn').addEventListener('click', async () => {
+    if (!confirm('Stop sharing? Your friend code and friends list will be deleted. Your own entries stay on this device.')) return;
+    try { await rpc('battery_leave', { p_secret: social.secret }); }
+    catch (err) { toast(err.message === 'Failed to fetch' ? "Couldn't connect. Are you online?" : err.message); return; }
+    social = null; saveSocial(); friends = null; saveFriends();
+    renderFriendsTab(); toast('Sharing stopped');
+  });
+
+  if (social?.dirty) queueSync();
+
   // ---------- Backup ----------
   $('export-btn').addEventListener('click', async () => {
-    const data = JSON.stringify({ app: 'battery', version: 1, exportedAt: new Date().toISOString(), entries, customCats }, null, 2);
+    // The friends identity rides along so a restored phone keeps its friend code and friends.
+    const sharing = social ? { secret: social.secret, name: social.name, code: social.code, shareFlags: !!social.shareFlags } : null;
+    const data = JSON.stringify({ app: 'battery', version: 1, exportedAt: new Date().toISOString(), entries, customCats, social: sharing }, null, 2);
     const name = `battery-backup-${dayKey(new Date())}.json`;
     const file = new File([data], name, { type: 'application/json' });
     // On phones, the share sheet lets you save to Files, AirDrop, email, etc.
@@ -682,18 +1212,31 @@
     entries = entries.concat(added); saveEntries();
     const cats = (Array.isArray(data.customCats) ? data.customCats : []).filter(c => typeof c === 'string' && !allCats().includes(c));
     customCats = customCats.concat(cats); saveCats();
+    if (!social && data.social && typeof data.social.secret === 'string' && typeof data.social.name === 'string') {
+      social = { secret: data.social.secret, name: data.social.name, code: data.social.code || null, shareFlags: !!data.social.shareFlags, dirty: true };
+      saveSocial(); queueSync();
+    }
 
-    renderCats(); renderData();
+    renderCats(); renderData(); renderStreak();
     toast(added.length ? `Imported ${added.length} entr${added.length === 1 ? 'y' : 'ies'}` : 'Nothing new to import');
   });
 
-  window.addEventListener('resize', () => { if (!$('tab-data').classList.contains('hidden')) renderChart(dayEntries()); });
+  window.addEventListener('resize', () => { if (currentTab() === 'data') { renderChart(dayEntries()); renderTrends(); } });
 
   resetForm();
 
-  // Opening the app at ".../#flag" jumps straight to the red flag dialog (for shortcuts).
+  // Opening the app at ".../#flag" jumps straight to the red flag dialog (for shortcuts);
+  // ".../#add=CODE" is a friend invite link.
   const checkHash = () => {
     if (location.hash === '#flag') { history.replaceState(null, '', location.pathname); openFlagModal(); }
+    const add = location.hash.match(/^#add=([A-Za-z0-9-]+)$/);
+    if (add) {
+      history.replaceState(null, '', location.pathname);
+      showTab('friends');
+      if (!SOCIAL_ON) return;
+      $('friend-code').value = showCode(normCode(add[1]));
+      if (social) addFriend(); else { toast('Pick a name to start sharing, then tap Add'); $('join-name').focus(); }
+    }
   };
   checkHash();
   window.addEventListener('hashchange', checkHash);
