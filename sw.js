@@ -1,5 +1,7 @@
-// Offline support: serve from cache, refresh the cache in the background.
-const CACHE = 'battery-v2';
+// Offline support. Pages (and config.js) come from the network first so updates show
+// up right away, falling back to the cache when offline. Other files (icons, manifest)
+// are served from the cache and refreshed in the background.
+const CACHE = 'battery-v3';
 const FILES = ['./', './index.html', './config.js', './manifest.json', './icon-180.png', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -15,11 +17,14 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   // Only this app's own files; friend data from Supabase must always be live.
   if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
-  e.respondWith(caches.match(e.request, { ignoreSearch: true }).then(cached => {
-    const fresh = fetch(e.request).then(res => {
-      if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); }
-      return res;
-    }).catch(() => cached);
-    return cached || fresh;
-  }));
+  const fresh = fetch(e.request).then(res => {
+    if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); }
+    return res;
+  });
+  fresh.catch(() => {}); // offline: handled below
+  const cached = caches.match(e.request, { ignoreSearch: true });
+  const networkFirst = e.request.mode === 'navigate' || /\/(index\.html|config\.js)?$/.test(new URL(e.request.url).pathname);
+  e.respondWith(networkFirst
+    ? fresh.catch(() => cached)
+    : cached.then(hit => hit || fresh));
 });

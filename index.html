@@ -263,6 +263,68 @@
   .btn.small { padding: 6px 12px; font-size: 13px; }
   .btn.danger-text { color: var(--danger); }
 
+  /* People rows, avatars, badges */
+  .avatar { position: relative; flex: none; }
+  .avatar svg { position: absolute; inset: 0; }
+  .avatar .emoji { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; line-height: 1; }
+  .person { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--border); width: 100%;
+            background: transparent; border-left: 0; border-right: 0; border-bottom: 0; text-align: left; font: inherit; color: inherit; }
+  .person:first-child { border-top: 0; padding-top: 0; }
+  .person:last-child { padding-bottom: 0; }
+  .person .main { flex: 1; min-width: 0; }
+  .person .cat { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .person .det { color: var(--text-2); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .person .right { text-align: right; flex: none; }
+  .person .score { font-weight: 650; font-variant-numeric: tabular-nums; }
+  .person.friend { cursor: pointer; border-radius: 0; }
+  .person.friend:active { opacity: .7; }
+  .person.stale .score, .person.stale .battery { opacity: .45; }
+  .person .det.wrap { white-space: normal; }
+  .flag-line { font-size: 13px; color: var(--danger); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chev { font-size: 12px; color: var(--accent); font-weight: 600; margin-top: 4px; }
+  .acts-row { display: flex; gap: 6px; flex: none; }
+  .btn.small { width: auto; }
+  nav.tabs button { position: relative; }
+  .badge { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 19px; height: 19px; padding: 0 5px; border-radius: 10px;
+           background: var(--danger); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center;
+           justify-content: center; border: 2px solid var(--surface); line-height: 1; }
+  .badge.inline { position: static; border: 0; height: 18px; min-width: 18px; }
+  .me-row { display: flex; gap: 14px; align-items: center; }
+  .me-main { flex: 1; min-width: 0; }
+  .me-name { font-weight: 650; font-size: 17px; margin-bottom: 2px; }
+  .me-row .code-box { font-size: 22px; }
+  .animals { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .animal { font-size: 24px; line-height: 1; aspect-ratio: 1; border: 1px solid var(--border); background: transparent; border-radius: 12px; padding: 0; }
+  .animal[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent) inset; }
+
+  /* Chat */
+  body.no-scroll { overflow: hidden; }
+  .chat { position: fixed; inset: 0; z-index: 25; background: var(--bg); display: flex; flex-direction: column; }
+  .chat-head { display: flex; align-items: center; gap: 10px; padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
+               background: var(--surface); border-bottom: 1px solid var(--border); }
+  .chat-back { border: 0; background: transparent; font-size: 30px; line-height: 1; padding: 0 8px 4px; color: var(--accent); }
+  .chat-who { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; }
+  .chat-who .cat { font-weight: 650; }
+  .chat-who .det { font-size: 13px; color: var(--text-2); }
+  .chat-flags { background: var(--danger-soft); padding: 10px 16px; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .chat-flags .flags-title { font-weight: 650; color: var(--danger); margin-bottom: 4px; }
+  .flag-item { display: flex; gap: 10px; color: var(--text); padding: 2px 0; }
+  .flag-item .when { color: var(--text-2); flex: none; font-variant-numeric: tabular-nums; }
+  .chat-list { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 4px;
+               width: 100%; max-width: 640px; margin: 0 auto; -webkit-overflow-scrolling: touch; }
+  .day-sep { align-self: center; font-size: 12px; color: var(--text-3); margin: 10px 0 4px; font-weight: 600; }
+  .msg { display: flex; flex-direction: column; max-width: 78%; }
+  .msg.mine { align-self: flex-end; align-items: flex-end; }
+  .msg.theirs { align-self: flex-start; align-items: flex-start; }
+  .bubble { padding: 9px 13px; border-radius: 18px; font-size: 15px; white-space: pre-wrap; word-wrap: break-word; }
+  .msg.mine .bubble { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border-bottom-right-radius: 6px; }
+  .msg.theirs .bubble { background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 6px; }
+  .msg .meta { font-size: 11px; color: var(--text-3); margin: 2px 6px 4px; }
+  .chat-input { display: flex; gap: 8px; align-items: flex-end; padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+                background: var(--surface); border-top: 1px solid var(--border); }
+  .chat-input textarea { min-height: 44px; max-height: 120px; resize: none; border-radius: 22px; padding: 11px 16px; }
+  .btn.send { width: auto; border-radius: 22px; padding: 12px 18px; }
+
   /* Modal */
   .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: flex-end;
               justify-content: center; z-index: 20; padding: 16px; }
@@ -407,26 +469,37 @@
 
     <div class="card hidden" id="friends-join">
       <h2>Share with friends</h2>
-      <p class="muted" style="margin:0 0 12px;font-size:14px">Friends you add will see your name, your latest battery score, the activity, and when you logged it. Your details text and check-in answers stay on this device.</p>
+      <p class="muted" style="margin:0 0 12px;font-size:14px">Friends you add will see your name and animal, your latest battery score and activity, and every red flag moment you log, with its note unless you turn notes off. Friends of your friends may see your name and animal as a suggestion. Your activity details and check-in answers stay on this device.</p>
       <input type="text" id="join-name" placeholder="Your name" maxlength="40" autocomplete="nickname">
-      <button class="btn" id="join-btn" style="margin-top:10px">Start sharing</button>
+      <h2 style="margin-top:16px">Pick your animal</h2>
+      <div id="join-avatars"></div>
+      <button class="btn" id="join-btn" style="margin-top:14px">Start sharing</button>
     </div>
 
     <div class="hidden" id="friends-on">
       <div class="card">
-        <h2>Your friend code</h2>
-        <div class="row">
-          <div class="code-box" id="my-code">–</div>
+        <div class="me-row">
+          <div id="my-avatar"></div>
+          <div class="me-main">
+            <div class="me-name" id="my-name-label"></div>
+            <div class="muted" style="font-size:13px">Your friend code</div>
+            <div class="code-box" id="my-code">–</div>
+          </div>
           <button class="btn ghost" id="share-code" style="flex:0 0 auto">Share</button>
         </div>
-        <p class="note">Send this to a friend. When either of you adds the other, you'll both see each other.</p>
+        <p class="note">Send your code or invite link to a friend. You become friends once one of you sends a request and the other accepts it.</p>
+      </div>
+
+      <div class="card hidden" id="requests-card">
+        <h2>Friend requests</h2>
+        <div id="request-list"></div>
       </div>
 
       <div class="card">
         <h2>Add a friend</h2>
         <div class="add-row" style="margin-top:0">
           <input type="text" id="friend-code" placeholder="Friend code, e.g. K7M-Q2X" maxlength="12" autocapitalize="characters" autocomplete="off">
-          <button class="btn ghost" id="add-friend">Add</button>
+          <button class="btn ghost" id="add-friend">Send request</button>
         </div>
       </div>
 
@@ -438,13 +511,21 @@
         <div id="friend-list"></div>
       </div>
 
+      <div class="card hidden" id="suggest-card">
+        <h2>People you may know</h2>
+        <div id="suggest-list"></div>
+      </div>
+
       <div class="card">
         <h2>Sharing settings</h2>
         <div class="add-row" style="margin-top:0">
           <input type="text" id="my-name" placeholder="Your name" maxlength="40" autocomplete="nickname">
           <button class="btn ghost" id="save-name">Save</button>
         </div>
-        <label class="check"><input type="checkbox" id="share-flags"> Share red flag moments too</label>
+        <h2 style="margin-top:16px">Your animal</h2>
+        <div id="settings-avatars"></div>
+        <p class="note" style="margin-top:16px">Friends always see your red flag moments.</p>
+        <label class="check" style="margin-top:8px"><input type="checkbox" id="share-flag-notes"> Include the note I write with each red flag</label>
         <button class="btn ghost danger-text" id="leave-btn" style="margin-top:14px">Stop sharing</button>
       </div>
     </div>
@@ -454,7 +535,7 @@
 <nav class="tabs" role="tablist">
   <button role="tab" data-tab="log" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="7" width="17" height="10" rx="2.5"/><path d="M22 10.5v3"/><path d="M11.5 8.5 8.5 12h4l-3 3.5"/></svg>Log</button>
   <button role="tab" data-tab="data" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18"/><path d="M4 16l5-6 4 3 7-8"/></svg>Data</button>
-  <button role="tab" data-tab="friends" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.4 0 4 1.5 4.6 4.5"/></svg>Friends</button>
+  <button role="tab" data-tab="friends" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.4 0 4 1.5 4.6 4.5"/></svg>Friends<span class="badge hidden" id="friends-badge"></span></button>
 </nav>
 
 <div class="toast" id="toast"></div>
@@ -554,8 +635,10 @@
     const r = (size - sw) / 2, c = 2 * Math.PI * r, mid = size / 2;
     const svg = svgEl('svg', { width: size, height: size, viewBox: `0 0 ${size} ${size}`, class: 'ring', 'aria-hidden': 'true' });
     svg.style.overflow = 'visible';
-    svg.append(svgEl('circle', { cx: mid, cy: mid, r, fill: 'none', stroke: 'var(--grid)', 'stroke-width': sw }));
-    if (score != null) {
+    const track = svgEl('circle', { cx: mid, cy: mid, r, fill: 'none', 'stroke-width': sw });
+    track.style.stroke = score === 0 ? 'var(--danger-soft)' : 'var(--grid)';
+    svg.append(track);
+    if (score) {
       const arc = svgEl('circle', { cx: mid, cy: mid, r, fill: 'none', class: 'ring-arc', 'stroke-width': sw, 'stroke-linecap': 'round',
         'stroke-dasharray': c, transform: `rotate(-90 ${mid} ${mid})` });
       arc.style.stroke = levelColor(score);
@@ -766,7 +849,8 @@
     const note = el('textarea', { placeholder: 'What happened? (optional)' });
     openModal(close => [
       el('h3', { text: '⚑ Red flag moment' }),
-      el('p', { text: 'This logs an entry with a battery score of 0 at the current time.' }),
+      el('p', { text: 'This logs an entry with a battery score of 0 at the current time.' +
+        (SOCIAL_ON && social ? ` Your friends will see it${social.shareFlagNotes ? ', along with your note' : ''}.` : '') }),
       note,
       el('div', { class: 'row', style: 'margin-top:14px' },
         el('button', { class: 'btn ghost', onclick: close }, 'Cancel'),
@@ -1136,13 +1220,24 @@
   // ---------- Friends ----------
   // Friends sync through a Supabase project (see config.js and supabase/schema.sql).
   // Each device has a random secret that identifies it; the database is reachable only
-  // through the battery_* functions, which never return anyone's secret or details text.
+  // through the battery_* functions, which never return anyone's secret or activity details.
   const CFG = window.BATTERY_CONFIG || {};
   const SOCIAL_ON = !!(CFG.supabaseUrl && CFG.supabaseAnonKey);
   const LS_SOCIAL = 'battery.social.v1';
   const LS_FRIENDS = 'battery.friendsCache.v1';
-  let social = load(LS_SOCIAL, null); // { secret, name, code, shareFlags, dirty }
+  const ANIMALS = ['🦊', '🐼', '🐨', '🐯', '🦁', '🐸', '🐵', '🐧', '🦉', '🐙', '🦄', '🐢', '🐰', '🐻',
+                   '🐶', '🐱', '🐹', '🦝', '🦦', '🦥', '🐳', '🐬', '🦋', '🐝', '🦜', '🦩', '🐲', '🦔'];
+  const randomAnimal = () => ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+  const FLAG_DAYS = 14; // red flags friends can see
+
+  let social = load(LS_SOCIAL, null); // { secret, name, code, avatar, shareFlagNotes, dirty }
+  if (social) {
+    if (!social.avatar) { social.avatar = randomAnimal(); social.dirty = true; }
+    if (social.shareFlagNotes === undefined) { social.shareFlagNotes = true; social.dirty = true; }
+    delete social.shareFlags; // red flags are always shared now
+  }
   let friends = load(LS_FRIENDS, null);
+  let requests = [], suggestions = [];
   const saveSocial = () => social ? localStorage.setItem(LS_SOCIAL, JSON.stringify(social)) : localStorage.removeItem(LS_SOCIAL);
   const saveFriends = () => friends ? localStorage.setItem(LS_FRIENDS, JSON.stringify(friends)) : localStorage.removeItem(LS_FRIENDS);
   const normCode = (c) => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -1153,28 +1248,44 @@
     const key = CFG.supabaseAnonKey;
     const headers = { apikey: key, 'Content-Type': 'application/json' };
     if (key.startsWith('eyJ')) headers.Authorization = `Bearer ${key}`; // legacy JWT anon keys
-    const res = await fetch(`${CFG.supabaseUrl.replace(/\/+$/, '')}/rest/v1/rpc/${fn}`, { method: 'POST', headers, body: JSON.stringify(args) });
+    let res;
+    try {
+      res = await fetch(`${CFG.supabaseUrl.replace(/\/+$/, '')}/rest/v1/rpc/${fn}`, { method: 'POST', headers, body: JSON.stringify(args) });
+    } catch { throw new Error("Couldn't connect. Are you online?"); }
     const body = await res.json().catch(() => null);
-    if (!res.ok) throw new Error(body?.message || `Request failed (${res.status})`);
+    if (!res.ok) {
+      const msg = body?.message || `Request failed (${res.status})`;
+      // The app is newer than the database: supabase/schema.sql needs to be run again.
+      if (/could not find the function|does not exist/i.test(msg)) throw new Error('The friends database needs an update: run supabase/schema.sql again in Supabase (see README).');
+      throw new Error(msg);
+    }
     return body;
   }
+  const oops = (err) => toast(err.message);
 
-  // The entry friends see: your most recent activity (and red flag, if you opted in).
-  const latestShared = () => entries
-    .filter(e => e.type === 'activity' || social.shareFlags)
-    .reduce((a, e) => !a || e.ts > a.ts ? e : a, null);
+  // What friends see: your most recent entry (activity or red flag) and every red flag
+  // from the past two weeks, with its note unless you turned notes off.
+  function sharedStatus() {
+    const latest = entries.reduce((a, e) => !a || e.ts > a.ts ? e : a, null);
+    const flags = entries
+      .filter(e => e.type === 'redflag' && e.ts >= Date.now() - FLAG_DAYS * DAY)
+      .sort((a, b) => b.ts - a.ts).slice(0, 100)
+      .map(e => ({ at: new Date(e.ts).toISOString(), note: social.shareFlagNotes ? (e.details || null) : null }));
+    return { latest, flags };
+  }
 
   async function syncStatus() {
     if (!SOCIAL_ON || !social) return;
     const me = social;
-    const e = latestShared();
+    const { latest: e, flags } = sharedStatus();
     me.dirty = true; saveSocial();
     const code = await rpc('battery_sync', {
-      p_secret: me.secret, p_name: me.name,
+      p_secret: me.secret, p_name: me.name, p_avatar: me.avatar,
       p_battery: e ? e.battery : null,
       p_category: e && e.type === 'activity' ? e.category : null,
       p_is_flag: !!e && e.type === 'redflag',
       p_logged_at: e ? new Date(e.ts).toISOString() : null,
+      p_flags: flags,
     });
     if (social !== me) return; // stopped sharing meanwhile
     me.code = code; me.dirty = false; saveSocial();
@@ -1198,65 +1309,176 @@
     return days === 1 ? 'yesterday' : `${days}d ago`;
   };
 
+  // Animal inside a battery ring (the ring stays empty when there's no score).
+  function avatarEl(emoji, score, size = 48) {
+    return el('div', { class: 'avatar', style: `width:${size}px;height:${size}px` },
+      ring(score, size, size >= 60 ? 5 : 4),
+      el('span', { class: 'emoji', style: `font-size:${Math.round(size * 0.5)}px`, text: emoji || '🙂' }));
+  }
+
+  function avatarPicker(box, get, set) {
+    const render = () => box.replaceChildren(el('div', { class: 'animals', role: 'group', 'aria-label': 'Animal' },
+      ANIMALS.map(a => el('button', { class: 'animal', 'aria-pressed': get() === a, 'aria-label': a, onclick: () => { set(a); render(); } }, a))));
+    render();
+  }
+
+  let joinAvatar = randomAnimal();
+  avatarPicker($('join-avatars'), () => joinAvatar, a => { joinAvatar = a; });
+  avatarPicker($('settings-avatars'), () => social?.avatar, a => {
+    social.avatar = a; saveSocial(); renderMe();
+    syncStatus().then(() => toast('Animal updated')).catch(() => toast('Saved; will sync when online'));
+  });
+
+  // ----- Badge on the Friends tab: unread messages + incoming requests
+  function updateBadge() {
+    const n = (friends || []).reduce((a, f) => a + (f.unread || 0), 0) + requests.filter(r => r.incoming).length;
+    $('friends-badge').textContent = n > 9 ? '9+' : n;
+    $('friends-badge').classList.toggle('hidden', !n);
+  }
+
+  // ----- Fetch everything friends-related. Suggestions only while the Friends tab is open.
+  let refreshing = false;
+  async function refreshSocial() {
+    if (!SOCIAL_ON || !social || refreshing) return;
+    refreshing = true;
+    const onTab = currentTab() === 'friends';
+    try {
+      const [f, r, sg] = await Promise.all([
+        rpc('battery_friends', { p_secret: social.secret }),
+        rpc('battery_requests_list', { p_secret: social.secret }),
+        onTab ? rpc('battery_suggestions', { p_secret: social.secret }) : Promise.resolve(suggestions),
+      ]);
+      if (!social) return;
+      friends = f; saveFriends(); requests = r; suggestions = sg;
+    } catch (err) {
+      if (onTab) {
+        if (!friends?.length) $('friend-list').replaceChildren(el('div', { class: 'empty', text: err.message }));
+        else toast(err.message);
+      }
+      return;
+    } finally { refreshing = false; }
+    updateBadge();
+    if (currentTab() === 'friends') { renderRequests(); renderFriendList(); renderSuggestions(); }
+    if (chat) chat.refreshHead();
+  }
+  setInterval(() => { if (document.visibilityState === 'visible') refreshSocial(); }, 20000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshSocial(); });
+
+  function renderMe() {
+    if (!social) return;
+    const mine = entries.reduce((a, e) => !a || e.ts > a.ts ? e : a, null);
+    $('my-avatar').replaceChildren(avatarEl(social.avatar, mine ? mine.battery : null, 64));
+    $('my-name-label').textContent = social.name;
+    $('my-code').textContent = showCode(social.code);
+  }
+
   function renderFriendsTab() {
     $('friends-off').classList.toggle('hidden', SOCIAL_ON);
     $('friends-join').classList.toggle('hidden', !SOCIAL_ON || !!social);
     $('friends-on').classList.toggle('hidden', !SOCIAL_ON || !social);
     if (!SOCIAL_ON || !social) return;
-    $('my-code').textContent = showCode(social.code);
+    renderMe();
     $('my-name').value = social.name;
-    $('share-flags').checked = !!social.shareFlags;
-    if (!social.code || social.dirty) syncStatus().then(() => $('my-code').textContent = showCode(social?.code)).catch(() => {});
-    renderFriendList();
-    loadFriends();
+    $('share-flag-notes').checked = !!social.shareFlagNotes;
+    if (!social.code || social.dirty) syncStatus().then(renderMe).catch(() => {});
+    renderRequests(); renderFriendList(); renderSuggestions();
+    refreshSocial();
   }
 
-  async function loadFriends() {
-    if (!social) return;
-    try {
-      friends = await rpc('battery_friends', { p_secret: social.secret });
-      saveFriends();
-    } catch {
-      if (!friends) $('friend-list').replaceChildren(el('div', { class: 'empty', text: "Couldn't load friends. Check your connection." }));
-      return;
-    }
-    renderFriendList();
+  function renderRequests() {
+    $('requests-card').classList.toggle('hidden', !requests.length);
+    $('request-list').replaceChildren(...requests.map(r => {
+      const act = async (fn, done) => {
+        try { const out = await rpc(fn, { p_secret: social.secret, p_code: r.code }); toast(done(out)); }
+        catch (err) { oops(err); }
+        refreshSocial();
+      };
+      return el('div', { class: 'person' },
+        avatarEl(r.avatar, null, 44),
+        el('div', { class: 'main' },
+          el('div', { class: 'cat', text: r.name }),
+          el('div', { class: 'det wrap', text: r.incoming ? 'Wants to be friends' : 'Waiting for them to accept' })),
+        r.incoming
+          ? el('div', { class: 'acts-row' },
+              el('button', { class: 'btn small', onclick: () => act('battery_accept_request', n => `You and ${n} are now friends`) }, 'Accept'),
+              el('button', { class: 'btn ghost small', onclick: () => act('battery_remove_request', () => 'Request declined') }, 'Decline'))
+          : el('button', { class: 'btn ghost small', onclick: () => act('battery_remove_request', () => 'Request canceled') }, 'Cancel'));
+    }));
   }
+
+  const recentFlag = (f) => (f.flags || []).find(x => Date.now() - Date.parse(x.at) < 2 * DAY);
 
   function renderFriendList() {
     const box = $('friend-list');
     if (!friends) { box.replaceChildren(el('div', { class: 'empty', text: 'Loading…' })); return; }
-    if (!friends.length) { box.replaceChildren(el('div', { class: 'empty', text: 'No friends yet. Share your code or add theirs.' })); return; }
-    const sorted = friends.slice().sort((a, b) => (b.logged_at ? Date.parse(b.logged_at) : 0) - (a.logged_at ? Date.parse(a.logged_at) : 0));
+    if (!friends.length) { box.replaceChildren(el('div', { class: 'empty', text: 'No friends yet. Share your code or send a request.' })); return; }
+    const sorted = friends.slice().sort((a, b) => (b.unread - a.unread) || ((b.logged_at ? Date.parse(b.logged_at) : 0) - (a.logged_at ? Date.parse(a.logged_at) : 0)));
     box.replaceChildren(...sorted.map(f => {
       const ts = f.logged_at ? Date.parse(f.logged_at) : null;
       const has = f.battery != null && ts;
+      const score = has ? Number(f.battery) : null;
       const status = !has ? 'No check-ins yet' : `${f.is_flag ? '⚑ Red flag' : f.category || 'Check-in'} · ${relTime(ts)}`;
-      const initials = f.name.trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
-      return el('div', { class: 'entry' + (has && Date.now() - ts > DAY ? ' stale' : ''), style: 'align-items:center' },
-        el('div', { class: 'avatar' }, ring(has ? Number(f.battery) : null, 46, 4, initials, true)),
+      const flag = recentFlag(f);
+      return el('button', { class: 'person friend' + (has && Date.now() - ts > DAY ? ' stale' : ''), onclick: () => openChat(f.code) },
+        avatarEl(f.avatar, score, 48),
         el('div', { class: 'main' },
-          el('div', { class: 'cat', text: f.name }),
-          el('div', { class: 'det' + (f.is_flag ? ' flag' : ''), style: f.is_flag ? 'color:var(--danger)' : '', text: status })),
+          el('div', { class: 'cat' }, f.name, f.unread ? el('span', { class: 'badge inline', text: f.unread }) : null),
+          el('div', { class: 'det', style: f.is_flag ? 'color:var(--danger)' : '', text: status }),
+          // The latest entry is already the red flag: just add its note. Otherwise mention the recent flag.
+          !flag ? null : f.is_flag
+            ? (flag.note ? el('div', { class: 'flag-line', text: `“${flag.note}”` }) : null)
+            : el('div', { class: 'flag-line', text: `⚑ Red flag ${relTime(Date.parse(flag.at))}${flag.note ? ': ' + flag.note : ''}` })),
         el('div', { class: 'right' },
           has ? el('div', { class: 'row', style: 'gap:8px;justify-content:flex-end' },
-            el('span', { class: 'score', text: fmt(Number(f.battery)) }), batteryIcon(Number(f.battery))) : null,
-          el('button', { class: 'del', onclick: async () => {
-            if (!confirm(`Remove ${f.name}? You'll stop seeing each other.`)) return;
-            try { await rpc('battery_remove_friend', { p_secret: social.secret, p_code: f.code }); }
-            catch (err) { toast(err.message); return; }
-            friends = friends.filter(x => x.code !== f.code); saveFriends(); renderFriendList();
-          }}, 'Remove')));
+            el('span', { class: 'score', text: fmt(score) }), batteryIcon(score)) : null,
+          el('div', { class: 'chev', text: 'Message ›' })));
     }));
   }
+
+  function renderSuggestions() {
+    $('suggest-card').classList.toggle('hidden', !suggestions.length);
+    $('suggest-list').replaceChildren(...suggestions.map(sg => {
+      const names = sg.mutual_names || [];
+      const via = sg.mutuals <= names.length ? names.join(' and ') : `${names.join(', ')} +${sg.mutuals - names.length}`;
+      const btn = el('button', { class: 'btn ghost small', onclick: async () => {
+        btn.disabled = true;
+        try { const out = await sendRequest(sg.code); btn.textContent = out.status === 'friends' ? 'Friends' : 'Requested'; }
+        catch (err) { oops(err); btn.disabled = false; }
+      }}, 'Add');
+      return el('div', { class: 'person' },
+        avatarEl(sg.avatar, null, 44),
+        el('div', { class: 'main' },
+          el('div', { class: 'cat', text: sg.name }),
+          el('div', { class: 'det', text: `${sg.mutuals} mutual friend${sg.mutuals === 1 ? '' : 's'}: ${via}` })),
+        btn);
+    }));
+  }
+
+  async function sendRequest(code) {
+    const out = await rpc('battery_request_friend', { p_secret: social.secret, p_code: code });
+    toast(out.status === 'friends' ? `You and ${out.name} are now friends` : `Request sent to ${out.name}`);
+    refreshSocial();
+    return out;
+  }
+
+  async function addFriend() {
+    const code = normCode($('friend-code').value);
+    if (code.length !== 6) { toast('Friend codes are 6 characters'); return; }
+    if (code === social.code) { toast("That's your own code"); return; }
+    try { await sendRequest(code); $('friend-code').value = ''; }
+    catch (err) { oops(err); }
+  }
+  $('add-friend').addEventListener('click', addFriend);
+  $('friend-code').addEventListener('keydown', e => { if (e.key === 'Enter') addFriend(); });
+  $('refresh-friends').addEventListener('click', () => { refreshSocial(); toast('Refreshing…'); });
 
   $('join-btn').addEventListener('click', async () => {
     const name = $('join-name').value.trim();
     if (!name) { toast('Enter a name your friends will recognize'); $('join-name').focus(); return; }
     const btn = $('join-btn'); btn.disabled = true; btn.textContent = 'Setting up…';
-    social = { secret: randomSecret(), name, code: null, shareFlags: false, dirty: true };
+    social = { secret: randomSecret(), name, code: null, avatar: joinAvatar, shareFlagNotes: true, dirty: true };
     try { await syncStatus(); }
-    catch (err) { social = null; saveSocial(); toast(err.message === 'Failed to fetch' ? "Couldn't connect. Are you online?" : err.message); }
+    catch (err) { social = null; saveSocial(); oops(err); }
     btn.disabled = false; btn.textContent = 'Start sharing';
     friends = social ? [] : null; saveFriends();
     renderFriendsTab();
@@ -1275,43 +1497,129 @@
     catch { toast(`Your code is ${showCode(social.code)}`); }
   });
 
-  async function addFriend() {
-    const code = normCode($('friend-code').value);
-    if (code.length !== 6) { toast('Friend codes are 6 characters'); return; }
-    if (code === social.code) { toast("That's your own code"); return; }
-    try {
-      const name = await rpc('battery_add_friend', { p_secret: social.secret, p_code: code });
-      $('friend-code').value = '';
-      toast(`Added ${name}`);
-      loadFriends();
-    } catch (err) { toast(err.message === 'Failed to fetch' ? "Couldn't connect. Are you online?" : err.message); }
-  }
-  $('add-friend').addEventListener('click', addFriend);
-  $('friend-code').addEventListener('keydown', e => { if (e.key === 'Enter') addFriend(); });
-  $('refresh-friends').addEventListener('click', () => { loadFriends(); toast('Refreshing…'); });
-
   $('save-name').addEventListener('click', () => {
     const name = $('my-name').value.trim();
     if (!name) { toast('Name can’t be empty'); return; }
-    social.name = name; saveSocial();
+    social.name = name; saveSocial(); renderMe();
     syncStatus().then(() => toast('Name updated')).catch(() => toast('Saved; will sync when online'));
   });
-  $('share-flags').addEventListener('change', (e) => { social.shareFlags = e.target.checked; saveSocial(); queueSync(); });
+  $('share-flag-notes').addEventListener('change', (e) => { social.shareFlagNotes = e.target.checked; saveSocial(); queueSync(); });
 
   $('leave-btn').addEventListener('click', async () => {
-    if (!confirm('Stop sharing? Your friend code and friends list will be deleted. Your own entries stay on this device.')) return;
+    if (!confirm('Stop sharing? Your friend code, friends, requests and messages will be deleted. Your own entries stay on this device.')) return;
     try { await rpc('battery_leave', { p_secret: social.secret }); }
-    catch (err) { toast(err.message === 'Failed to fetch' ? "Couldn't connect. Are you online?" : err.message); return; }
-    social = null; saveSocial(); friends = null; saveFriends();
-    renderFriendsTab(); toast('Sharing stopped');
+    catch (err) { oops(err); return; }
+    social = null; saveSocial(); friends = null; saveFriends(); requests = []; suggestions = [];
+    updateBadge(); renderFriendsTab(); toast('Sharing stopped');
   });
 
+  // ----- Messages: a full-screen chat with one friend, refreshed every few seconds while open.
+  let chat = null;
+  function openChat(code) {
+    if (chat) chat.close();
+    const friend = () => (friends || []).find(f => f.code === code);
+    const f = friend(); if (!f) return;
+    const head = el('div', { class: 'chat-who' });
+    const flagsBox = el('div', { class: 'chat-flags hidden' });
+    const list = el('div', { class: 'chat-list' }, el('div', { class: 'empty', text: 'Loading…' }));
+    const input = el('textarea', { rows: 1, maxlength: 1000, placeholder: `Message ${f.name}`, 'aria-label': 'Message' });
+    const send = el('button', { class: 'btn send', 'aria-label': 'Send' }, 'Send');
+    const remove = el('button', { class: 'btn ghost small', onclick: async () => {
+      const cur = friend();
+      if (!cur || !confirm(`Remove ${cur.name}? You'll stop seeing each other and can't message until you're friends again.`)) return;
+      try { await rpc('battery_remove_friend', { p_secret: social.secret, p_code: code }); }
+      catch (err) { oops(err); return; }
+      friends = friends.filter(x => x.code !== code); saveFriends(); close(); renderFriendList(); toast(`Removed ${cur.name}`);
+    }}, 'Remove');
+    const overlay = el('div', { class: 'chat', role: 'dialog', 'aria-modal': 'true', 'aria-label': `Messages with ${f.name}` },
+      el('div', { class: 'chat-head' },
+        el('button', { class: 'chat-back', 'aria-label': 'Back', onclick: () => close() }, '‹'), head, remove),
+      flagsBox, list,
+      el('div', { class: 'chat-input' }, input, send));
+
+    const refreshHead = () => {
+      const cur = friend(); if (!cur) return;
+      const ts = cur.logged_at ? Date.parse(cur.logged_at) : null, has = cur.battery != null && ts;
+      head.replaceChildren(avatarEl(cur.avatar, has ? Number(cur.battery) : null, 40),
+        el('div', {}, el('div', { class: 'cat', text: cur.name }),
+          el('div', { class: 'det', text: has ? `${fmt(Number(cur.battery))} · ${levelWord(Number(cur.battery))} · ${relTime(ts)}` : 'No check-ins yet' })));
+      const flags = cur.flags || [];
+      flagsBox.classList.toggle('hidden', !flags.length);
+      flagsBox.replaceChildren(el('div', { class: 'flags-title', text: `⚑ ${flags.length} red flag${flags.length === 1 ? '' : 's'} in the past ${FLAG_DAYS} days` }),
+        ...flags.slice(0, 5).map(x => {
+          const d = new Date(x.at);
+          return el('div', { class: 'flag-item' }, el('span', { class: 'when', text: `${d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })} ${timeStr(d)}` }),
+            el('span', { text: x.note || 'No note' }));
+        }));
+    };
+
+    let sig = '';
+    const render = (msgs) => {
+      const nextSig = msgs.map(m => m.id + (m.seen ? 's' : '')).join();
+      if (nextSig === sig) return;
+      sig = nextSig;
+      const nearBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 80;
+      if (!msgs.length) { list.replaceChildren(el('div', { class: 'empty', text: `Say hi to ${friend()?.name || 'your friend'} 👋` })); return; }
+      let lastDay = '';
+      const lastMine = msgs.map(m => m.mine).lastIndexOf(true);
+      list.replaceChildren(...msgs.flatMap((m, i) => {
+        const d = new Date(m.created_at), k = dayKey(d), out = [];
+        if (k !== lastDay) {
+          lastDay = k;
+          out.push(el('div', { class: 'day-sep', text: k === dayKey(new Date()) ? 'Today' : d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) }));
+        }
+        out.push(el('div', { class: 'msg ' + (m.mine ? 'mine' : 'theirs') },
+          el('div', { class: 'bubble', text: m.body }),
+          el('div', { class: 'meta', text: timeStr(d) + (i === lastMine && m.seen ? ' · Seen' : '') })));
+        return out;
+      }));
+      if (nearBottom || !list.dataset.loaded) list.scrollTop = list.scrollHeight;
+      list.dataset.loaded = '1';
+    };
+
+    const poll = async () => {
+      try { render(await rpc('battery_get_messages', { p_secret: social.secret, p_code: code })); }
+      catch (err) { if (!list.dataset.loaded) list.replaceChildren(el('div', { class: 'empty', text: err.message })); }
+    };
+
+    const doSend = async () => {
+      const body = input.value.trim();
+      if (!body) return;
+      send.disabled = true;
+      try {
+        await rpc('battery_send_message', { p_secret: social.secret, p_code: code, p_body: body });
+        input.value = ''; autosize(); await poll(); list.scrollTop = list.scrollHeight;
+      } catch (err) { oops(err); }
+      send.disabled = false; input.focus();
+    };
+    const autosize = () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 120) + 'px'; };
+    send.addEventListener('click', doSend);
+    input.addEventListener('input', autosize);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); doSend(); } });
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    document.addEventListener('keydown', onKey);
+
+    const timer = setInterval(() => { if (document.visibilityState === 'visible') poll(); }, 4000);
+    function close() {
+      clearInterval(timer); document.removeEventListener('keydown', onKey);
+      overlay.remove(); document.body.classList.remove('no-scroll'); chat = null;
+      refreshSocial();
+    }
+    chat = { close, refreshHead };
+    document.body.classList.add('no-scroll');
+    document.body.append(overlay);
+    refreshHead(); poll();
+    // Opening the chat reads their messages, so clear that friend's unread count right away.
+    f.unread = 0; saveFriends(); updateBadge();
+  }
+
   if (social?.dirty) queueSync();
+  refreshSocial();
 
   // ---------- Backup ----------
   $('export-btn').addEventListener('click', async () => {
     // The friends identity rides along so a restored phone keeps its friend code and friends.
-    const sharing = social ? { secret: social.secret, name: social.name, code: social.code, shareFlags: !!social.shareFlags } : null;
+    const sharing = social ? { secret: social.secret, name: social.name, code: social.code, avatar: social.avatar, shareFlagNotes: !!social.shareFlagNotes } : null;
     const data = JSON.stringify({ app: 'battery', version: 1, exportedAt: new Date().toISOString(), entries, customCats, social: sharing }, null, 2);
     const name = `battery-backup-${dayKey(new Date())}.json`;
     const file = new File([data], name, { type: 'application/json' });
@@ -1341,7 +1649,8 @@
     const cats = (Array.isArray(data.customCats) ? data.customCats : []).filter(c => typeof c === 'string' && !allCats().includes(c));
     customCats = customCats.concat(cats); saveCats();
     if (!social && data.social && typeof data.social.secret === 'string' && typeof data.social.name === 'string') {
-      social = { secret: data.social.secret, name: data.social.name, code: data.social.code || null, shareFlags: !!data.social.shareFlags, dirty: true };
+      social = { secret: data.social.secret, name: data.social.name, code: data.social.code || null,
+        avatar: data.social.avatar || randomAnimal(), shareFlagNotes: data.social.shareFlagNotes !== false, dirty: true };
       saveSocial(); queueSync();
     }
 
