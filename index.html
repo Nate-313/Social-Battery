@@ -26,7 +26,14 @@
     --accent-soft: #e6effa;
     --danger: #e34948;
     --danger-soft: #fdecec;
-    --radius: 14px;
+    --accent-2: #5ea3ef;
+    --good: #1f9d55;
+    --good-2: #45c584;
+    --warn: #d18f00;
+    --warn-2: #f3c044;
+    --danger-2: #f07f7e;
+    --shadow: 0 1px 2px rgba(20,20,10,.04), 0 6px 20px rgba(20,20,10,.05);
+    --radius: 16px;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -42,23 +49,31 @@
       --accent-soft: #1d2a3b;
       --danger: #e66767;
       --danger-soft: #3a1f1f;
+      --accent-2: #6aacf3;
+      --good: #2fb36a;
+      --good-2: #62d99a;
+      --warn: #e0a414;
+      --warn-2: #f7d06a;
+      --danger-2: #f19a9a;
+      --shadow: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.3);
     }
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
   body {
     font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
+    background: radial-gradient(900px 420px at 50% -160px, var(--accent-soft), transparent 75%) no-repeat, var(--bg);
+    min-height: 100vh;
     color: var(--text);
     -webkit-font-smoothing: antialiased;
     padding-bottom: calc(84px + env(safe-area-inset-bottom));
   }
   main { max-width: 560px; margin: 0 auto; padding: 20px 16px; }
-  h1 { font-size: 22px; font-weight: 650; margin: 4px 0 16px; letter-spacing: -0.01em; }
+  h1 { font-size: 26px; font-weight: 700; margin: 4px 0 16px; letter-spacing: -0.02em; }
   h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
        color: var(--text-3); margin: 0 0 10px; }
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-          padding: 16px; margin-bottom: 14px; }
+          padding: 16px; margin-bottom: 14px; box-shadow: var(--shadow); }
   .muted { color: var(--text-3); }
   .hidden { display: none !important; }
   button { font: inherit; color: inherit; cursor: pointer; }
@@ -68,12 +83,16 @@
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
     display: flex; justify-content: center; gap: 8px;
     padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
-    background: var(--surface); border-top: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 82%, transparent); border-top: 1px solid var(--border);
+    -webkit-backdrop-filter: saturate(1.6) blur(16px); backdrop-filter: saturate(1.6) blur(16px);
   }
   nav.tabs button {
     flex: 1; max-width: 160px; border: 0; background: transparent; padding: 10px;
-    border-radius: 10px; font-weight: 600; color: var(--text-3);
+    border-radius: 12px; font-weight: 600; color: var(--text-3); font-size: 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 10px;
+    transition: background .2s, color .2s;
   }
+  nav.tabs svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   nav.tabs button[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); }
 
   /* Chips */
@@ -118,13 +137,54 @@
   .btn.flag { background: var(--danger-soft); color: var(--danger); border: 1px solid transparent; }
   .row { display: flex; gap: 10px; align-items: center; }
   .row > * { flex: 1; }
-  .live-score { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .live-score .val { font-size: 22px; font-weight: 650; font-variant-numeric: tabular-nums; }
 
   /* Battery icon */
   .battery { display: inline-flex; align-items: center; gap: 2px; vertical-align: middle; }
   .battery .body { width: 34px; height: 16px; border: 2px solid var(--text-2); border-radius: 4px; padding: 1.5px; }
   .battery .fill { display: block; height: 100%; border-radius: 1.5px; background: var(--accent); }
+  .lvl-good { background: linear-gradient(90deg, var(--good), var(--good-2)) !important; }
+  .lvl-warn { background: linear-gradient(90deg, var(--warn), var(--warn-2)) !important; }
+  .lvl-low  { background: linear-gradient(90deg, var(--danger), var(--danger-2)) !important; }
+
+  /* Big battery on the check-in card */
+  .bb { display: flex; align-items: center; gap: 4px; }
+  .bb-body { position: relative; flex: 1; height: 76px; border: 3px solid var(--text-2); border-radius: 18px; padding: 5px; }
+  .bb-fill { position: relative; overflow: hidden; height: 100%; width: 0; border-radius: 12px; background: var(--grid);
+             transition: width .8s cubic-bezier(.2,.9,.25,1); }
+  .bb-fill::after { content: ''; position: absolute; inset: 0;
+    background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.45) 50%, transparent 65%);
+    transform: translateX(-100%); animation: shimmer 2.8s ease-in-out infinite; }
+  .bb-ticks { position: absolute; inset: 5px; display: flex; pointer-events: none; }
+  .bb-ticks span { flex: 1; border-right: 2px solid color-mix(in srgb, var(--surface) 70%, transparent); }
+  .bb-ticks span:last-child { border-right: 0; }
+  .bb-cap { width: 8px; height: 28px; border-radius: 0 6px 6px 0; background: var(--text-2); }
+  .bb-meta { display: flex; align-items: baseline; justify-content: space-between; margin: 12px 0 14px; gap: 10px; }
+  .bb-val { font-size: 34px; font-weight: 750; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1; }
+  .bb-val small { font-size: 15px; font-weight: 600; color: var(--text-3); margin-left: 3px; }
+  .bb-word { font-size: 14px; font-weight: 600; color: var(--text-2); display: inline-flex; align-items: center; gap: 7px; }
+  .bb-word .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--grid); }
+  @keyframes shimmer { 0%, 35% { transform: translateX(-100%); } 75%, 100% { transform: translateX(100%); } }
+
+  /* Ring gauges */
+  .ring .ring-arc { transition: stroke-dashoffset 1s cubic-bezier(.2,.9,.25,1); }
+  .ring text.ring-text { font-size: 17px; font-weight: 700; fill: var(--text); font-variant-numeric: tabular-nums; }
+  .ring text.ring-text.small { font-size: 14px; font-weight: 650; }
+  .hero > div { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .hero .big { height: 68px; display: flex; align-items: center; }
+  .avatar { flex: none; }
+
+  /* Chart animation */
+  .draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.1s cubic-bezier(.3,.8,.3,1) forwards; }
+  .fade { opacity: 0; animation: fade .9s ease .25s forwards; }
+  .pop { transform-box: fill-box; transform-origin: center; animation: pop .45s cubic-bezier(.3,1.6,.5,1) both; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes fade { to { opacity: 1; } }
+  @keyframes pop { from { transform: scale(0); } }
+  @keyframes grow { from { transform: scaleX(0); } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .draw { stroke-dashoffset: 0; } .fade { opacity: 1; }
+  }
   .battery .cap { width: 3px; height: 7px; background: var(--text-2); border-radius: 0 2px 2px 0; }
   .battery.zero .body { border-color: var(--danger); }
   .battery.zero .cap { background: var(--danger); }
@@ -159,9 +219,10 @@
 
   .bar-row { display: grid; grid-template-columns: 96px 1fr 64px; align-items: center; gap: 10px; padding: 5px 0; }
   .bar-row .name { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .bar-track { height: 14px; position: relative; background:
+  .bar-track { height: 12px; position: relative; background:
       repeating-linear-gradient(to right, var(--grid) 0 1px, transparent 1px 25%); border-radius: 0; }
-  .bar { height: 100%; background: var(--accent); border-radius: 0 4px 4px 0; min-width: 2px; }
+  .bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius: 0 4px 4px 0; min-width: 2px;
+         transform-origin: left; animation: grow .8s cubic-bezier(.2,.9,.25,1) both; }
   .bar-row .v { font-size: 14px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
   .bar-row .v small { display: block; font-weight: 400; color: var(--text-3); font-size: 11px; }
   .bar-row.none .name, .bar-row.none .v { color: var(--text-3); font-weight: 400; }
@@ -251,12 +312,14 @@
     </div>
 
     <div class="card">
-      <div class="live-score">
-        <span class="muted">Battery score</span>
-        <span class="row" style="flex:0 0 auto;gap:10px">
-          <span class="val" id="live-val">–</span>
-          <span id="live-battery"></span>
-        </span>
+      <h2>Battery score</h2>
+      <div class="bb" aria-hidden="true">
+        <div class="bb-body"><div class="bb-fill" id="bb-fill"></div><div class="bb-ticks"><span></span><span></span><span></span><span></span></div></div>
+        <div class="bb-cap"></div>
+      </div>
+      <div class="bb-meta">
+        <div class="bb-val" id="live-val">–</div>
+        <div class="bb-word"><span class="dot" id="bb-dot"></span><span id="bb-word">Answer the questions</span></div>
       </div>
       <button class="btn" id="save-btn" disabled>Save entry</button>
     </div>
@@ -274,8 +337,8 @@
 
     <div class="card">
       <div class="hero">
-        <div><div class="big" id="hero-latest">–</div><div class="cap-l">Latest battery</div></div>
-        <div><div class="big" id="hero-avg">–</div><div class="cap-l">Day average</div></div>
+        <div><div class="big" id="hero-latest"></div><div class="cap-l">Latest battery</div></div>
+        <div><div class="big" id="hero-avg"></div><div class="cap-l">Day average</div></div>
         <div><div class="big" id="hero-count">0</div><div class="cap-l">Entries</div></div>
       </div>
     </div>
@@ -389,9 +452,9 @@
 </main>
 
 <nav class="tabs" role="tablist">
-  <button role="tab" data-tab="log" aria-selected="true">Log</button>
-  <button role="tab" data-tab="data" aria-selected="false">Data</button>
-  <button role="tab" data-tab="friends" aria-selected="false">Friends</button>
+  <button role="tab" data-tab="log" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="7" width="17" height="10" rx="2.5"/><path d="M22 10.5v3"/><path d="M11.5 8.5 8.5 12h4l-3 3.5"/></svg>Log</button>
+  <button role="tab" data-tab="data" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18"/><path d="M4 16l5-6 4 3 7-8"/></svg>Data</button>
+  <button role="tab" data-tab="friends" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.4 0 4 1.5 4.6 4.5"/></svg>Friends</button>
 </nav>
 
 <div class="toast" id="toast"></div>
@@ -473,11 +536,77 @@
     return n;
   };
 
+  // Battery level bands: drained / running low / charged. Always shown with a number or word too.
+  const level = (score) => score == null ? null : score < 1.5 ? 'low' : score < 2.5 ? 'warn' : 'good';
+  const levelColor = (score) => ({ low: 'var(--danger)', warn: 'var(--warn)', good: 'var(--good)' })[level(score)] || 'var(--grid)';
+  const levelWord = (score) => score == null ? 'Answer the questions' : score === 0 ? 'Red flag' : score < 1.5 ? 'Drained'
+    : score < 2.5 ? 'Running low' : score < 3.5 ? 'Charged' : 'Fully charged';
+
   function batteryIcon(score) {
     const pct = Math.max(0, Math.min(1, score / 4)) * 100;
     return el('span', { class: 'battery' + (score === 0 ? ' zero' : ''), 'aria-hidden': 'true' },
-      el('span', { class: 'body' }, el('span', { class: 'fill', style: `width:${pct}%` })),
+      el('span', { class: 'body' }, el('span', { class: 'fill lvl-' + level(score), style: `width:${pct}%` })),
       el('span', { class: 'cap' }));
+  }
+
+  // Circular gauge for a 0–4 score, with optional centered label. Animates from empty unless `quiet`.
+  function ring(score, size, sw, label, small) {
+    const r = (size - sw) / 2, c = 2 * Math.PI * r, mid = size / 2;
+    const svg = svgEl('svg', { width: size, height: size, viewBox: `0 0 ${size} ${size}`, class: 'ring', 'aria-hidden': 'true' });
+    svg.style.overflow = 'visible';
+    svg.append(svgEl('circle', { cx: mid, cy: mid, r, fill: 'none', stroke: 'var(--grid)', 'stroke-width': sw }));
+    if (score != null) {
+      const arc = svgEl('circle', { cx: mid, cy: mid, r, fill: 'none', class: 'ring-arc', 'stroke-width': sw, 'stroke-linecap': 'round',
+        'stroke-dasharray': c, transform: `rotate(-90 ${mid} ${mid})` });
+      arc.style.stroke = levelColor(score);
+      const target = c * (1 - Math.max(0.001, Math.min(1, score / 4)));
+      arc.style.strokeDashoffset = quiet ? target : c;
+      if (!quiet) requestAnimationFrame(() => requestAnimationFrame(() => { arc.style.strokeDashoffset = target; }));
+      svg.append(arc);
+    }
+    if (label != null) svg.append(svgEl('text', { x: mid, y: mid + (small ? 5 : 6), 'text-anchor': 'middle', class: 'ring-text' + (small ? ' small' : '') }, label));
+    return svg;
+  }
+  let quiet = false; // true while re-rendering for a resize, so charts don't replay their animation
+
+  // Smooth curve through points (Catmull-Rom), with control points clamped so it never overshoots 0–4.
+  function smoothPath(pts) {
+    let d = `M${pts[0][0]},${pts[0][1]}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      const lo = Math.min(p1[1], p2[1]), hi = Math.max(p1[1], p2[1]);
+      const cl = (v) => Math.min(hi, Math.max(lo, v));
+      const c1 = [p1[0] + (p2[0] - p0[0]) / 6, cl(p1[1] + (p2[1] - p0[1]) / 6)];
+      const c2 = [p2[0] - (p3[0] - p1[0]) / 6, cl(p2[1] - (p3[1] - p1[1]) / 6)];
+      d += `C${c1} ${c2} ${p2}`;
+    }
+    return d;
+  }
+
+  // Line + soft gradient area for one run of points.
+  function drawSeries(svg, pts, base, gradId) {
+    if (pts.length < 2) return;
+    const line = smoothPath(pts);
+    const area = svgEl('path', { d: `${line}L${pts[pts.length - 1][0]},${base}L${pts[0][0]},${base}Z`, fill: `url(#${gradId})`, class: quiet ? '' : 'fade' });
+    const path = svgEl('path', { d: line, fill: 'none', 'stroke-width': 2.5, 'stroke-linejoin': 'round', 'stroke-linecap': 'round', pathLength: 1, class: quiet ? '' : 'draw' });
+    path.style.stroke = 'var(--accent)';
+    svg.append(area, path);
+  }
+
+  function addGradient(svg, id) {
+    const g = svgEl('linearGradient', { id, x1: 0, y1: 0, x2: 0, y2: 1 });
+    const a = svgEl('stop', { offset: '0%' }), b = svgEl('stop', { offset: '100%' });
+    a.style.stopColor = 'var(--accent)'; a.style.stopOpacity = 0.32;
+    b.style.stopColor = 'var(--accent)'; b.style.stopOpacity = 0;
+    g.append(a, b);
+    const defs = svgEl('defs', {}); defs.append(g); svg.append(defs);
+  }
+
+  function dot(svg, x, y, r, color, i) {
+    const c = svgEl('circle', { cx: x, cy: y, r, 'stroke-width': 2.5, class: quiet ? '' : 'pop' });
+    c.style.fill = color; c.style.stroke = 'var(--surface)';
+    if (!quiet) c.style.animationDelay = `${0.3 + Math.min(i, 30) * 0.03}s`;
+    svg.append(c); return c;
   }
 
   let toastTimer;
@@ -561,8 +690,11 @@
   function updateSave() {
     const s = currentScore();
     const done = Object.keys(form.answers).length === QUESTIONS.length;
-    $('live-val').textContent = s == null ? '–' : fmt(s) + (done ? '' : '…');
-    $('live-battery').replaceChildren(batteryIcon(s ?? 0));
+    $('live-val').replaceChildren(s == null ? '–' : fmt(s) + (done ? '' : '…'), el('small', { text: '/ 4' }));
+    $('bb-fill').style.width = s == null ? '0%' : `${Math.max(4, s / 4 * 100)}%`;
+    $('bb-fill').className = 'bb-fill' + (s == null ? '' : ' lvl-' + level(s));
+    $('bb-dot').style.background = levelColor(s);
+    $('bb-word').textContent = levelWord(s);
     $('save-btn').disabled = !(form.category && done);
     $('save-btn').textContent = !form.category ? 'Pick an activity' : !done ? `Answer ${QUESTIONS.length - Object.keys(form.answers).length} more` : 'Save entry';
   }
@@ -714,8 +846,9 @@
     $('day-next').disabled = diff <= 0;
 
     const de = dayEntries();
-    $('hero-latest').textContent = de.length ? fmt(de[de.length - 1].battery) : '–';
-    $('hero-avg').textContent = de.length ? fmt(avg(de.map(e => e.battery))) : '–';
+    const latest = de.length ? de[de.length - 1].battery : null, dayAvg = de.length ? avg(de.map(e => e.battery)) : null;
+    $('hero-latest').replaceChildren(ring(latest, 66, 7, latest == null ? '–' : fmt(latest)));
+    $('hero-avg').replaceChildren(ring(dayAvg, 66, 7, dayAvg == null ? '–' : fmt(dayAvg)));
     $('hero-count').textContent = de.length;
 
     renderChart(de);
@@ -736,8 +869,7 @@
     const x1 = Math.max(22, Math.ceil(Math.max(...hours)));
     const X = (h) => m.l + (h - x0) / (x1 - x0) * (W - m.l - m.r);
     const Y = (v) => m.t + (1 - v / 4) * (H - m.t - m.b);
-    const NS = 'http://www.w3.org/2000/svg';
-    const s = (tag, attrs) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; };
+    const s = svgEl;
 
     const svg = s('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', role: 'img', 'aria-label': 'Battery score over the day' });
     svg.style.display = 'block'; svg.style.overflow = 'visible';
@@ -753,21 +885,15 @@
       t.textContent = h === 0 || h === 24 ? '12a' : h === 12 ? '12p' : h < 12 ? `${h}a` : `${h - 12}p`;
       svg.append(t);
     }
-    // Line
+    // Smooth line with gradient area
+    addGradient(svg, 'grad-day');
     const pts = de.map((e, i) => [X(hours[i]), Y(e.battery)]);
-    if (pts.length > 1) {
-      svg.append(s('path', { d: 'M' + pts.map(p => p.join(',')).join('L'), fill: 'none', stroke: 'var(--accent)',
-        'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
-    }
+    drawSeries(svg, pts, Y(0), 'grad-day');
     // Crosshair (hidden until hover)
     const cross = s('line', { y1: m.t, y2: H - m.b, stroke: 'var(--text-3)', 'stroke-width': 1, 'stroke-dasharray': '3 3', visibility: 'hidden' });
     svg.append(cross);
     // Markers (red flags in red, with surface ring)
-    const dots = pts.map(([px, py], i) => {
-      const flag = de[i].type === 'redflag';
-      const c = s('circle', { cx: px, cy: py, r: 5, fill: flag ? 'var(--danger)' : 'var(--accent)', stroke: 'var(--surface)', 'stroke-width': 2 });
-      svg.append(c); return c;
-    });
+    const dots = pts.map(([px, py], i) => dot(svg, px, py, 5, de[i].type === 'redflag' ? 'var(--danger)' : 'var(--accent)', i));
 
     const tip = el('div', { class: 'tooltip hidden' });
     wrap.append(svg, tip);
@@ -973,17 +1099,17 @@
 
     const pts = days.map((x, i) => x.xs.length ? { i, x: X(i), y: Y(avg(x.xs.map(e => e.battery))), day: x } : null);
     // Only connect consecutive logged days; a gap in logging is a gap in the line.
-    let d = '';
-    pts.forEach((p, i) => { if (p) d += (pts[i - 1] ? 'L' : 'M') + p.x + ',' + p.y; });
-    if (/L/.test(d)) svg.append(svgEl('path', { d, fill: 'none', stroke: 'var(--accent)', 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+    addGradient(svg, 'grad-trend');
+    let run = [];
+    [...pts, null].forEach(p => {
+      if (p) { run.push([p.x, p.y]); return; }
+      drawSeries(svg, run, Y(0), 'grad-trend'); run = [];
+    });
 
     const cross = svgEl('line', { y1: m.t, y2: H - m.b, stroke: 'var(--text-3)', 'stroke-width': 1, 'stroke-dasharray': '3 3', visibility: 'hidden' });
     svg.append(cross);
     const real = pts.filter(Boolean);
-    const dots = real.map(p => {
-      const c = svgEl('circle', { cx: p.x, cy: p.y, r: 4, fill: 'var(--accent)', stroke: 'var(--surface)', 'stroke-width': 2 });
-      svg.append(c); return c;
-    });
+    const dots = real.map((p, i) => dot(svg, p.x, p.y, 4, 'var(--accent)', i));
 
     const tip = el('div', { class: 'tooltip hidden' });
     wrap.append(svg, tip);
@@ -1106,7 +1232,9 @@
       const ts = f.logged_at ? Date.parse(f.logged_at) : null;
       const has = f.battery != null && ts;
       const status = !has ? 'No check-ins yet' : `${f.is_flag ? '⚑ Red flag' : f.category || 'Check-in'} · ${relTime(ts)}`;
-      return el('div', { class: 'entry' + (has && Date.now() - ts > DAY ? ' stale' : '') },
+      const initials = f.name.trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      return el('div', { class: 'entry' + (has && Date.now() - ts > DAY ? ' stale' : ''), style: 'align-items:center' },
+        el('div', { class: 'avatar' }, ring(has ? Number(f.battery) : null, 46, 4, initials, true)),
         el('div', { class: 'main' },
           el('div', { class: 'cat', text: f.name }),
           el('div', { class: 'det' + (f.is_flag ? ' flag' : ''), style: f.is_flag ? 'color:var(--danger)' : '', text: status })),
@@ -1221,7 +1349,10 @@
     toast(added.length ? `Imported ${added.length} entr${added.length === 1 ? 'y' : 'ies'}` : 'Nothing new to import');
   });
 
-  window.addEventListener('resize', () => { if (currentTab() === 'data') { renderChart(dayEntries()); renderTrends(); } });
+  window.addEventListener('resize', () => {
+    if (currentTab() !== 'data') return;
+    quiet = true; renderChart(dayEntries()); renderTrendChart(dailySeries(trendDays)); quiet = false;
+  });
 
   resetForm();
 
