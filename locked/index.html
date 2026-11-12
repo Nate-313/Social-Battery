@@ -1,0 +1,1380 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#FFFFFF"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;height:100%}*,*::before,*::after{box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>Locked</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one phone-width app column — sticky search bar on top, content scroll, fixed five-slot tab bar with a raised plus. Light only, by design. */
+:root{
+  --bg:#F4F6FC; --surface:#FFFFFF; --surface-2:#EEF1FA; --line:#E2E6F2;
+  --ink:#121430; --ink-2:#464B6E; --muted:#868BA8;
+  --blue:#2D5BFF; --blue-ink:#1838C8; --blue-soft:#E4EBFF;
+  --coral:#FF5B3A; --coral-soft:#FFE7E0;
+  --sun:#FFB81F; --sun-soft:#FFF3D6;
+  --mint:#10B27F; --mint-soft:#DDF6EC;
+  --danger:#E5374F; --danger-soft:#FDE4E8;
+  --night:#0B0D1E;
+  --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --f-body:"Inter",-apple-system,"Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --r:16px; --r-sm:10px;
+  --shadow:0 1px 2px rgba(18,20,48,.06),0 8px 24px rgba(18,20,48,.06);
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--surface)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+input,textarea,select{font:inherit;color:var(--ink)}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:6px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.tnum{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)} .ink2{color:var(--ink-2)}
+.small{font-size:13px} .tiny{font-size:11.5px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+#app{position:relative;max-width:480px;height:100%;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;box-shadow:0 0 0 1px var(--line)}
+.topbar{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:10px}
+.searchbox{flex:1;min-width:0;display:flex;align-items:center;gap:8px;background:var(--surface-2);border-radius:999px;padding:9px 14px;color:var(--muted);font-size:14px;text-align:left}
+.iconbtn{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;flex:none;position:relative}
+.iconbtn:hover{background:var(--surface-2)}
+.dot{position:absolute;top:6px;right:7px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--coral);color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center;border:2px solid var(--surface)}
+main#view{flex:1;overflow-y:auto;overflow-x:hidden;padding:14px max(16px,env(safe-area-inset-right,0px)) 110px max(16px,env(safe-area-inset-left,0px));-webkit-overflow-scrolling:touch}
+.tabbar{position:absolute;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);align-items:end;padding:6px max(8px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--muted);padding:4px 0}
+.tab svg{width:24px;height:24px}
+.tab.on{color:var(--blue)}
+.plus{justify-self:center;width:58px;height:58px;margin-top:-26px;border-radius:20px;background:var(--blue);color:#fff;display:grid;place-items:center;box-shadow:0 8px 20px rgba(45,91,255,.38);transition:transform .15s}
+.plus:active{transform:scale(.94)}
+.plus svg{width:28px;height:28px}
+
+.seg{display:flex;gap:4px;background:var(--surface-2);padding:4px;border-radius:12px}
+.seg button{flex:1;padding:8px 10px;border-radius:9px;font-weight:600;font-size:13.5px;color:var(--ink-2)}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(18,20,48,.1)}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;align-items:center;gap:10px}
+.row.wrap{flex-wrap:wrap}
+.grow{flex:1;min-width:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:12.5px;font-weight:600;background:var(--blue-soft);color:var(--blue-ink);white-space:nowrap}
+.chip.coral{background:var(--coral-soft);color:#B8321A}
+.chip.mint{background:var(--mint-soft);color:#08744F}
+.chip.sun{background:var(--sun-soft);color:#8A5A00}
+.chip.gray{background:var(--surface-2);color:var(--ink-2)}
+.chip.sel{background:var(--blue);color:#fff}
+button.chip{cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:14px;font-weight:700;font-size:15px;background:var(--blue);color:#fff;transition:filter .15s,transform .1s}
+.btn:active{transform:scale(.98)}
+.btn:hover{filter:brightness(1.06)}
+.btn.ghost{background:var(--surface-2);color:var(--ink)}
+.btn.line{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.btn.danger{background:var(--danger)}
+.btn.coral{background:var(--coral)}
+.btn.block{width:100%}
+.btn.sm{padding:8px 12px;font-size:13.5px;border-radius:11px}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:600;color:var(--ink-2)}
+.input{width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:15px}
+.input:focus{outline:2px solid var(--blue-soft);border-color:var(--blue)}
+textarea.input{resize:vertical;min-height:70px}
+.av{flex:none;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-family:var(--f-display)}
+.avs{display:flex}.avs .av{border:2px solid var(--surface);margin-left:-8px}.avs .av:first-child{margin-left:0}
+.hr{height:1px;background:var(--line);margin:4px 0}
+.empty{text-align:center;color:var(--muted);padding:30px 10px}
+.banner{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;font-size:13.5px}
+.banner.sun{background:var(--sun-soft);color:#6E4800}
+.banner.blue{background:var(--blue-soft);color:var(--blue-ink)}
+.banner.danger{background:var(--danger-soft);color:#8E1426}
+.banner.mint{background:var(--mint-soft);color:#075E41}
+.toggle{width:46px;height:28px;border-radius:14px;background:var(--line);position:relative;flex:none;transition:background .15s}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .15s}
+.toggle.on{background:var(--blue)}
+.toggle.on::after{transform:translateX(18px)}
+
+/* feed */
+.post{background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.post-h{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.post-h .name{font-weight:700;font-size:14.5px}
+.player{position:relative;background:var(--night);aspect-ratio:3/4;max-width:100%;width:100%;overflow:hidden}
+.player canvas{width:100%;height:100%;display:block}
+.player .pp{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transition:opacity .2s;color:#fff}
+.player.paused .pp{opacity:1;background:rgba(0,0,0,.25)}
+.post-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 14px 4px}
+.stat .v{font-family:var(--f-display);font-weight:800;font-size:20px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat .k{font-size:11.5px;color:var(--muted);font-weight:600}
+.post-b{padding:6px 14px 12px;display:flex;flex-direction:column;gap:8px}
+.post-a{display:flex;gap:4px;padding:4px 8px 10px;border-top:1px solid var(--line)}
+.post-a button{display:flex;align-items:center;gap:6px;padding:9px 10px;border-radius:10px;font-weight:600;font-size:13.5px;color:var(--ink-2)}
+.post-a button:hover{background:var(--surface-2)}
+.post-a button.on{color:var(--sun);}
+.post-a button.on svg{fill:var(--sun)}
+.song{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:var(--surface-2);font-size:13px}
+.song .art{width:34px;height:34px;border-radius:8px;flex:none}
+.eq{display:flex;gap:2px;align-items:flex-end;height:14px}
+.eq i{width:3px;background:var(--blue);border-radius:2px;animation:eq 1s infinite ease-in-out}
+.eq i:nth-child(2){animation-delay:-.3s}.eq i:nth-child(3){animation-delay:-.6s}
+@keyframes eq{0%,100%{height:3px}50%{height:14px}}
+.reelcta{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:linear-gradient(120deg,#FFE7E0,#FFF3D6);text-align:left;width:100%}
+
+/* sheets & layers */
+.scrim{position:fixed;inset:0;background:rgba(12,14,34,.42);z-index:70;display:flex;align-items:flex-end;justify-content:center;animation:fade .15s}
+.sheet{width:100%;max-width:480px;max-height:88%;overflow-y:auto;background:var(--surface);border-radius:22px 22px 0 0;padding:10px max(18px,env(safe-area-inset-right,0px)) calc(22px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));animation:up .2s ease-out}
+.sheet .grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
+@keyframes up{from{transform:translateY(30px);opacity:.4}}
+@keyframes fade{from{opacity:0}}
+.layer{position:absolute;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;animation:fade .15s}
+.layer-h{display:flex;align-items:center;gap:8px;padding:10px max(12px,env(safe-area-inset-right,0px)) 10px max(12px,env(safe-area-inset-left,0px));background:var(--surface);border-bottom:1px solid var(--line)}
+.layer-h h2{font-size:18px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.layer-b{flex:1;overflow-y:auto;padding:14px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-size:13.5px;font-weight:600;z-index:90;max-width:90%;text-align:center;animation:up .2s}
+
+/* session */
+.session{position:absolute;inset:0;z-index:55;background:#000;color:#C9CCE0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(18px + env(safe-area-inset-top,0px)) 18px calc(22px + env(safe-area-inset-bottom,0px))}
+.session .clock{font-family:var(--f-mono);font-size:44px;font-weight:700;color:#E8EAF6;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.session .sbtn{padding:12px 18px;border-radius:14px;background:#15172B;color:#E8EAF6;font-weight:700;font-size:14px;border:1px solid #23264A}
+.session .sbtn.end{background:var(--blue);border-color:var(--blue);color:#fff}
+.session .sbtn.em{background:transparent;border-color:#4A2030;color:#FF8A9C}
+.rec{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#8F93B8}
+.rec i{width:8px;height:8px;border-radius:50%;background:#FF3B4E;animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.25}}
+.sgoal{display:flex;align-items:center;gap:10px;padding:8px 2px;color:#C9CCE0;font-size:14px;text-align:left;width:100%}
+.sgoal .box{width:20px;height:20px;border-radius:6px;border:2px solid #3A3E6A;flex:none;display:grid;place-items:center}
+.sgoal.done .box{background:var(--mint);border-color:var(--mint)}
+.sgoal.done span{text-decoration:line-through;color:#6F7398}
+
+/* map */
+.mapwrap{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:#EAF0E6;aspect-ratio:1/1.08;max-width:100%}
+.mapwrap svg,.mapwrap canvas{position:absolute;inset:0;width:100%;height:100%}
+.mapwrap canvas{pointer-events:none;mix-blend-mode:multiply}
+.legend-ramp{height:8px;border-radius:4px;background:linear-gradient(90deg,#BFD3FF,#6E8BFF,#FFB81F,#FF5B3A,#D3143A)}
+.pulse{animation:pulse 2s infinite}
+@keyframes pulse{0%{r:7;opacity:.9}100%{r:22;opacity:0}}
+
+/* chat */
+.msg{max-width:80%;padding:9px 12px;border-radius:16px;font-size:14.5px;background:var(--surface);border:1px solid var(--line);align-self:flex-start;overflow-wrap:anywhere}
+.msg.me{align-self:flex-end;background:var(--blue);color:#fff;border-color:var(--blue)}
+.msgmeta{font-size:11px;color:var(--muted);margin:0 6px}
+.composer{display:flex;gap:8px;align-items:flex-end;padding:10px max(12px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));background:var(--surface);border-top:1px solid var(--line)}
+.listrow{display:flex;align-items:center;gap:12px;padding:10px 4px;width:100%;text-align:left;border-radius:12px}
+button.listrow:hover{background:var(--surface-2)}
+
+/* stats */
+.bars{display:flex;flex-direction:column;gap:9px}
+.barrow{display:grid;grid-template-columns:minmax(90px,38%) 1fr 36px;gap:10px;align-items:center;font-size:13px}
+.barrow .lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink-2)}
+.bartrack{height:14px;border-radius:0 4px 4px 0;position:relative}
+.barfill{height:100%;border-radius:0 4px 4px 0;background:var(--blue)}
+.barrow .val{font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.vbars{display:flex;align-items:flex-end;gap:2px;height:120px;border-bottom:1px solid var(--line);padding-top:6px}
+.vbars .vb{flex:1;background:var(--blue);border-radius:4px 4px 0 0;min-height:2px;position:relative}
+.vbars .vb.dim{background:var(--blue-soft)}
+.vbars .vb:hover{filter:brightness(1.12)}
+.tip{position:fixed;z-index:95;background:var(--ink);color:#fff;font-size:12px;padding:6px 9px;border-radius:8px;pointer-events:none;white-space:nowrap}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px}
+.kpi .v{font-family:var(--f-display);font-weight:800;font-size:clamp(17px,5vw,22px);white-space:nowrap;font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi .k{font-size:11.5px;color:var(--muted);font-weight:600}
+.flowhero{background:radial-gradient(120% 90% at 50% 0%,#FFF3D6 0%,#FFFFFF 60%);border:1px solid var(--line);border-radius:22px;padding:18px;text-align:center}
+.flame{animation:flick 1.3s infinite alternate ease-in-out;transform-origin:50% 100%}
+@keyframes flick{0%{transform:scale(1,1)}50%{transform:scale(.92,1.08)}100%{transform:scale(1.05,.95)}}
+.spin{animation:spin 18s linear infinite;transform-origin:50% 50%}
+@keyframes spin{to{transform:rotate(360deg)}}
+.twinkle{animation:tw 1.8s infinite}
+@keyframes tw{50%{opacity:.15}}
+
+/* reels */
+.reels{position:absolute;inset:0;z-index:58;background:#000;color:#fff;display:flex;flex-direction:column}
+.reels .seg button{color:#fff}.reels .seg button.on{background:#fff;color:#121430}
+.reel-feed{flex:1;overflow-y:auto;scroll-snap-type:y mandatory}
+.reel{height:100%;scroll-snap-align:start;position:relative}
+.reel canvas{width:100%;height:100%;display:block}
+.reel .cap{position:absolute;left:16px;right:70px;bottom:24px;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.reel .side{position:absolute;right:12px;bottom:28px;display:flex;flex-direction:column;gap:16px;align-items:center;font-size:12px;font-weight:700}
+.reel .side button{display:flex;flex-direction:column;align-items:center;gap:3px;color:#fff}
+
+/* wrapped */
+.story{position:absolute;inset:0;z-index:80;display:flex;flex-direction:column;color:#fff;padding:calc(16px + env(safe-area-inset-top,0px)) 22px 30px}
+.story .bars2{display:flex;gap:4px}.story .bars2 i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.35)}.story .bars2 i.on{background:#fff}
+.story .big{font-family:var(--f-display);font-weight:800;font-size:64px;line-height:1;letter-spacing:-.03em}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+<div id="app">
+  <header class="topbar">
+    <button class="iconbtn" data-act="profile" aria-label="Your profile" id="meAv"></button>
+    <button class="searchbox" data-act="search" id="searchBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <span>Search places, classes, people</span>
+    </button>
+    <button class="iconbtn" data-act="notifs" aria-label="Notifications" id="bellBtn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+    </button>
+  </header>
+  <main id="view"></main>
+  <nav class="tabbar" id="tabbar">
+    <button class="tab" data-tab="feed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="7" rx="2"/><rect x="4" y="14" width="16" height="7" rx="2"/></svg>Feed</button>
+    <button class="tab" data-tab="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Map</button>
+    <button class="plus" data-act="newSession" aria-label="Start a study session"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+    <button class="tab" data-tab="chats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.6A8 8 0 1 1 21 12z"/></svg>Chats</button>
+    <button class="tab" data-tab="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Stats</button>
+  </nav>
+  <div id="layers"></div>
+</div>
+<div id="sheets"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+// ---------- Static demo data ----------
+// Course list: a sample of the Stanford catalog. The production app syncs the full
+// ExploreCourses catalog (every course, every year) into the database nightly.
+const COURSES = [
+ ["CS 103","Mathematical Foundations of Computing"],["CS 105","Introduction to Computers"],["CS 106A","Programming Methodology"],["CS 106B","Programming Abstractions"],["CS 106L","Standard C++ Programming Laboratory"],["CS 107","Computer Organization and Systems"],["CS 109","Introduction to Probability for Computer Scientists"],["CS 111","Operating Systems Principles"],["CS 124","From Languages to Information"],["CS 129","Applied Machine Learning"],["CS 131","Computer Vision: Foundations and Applications"],["CS 142","Web Applications"],["CS 143","Compilers"],["CS 144","Introduction to Computer Networking"],["CS 145","Data Management and Data Systems"],["CS 147","Introduction to Human-Computer Interaction Design"],["CS 149","Parallel Computing"],["CS 154","Introduction to the Theory of Computation"],["CS 155","Computer and Network Security"],["CS 157","Computational Logic"],["CS 161","Design and Analysis of Algorithms"],["CS 166","Data Structures"],["CS 168","The Modern Algorithmic Toolbox"],["CS 181","Computers, Ethics, and Public Policy"],["CS 193P","iPhone and iPad Application Programming"],["CS 194","Software Project"],["CS 197","Computer Science Research"],["CS 221","Artificial Intelligence: Principles and Techniques"],["CS 224N","Natural Language Processing with Deep Learning",["LINGUIST 284"]],["CS 224W","Machine Learning with Graphs"],["CS 229","Machine Learning",["STATS 229"]],["CS 230","Deep Learning"],["CS 231N","Deep Learning for Computer Vision"],["CS 234","Reinforcement Learning"],["CS 236","Deep Generative Models"],["CS 238","Decision Making under Uncertainty",["AA 228"]],["CS 246","Mining Massive Data Sets"],
+ ["MATH 19","Calculus"],["MATH 20","Calculus"],["MATH 21","Calculus"],["MATH 51","Linear Algebra, Multivariable Calculus, and Modern Applications"],["MATH 52","Integral Calculus of Several Variables"],["MATH 53","Differential Equations with Linear Algebra, Fourier Methods, and Modern Applications"],["MATH 104","Applied Matrix Theory"],["MATH 113","Linear Algebra and Matrix Theory"],["MATH 115","Functions of a Real Variable"],["MATH 120","Groups and Rings"],["MATH 151","Introduction to Probability Theory"],["MATH 171","Fundamental Concepts of Analysis"],
+ ["CME 100","Vector Calculus for Engineers"],["CME 102","Ordinary Differential Equations for Engineers"],["CME 106","Introduction to Probability and Statistics for Engineers"],
+ ["STATS 60","Introduction to Statistical Methods: Precalculus"],["STATS 116","Theory of Probability"],["STATS 191","Introduction to Applied Statistics"],["STATS 200","Introduction to Statistical Inference"],["STATS 202","Data Mining and Analysis"],["STATS 203","Introduction to Regression Models and Analysis of Variance"],
+ ["ECON 1","Principles of Economics"],["ECON 50","Economic Analysis I"],["ECON 51","Economic Analysis II"],["ECON 52","Economic Analysis III"],["ECON 102A","Introduction to Statistical Methods (Postcalculus) for Social Scientists"],["ECON 102B","Applied Econometrics"],["ECON 111","Money and Banking"],["ECON 140","Introduction to Financial Economics"],
+ ["CHEM 31A","Chemical Principles I"],["CHEM 31B","Chemical Principles II"],["CHEM 33","Structure and Reactivity of Organic Molecules"],["CHEM 171","Foundations of Physical Chemistry"],
+ ["BIO 82","Genetics"],["BIO 83","Biochemistry & Molecular Biology"],["BIO 84","Physiology"],["BIO 85","Evolution"],["BIO 86","Cell Biology"],["HUMBIO 2A","Genetics, Evolution, and Ecology"],["HUMBIO 3A","Cell and Developmental Biology"],["HUMBIO 4A","The Human Organism"],
+ ["PHYSICS 41","Mechanics"],["PHYSICS 43","Electricity and Magnetism"],["PHYSICS 45","Light and Heat"],["PHYSICS 61","Mechanics and Special Relativity"],
+ ["ENGR 14","Intro to Solid Mechanics"],["ENGR 40M","An Intro to Making: What is EE"],["ENGR 50","Introduction to Materials Science, Nanotechnology Emphasis"],["ENGR 62","Introduction to Optimization",["MS&E 111"]],["ENGR 108","Introduction to Matrix Methods"],["EE 101A","Circuits I"],["EE 102A","Signal Processing and Linear Systems I"],["EE 108","Digital System Design"],["EE 178","Probabilistic Systems Analysis"],["EE 364A","Convex Optimization I"],["MS&E 178","The Spirit of Entrepreneurship"],["ME 30","Engineering Thermodynamics"],
+ ["PSYCH 1","Introduction to Psychology"],["PSYCH 50","Introduction to Cognitive Neuroscience"],["PSYCH 60","Introduction to Developmental Psychology"],["PSYCH 70","Self and Society: Introduction to Social Psychology"],["SYMSYS 1","Minds and Machines"],["PHIL 1","Introduction to Philosophy"],["PHIL 80","Mind, Matter, and Meaning"],["PWR 1","Writing & Rhetoric 1"],["PWR 2","Writing & Rhetoric 2"],["EARTHSYS 10","Introduction to Earth Systems"]
+].map(([code,title,cross])=>({code,title,cross:cross||[],kind:"course"}));
+const EXTRA_TAGS = ["MCAT","LSAT","GRE","GMAT","Research","Thesis","Internship prep","Coding interviews","General","Reading"].map(t=>({code:t,title:"Non-course tag",cross:[],kind:"tag"}));
+const ALL_TAGS = COURSES.concat(EXTRA_TAGS);
+function findTag(code){ return ALL_TAGS.find(c=>c.code===code||c.cross.includes(code)) }
+const TERM = "Autumn 2026";
+
+const USERS = {
+ me:{id:"me",name:"You",handle:"you",color:"#2D5BFF"},
+ maya:{id:"maya",name:"Maya Chen",handle:"mayac",color:"#FF5B3A",dorm:"Branner"},
+ jordan:{id:"jordan",name:"Jordan Okafor",handle:"jokafor",color:"#10B27F",dorm:"FroSoCo"},
+ priya:{id:"priya",name:"Priya Raman",handle:"priyar",color:"#A24BFF",dorm:"Roble"},
+ leo:{id:"leo",name:"Leo Martínez",handle:"leom",color:"#FFB81F",dorm:"Lagunita"},
+ sam:{id:"sam",name:"Sam Whitfield",handle:"samw",color:"#0FA3C9",dorm:"Wilbur"},
+ ava:{id:"ava",name:"Ava Kim",handle:"avakim",color:"#E5374F",dorm:"Stern"},
+ diego:{id:"diego",name:"Diego Alvarez",handle:"dalvarez",color:"#6B7BFF",dorm:"Crothers"},
+ noor:{id:"noor",name:"Noor Haddad",handle:"noorh",color:"#D46B00",dorm:"Toyon"},
+ ethan:{id:"ethan",name:"Ethan Brooks",handle:"ebrooks",color:"#2E9E5B",dorm:"Lantana"},
+ zoe:{id:"zoe",name:"Zoe Park",handle:"zoep",color:"#C2378F",dorm:"Branner"},
+ ben:{id:"ben",name:"Ben Lowe",handle:"benl",color:"#5A6A8A"},
+ isla:{id:"isla",name:"Isla Nguyen",handle:"islan",color:"#008C7A"},
+ marcus:{id:"marcus",name:"Marcus Reed",handle:"mreed",color:"#9A5B2E"},
+ hana:{id:"hana",name:"Hana Sato",handle:"hanas",color:"#E0569B"},
+};
+// Map coordinates are on a 1000x1080 stylized campus drawing, north up.
+const SPOTS = [
+ {id:"green",name:"Green Library",x:640,y:470,ll:[37.4269,-122.1670]},
+ {id:"bender",name:"Bender Room (Green)",x:662,y:440,ll:[37.4271,-122.1667]},
+ {id:"lathrop",name:"Lathrop Library",x:775,y:480,ll:[37.4270,-122.1655]},
+ {id:"huang",name:"Huang Engineering Center",x:340,y:420,ll:[37.4277,-122.1745]},
+ {id:"gates",name:"Gates Computer Science",x:285,y:500,ll:[37.4300,-122.1730]},
+ {id:"y2e2",name:"Coupa Café, Y2E2",x:395,y:340,ll:[37.4285,-122.1754]},
+ {id:"tresidder",name:"Tresidder Union",x:560,y:660,ll:[37.4244,-122.1707]},
+ {id:"coho",name:"CoHo (Old Union)",x:470,y:620,ll:[37.4250,-122.1700]},
+ {id:"meyer",name:"Meyer Green",x:600,y:575,ll:[37.4257,-122.1676]},
+ {id:"law",name:"Crown Law Library",x:800,y:640,ll:[37.4238,-122.1667]},
+ {id:"gsb",name:"Knight Management Center",x:915,y:700,ll:[37.4284,-122.1617]},
+ {id:"lane",name:"Lane Medical Library",x:330,y:175,ll:[37.4318,-122.1756]},
+ {id:"arrillaga",name:"Arrillaga Family Dining",x:250,y:720,ll:[37.4254,-122.1785]},
+ {id:"cantor",name:"Cantor Arts Center",x:690,y:300,ll:[37.4332,-122.1703]},
+];
+const HOME_SPOT = {id:"home",name:"Home / dorm (private)",private:true};
+const CAMPUS = [37.4275,-122.1697];
+
+const SONGS = [
+ ["Weightless","Marconi Union"],["Experience","Ludovico Einaudi"],["Nuvole Bianche","Ludovico Einaudi"],["Sunset Lover","Petit Biscuit"],["Intro","The xx"],["Midnight City","M83"],["Time","Hans Zimmer"],["Clair de Lune","Claude Debussy"],["Gymnopédie No. 1","Erik Satie"],["Redbone","Childish Gambino"],["Pink + White","Frank Ocean"],["Holocene","Bon Iver"],["Space Song","Beach House"],["Electric Feel","MGMT"],["505","Arctic Monkeys"],["Kids","MGMT"],["Breathe","Télépopmusik"],["Motion Picture Soundtrack","Radiohead"],["Saturn","SZA"],["Cornfield Chase","Hans Zimmer"]
+].map(([t,a])=>({t,a}));
+
+const REEL_PROMPTS = [
+ "Show us your study setup in 5 seconds","Your face when the pset is due at 11:59","Impersonate your TA explaining a proof","Best study snack. Go.","Your victory dance after a midterm","Explain your major in three words","Recreate the moment it finally clicked","Lead us in one 10-second stretch","What your brain sounds like during finals","Rate your study spot out of 10"
+];
+const CHAT_SEEDS = {
+ "CS 161":[["priya","anyone else stuck on 3b? the recurrence won't telescope for me"],["leo","try writing out the first 3 levels of the tree, it clicks"],["sam","Lock-in session at Huang 7pm if anyone wants company",{invite:{spot:"huang",time:"7:00 PM",going:["sam","priya","leo"]}}],["maya","what's covered on the midterm, through lecture 9?"],["jordan","yes, 1–9 plus the master theorem handout"]],
+ "MATH 51":[["noor","is there a review session for the midterm?"],["ava","Thursday 6pm in 200-002 I think"],["zoe","Which topics are you most worried about?",{poll:{opts:["Eigenvectors","Chain rule","Lagrange"],votes:[4,2,6]}}]],
+ "PSYCH 1":[["diego","the reading for week 8 is long, anyone want to split notes? (summaries only, no assignment answers)"],["ethan","in, I'll take ch. 11"]]
+};
+const DM_SEEDS = [
+ {id:"dm_maya",with:["maya"],msgs:[["maya","are you locking in at green tonight?"],["me","yeah after dinner, 7ish"],["maya","bet, saving you a seat in bender"]]},
+ {id:"dm_grp",name:"161 study crew",with:["priya","leo","sam"],msgs:[["leo","pset 5 is out"],["priya","noooo"],["sam","huang 7pm, lock in"]]},
+];
+// ---------- Core helpers ----------
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const MIN = 60000, HOUR = 3600000, DAY = 86400000;
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("locked." + k); return v ? JSON.parse(v) : d } catch { return d } },
+  set(k, v) { try { localStorage.setItem("locked." + k, JSON.stringify(v)) } catch { } }
+};
+function rng(seed) { let s = typeof seed === "string" ? [...seed].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7) : seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296 } }
+function fmtDur(ms) { const m = Math.round(ms / MIN); const h = Math.floor(m / 60); return h ? `${h}h ${String(m % 60).padStart(2, "0")}m` : `${m}m` }
+function fmtClock(ms) { const s = Math.floor(ms / 1000); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ":" : "") + String(m).padStart(h ? 2 : 1, "0") + ":" + String(x).padStart(2, "0") }
+function fmtTime(ts) { return new Date(ts).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) }
+function ago(ts) { const d = Date.now() - ts; if (d < MIN) return "now"; if (d < HOUR) return Math.round(d / MIN) + "m"; if (d < DAY) return Math.round(d / HOUR) + "h"; return Math.round(d / DAY) + "d" }
+// Study days run 4 AM to 4 AM, so a 1 AM session counts for the night before.
+function studyDay(ts) { const d = new Date(ts - 4 * HOUR); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}` }
+function initials(n) { return n.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase() }
+function av(uid, size = 36) { const u = USERS[uid] || { name: "?", color: "#999" }; return `<span class="av" style="width:${size}px;height:${size}px;background:${u.color};font-size:${Math.round(size * .38)}px" aria-hidden="true">${uid === "me" ? "Y" : initials(u.name)}</span>` }
+function uname(uid) { return USERS[uid]?.name || "Someone" }
+function spotName(id) { return id === "home" ? HOME_SPOT.name : (SPOTS.find(s => s.id === id)?.name || state.customSpots.find(s => s.id === id)?.name || "Somewhere") }
+function toast(msg) { const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2600) }
+const ICON = {
+  key: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 9.8-9.8M17 6l3 3M14.5 8.5l2 2"/></svg>`,
+  chat: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.6A8 8 0 1 1 21 12z"/></svg>`,
+  more: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>`,
+  back: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>`,
+  close: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>`,
+  pin: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>`,
+  lock: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>`,
+  play: `<svg width="56" height="56" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>`,
+  send: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>`,
+  shield: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>`,
+  film: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 3v18M17 3v18M3 8h4M3 16h4M17 8h4M17 16h4"/></svg>`,
+};
+
+// ---------- Logo: "lo" + a sideways shackle forming the c, locked into a box holding the k, then "ed" ----------
+function logoSVG(h = 30, color = "var(--ink)", accent = "var(--blue)") {
+  return `<svg height="${h}" viewBox="0 0 276 84" role="img" aria-label="locked"><g fill="${color}" font-family="Bricolage Grotesque, Avenir Next, system-ui, sans-serif" font-weight="800">
+  <text x="0" y="66" font-size="78" letter-spacing="-3">lo</text>
+  <text x="193" y="66" font-size="78" letter-spacing="-3">ed</text></g>
+  <path d="M135 28 H112 a19 19 0 0 0 0 38 H135" fill="none" stroke="${color}" stroke-width="11.5"/>
+  <rect x="129" y="16" width="56" height="62" rx="11" fill="${accent}"/>
+  <text x="157" y="66" text-anchor="middle" fill="#fff" font-family="Bricolage Grotesque, Avenir Next, system-ui, sans-serif" font-weight="800" font-size="56">k</text></svg>`;
+}
+
+// ---------- Content safety ----------
+// Every caption, comment, chat message and Reel title goes through moderate() before it is
+// shown to anyone. Production adds a server-side moderation model plus image checks
+// (Apple's on-device Sensitive Content Analysis on iPhone, then a server scan of the video).
+const MOD_RULES = [
+  { cat: "Harassment or self-harm", lvl: "block", re: /\b(kys|kill (your|ur)self|go die|you should die|nobody likes you)\b/ },
+  { cat: "Sexual content", lvl: "block", re: /\b(nudes?|porn\w*|onlyfans|send pics|sexting)\b/ },
+  { cat: "Profanity or slurs", lvl: "block", re: /\b(f+u+c+k+\w*|sh+i+t+\w*|bitch\w*|cunt\w*|whore|slut|retard\w*)\b/ },
+  { cat: "Selling drugs", lvl: "block", re: /\b(selling|sell|buy|dm for|got) (adderall|addy|xanax|molly|coke|percs?|ritalin)\b/ },
+  { cat: "Threats or violence", lvl: "block", re: /\b(shoot (up|this)|bomb (the|this)|i('| wi)ll hurt)\b/ },
+  { cat: "Possible Honor Code issue", lvl: "warn", re: /\b(answers? (to|for) (the )?(midterm|final|exam|quiz|pset|problem set)|pset solutions?|exam answers?|send (me )?(your|the) (code|solutions?))\b/ },
+  { cat: "Personal info", lvl: "warn", re: /(\b\d{3}[-. ]?\d{3}[-. ]?\d{4}\b)|(\b[\w.+-]+@[\w-]+\.[\w.]+\b)/ },
+];
+function normalizeText(t) { return t.toLowerCase().replace(/[0]/g, "o").replace(/[1!|]/g, "i").replace(/3/g, "e").replace(/[4@]/g, "a").replace(/[5$]/g, "s").replace(/7/g, "t").replace(/(.)\1{2,}/g, "$1$1") }
+function moderate(text) {
+  if (!text || !text.trim()) return { lvl: "ok", hits: [] };
+  const raw = text.toLowerCase(), norm = normalizeText(text), squash = norm.replace(/[\s._*-]+/g, " ");
+  const hits = MOD_RULES.filter(r => r.re.test(raw) || r.re.test(norm) || r.re.test(squash));
+  const lvl = hits.some(h => h.lvl === "block") ? "block" : hits.length ? "warn" : "ok";
+  return { lvl, hits: hits.map(h => h.cat) };
+}
+function modMessage(m) {
+  if (m.lvl === "block") return `This can't be posted: ${m.hits.filter((_, i) => i < 2).join(", ").toLowerCase()}. Locked keeps the feed safe for everyone. Edit it and try again.`;
+  if (m.lvl === "warn") return `Heads up: ${m.hits.join(", ").toLowerCase()}. ${m.hits.includes("Possible Honor Code issue") ? "Sharing graded answers can violate the Stanford Honor Code." : "Think twice before sharing contact details publicly."}`;
+  return "";
+}
+// Quick image check on captured frames. Production uses a trained model; the demo checks that
+// the camera wasn't covered and samples frames for a large share of skin-like pixels.
+function scanFrames(frames) {
+  const c = document.createElement("canvas"); c.width = 24; c.height = 32; const x = c.getContext("2d", { willReadFrequently: true });
+  let dark = 0, skinHeavy = 0, n = 0;
+  const sample = frames.filter(f => f && f.img).filter((_, i, a) => i % Math.max(1, Math.floor(a.length / 24)) === 0);
+  for (const f of sample) {
+    try { x.drawImage(f.img, 0, 0, 24, 32) } catch { continue }
+    const d = x.getImageData(0, 0, 24, 32).data; let lum = 0, skin = 0;
+    for (let i = 0; i < d.length; i += 4) { const r = d[i], g = d[i + 1], b = d[i + 2]; lum += (r + g + b) / 3; if (r > 95 && g > 40 && b > 20 && r > g && r > b && r - Math.min(g, b) > 15) skin++ }
+    n++; if (lum / (d.length / 4) < 12) dark++; if (skin / (d.length / 4) > .72) skinHeavy++;
+  }
+  return { n, flagged: n > 0 && skinHeavy / n > .5, covered: n > 0 && dark / n > .8 };
+}
+
+// ---------- State ----------
+const state = {
+  tab: "feed", feedTab: "friends", chatTab: "classes", mapMode: "heat",
+  myClasses: store.get("classes", ["CS 161", "MATH 51", "PSYCH 1"]),
+  joinedChats: store.get("joined", ["CS 161", "MATH 51"]),
+  customSpots: store.get("spots", []),
+  friends: store.get("friends", ["maya", "jordan", "priya", "leo", "sam", "ava", "diego", "noor", "ethan", "zoe"]),
+  requests: store.get("requests", ["hana", "marcus"]),
+  sent: store.get("sent", []),
+  blocked: store.get("blocked", []),
+  hiddenPosts: store.get("hidden", []),
+  exams: store.get("exams", [{ cls: "CS 161", ts: Date.now() + 5 * DAY + 3 * HOUR, label: "Midterm" }]),
+  spotify: store.get("spotify", false),
+  lateGuard: store.get("lateGuard", true),
+  myPosts: [], // filled from IndexedDB on boot
+  keys: store.get("keys", {}),
+  comments: store.get("comments", {}),
+  chats: store.get("chats", null),
+  notifsRead: store.get("notifsRead", false),
+  freezeUsedWeek: store.get("freezeWeek", null),
+};
+function save() {
+  store.set("classes", state.myClasses); store.set("joined", state.joinedChats); store.set("spots", state.customSpots);
+  store.set("friends", state.friends); store.set("requests", state.requests); store.set("sent", state.sent); store.set("blocked", state.blocked);
+  store.set("hidden", state.hiddenPosts); store.set("exams", state.exams); store.set("spotify", state.spotify); store.set("lateGuard", state.lateGuard);
+  store.set("keys", state.keys); store.set("comments", state.comments); store.set("chats", state.chats); store.set("notifsRead", state.notifsRead);
+}
+if (!state.chats) {
+  state.chats = { classes: {}, dms: DM_SEEDS.map(d => ({ ...d, msgs: d.msgs.map(([from, text], i) => ({ from, text, ts: Date.now() - (d.msgs.length - i) * 9 * MIN })) })) };
+  for (const [cls, msgs] of Object.entries(CHAT_SEEDS)) state.chats.classes[cls] = msgs.map(([from, text, extra], i) => ({ from, text, ts: Date.now() - (msgs.length - i) * 23 * MIN, ...(extra || {}) }));
+}
+
+// ---------- IndexedDB for your own timelapses (frames are too big for localStorage) ----------
+const idb = {
+  db: null,
+  async open() { if (this.db) return this.db; return this.db = await new Promise((res, rej) => { try { const r = indexedDB.open("locked", 1); r.onupgradeneeded = () => r.result.createObjectStore("posts", { keyPath: "id" }); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error) } catch (e) { rej(e) } }) },
+  async all() { try { const db = await this.open(); return await new Promise(res => { const q = db.transaction("posts").objectStore("posts").getAll(); q.onsuccess = () => res(q.result || []); q.onerror = () => res([]) }) } catch { return [] } },
+  async put(p) { try { const db = await this.open(); db.transaction("posts", "readwrite").objectStore("posts").put(p) } catch { } },
+  async del(id) { try { const db = await this.open(); db.transaction("posts", "readwrite").objectStore("posts").delete(id) } catch { } },
+};
+// ---------- Mock posts and history ----------
+const NOW = Date.now();
+function makeMockPosts() {
+  const r = rng(42), out = [];
+  const plan = [
+    ["maya", "CS 161", "bender", 3.1, "pset 5 finally done 🫠", ["priya"], 1, true],
+    ["jordan", "MATH 51", "huang", 2.2, "eigen-everything", [], 2.5, false],
+    ["leo", "CS 106B", "gates", 1.6, "recursion is a lifestyle", [], 4, false],
+    ["sam", "CS 161", "huang", 2.8, "midterm prep w/ the crew", ["leo", "priya"], 5.5, true],
+    ["ava", "CHEM 33", "lathrop", 1.9, "orgo mechanisms on repeat", [], 7, false],
+    ["noor", "PSYCH 1", "coho", 1.2, "", [], 9, true],
+    ["diego", "ECON 50", "tresidder", 2.4, "lagrangians at tresidder", [], 11, false],
+    ["zoe", "MATH 51", "green", 3.6, "4am-to-4am kind of day", ["noor"], 14, true],
+    ["ethan", "MCAT", "lane", 4.2, "CARS passages all afternoon", [], 18, false],
+    ["priya", "CS 229", "y2e2", 2.0, "backprop by hand", [], 21, false],
+    ["maya", "PSYCH 1", "meyer", 1.1, "reading on the grass", [], 23, true],
+  ];
+  plan.forEach(([uid, cls, spot, hrs, cap, withU, hAgo, classShare], i) => {
+    const end = NOW - hAgo * HOUR - r() * 40 * MIN, dur = hrs * HOUR;
+    out.push({
+      id: "m" + i, uid, with: withU, cls, spot, start: end - dur, end, dur, caption: cap,
+      song: r() > .2 ? SONGS[Math.floor(r() * SONGS.length)] : null,
+      goalsDone: Math.ceil(r() * 3) + 1, goalsTotal: 4, pauses: Math.floor(r() * 3), keys: Math.floor(r() * 30) + 3, seed: i * 97 + 13,
+      classShare, comments: Math.floor(r() * 6),
+    });
+  });
+  return out;
+}
+const MOCK_POSTS = makeMockPosts();
+// Campus-wide post counts in the last 24 hours and people studying right now, per spot.
+const SPOT_ACTIVITY = { green: [46, 19], bender: [28, 11], lathrop: [17, 6], huang: [39, 22], gates: [24, 9], y2e2: [21, 7], tresidder: [15, 4], coho: [12, 5], meyer: [8, 2], law: [11, 3], gsb: [9, 2], lane: [26, 13], arrillaga: [6, 1], cantor: [2, 0] };
+const SPOT_SCORE = { green: 81, bender: 86, lathrop: 77, huang: 79, gates: 74, y2e2: 69, tresidder: 61, coho: 58, meyer: 64, law: 84, gsb: 72, lane: 83, arrillaga: 55, cantor: 70 };
+
+// Sample history for "You" so Stats has something to show before you log your own sessions.
+function makeHistory() {
+  const r = rng(7), out = [], spots = ["green", "bender", "huang", "lathrop", "tresidder", "home", "coho", "y2e2"];
+  const spotBias = { green: 8, bender: 12, huang: 4, lathrop: 2, tresidder: -9, home: -14, coho: -11, y2e2: -4 };
+  for (let d = 44; d >= 1; d--) {
+    if (d === 9 || d === 23 || d === 30 || d === 31) continue; // missed days
+    const n = r() > .7 ? 2 : 1;
+    for (let k = 0; k < n; k++) {
+      const hour = [9, 10, 13, 14, 15, 16, 19, 20, 21, 22, 23][Math.floor(r() * 11)];
+      const start = new Date(NOW - d * DAY); start.setHours(hour, Math.floor(r() * 60), 0, 0);
+      const spot = spots[Math.floor(r() * spots.length)], cls = state.myClasses[Math.floor(r() * state.myClasses.length)] || "CS 161";
+      const dur = (35 + r() * 170) * MIN, music = r() > .4, group = r() > .75;
+      const hourBias = hour <= 11 ? 9 : hour <= 16 ? 2 : hour <= 21 ? 4 : -10;
+      const lenBias = dur > 150 * MIN ? -6 : dur < 50 * MIN ? -3 : 3;
+      const score = clamp(Math.round(68 + spotBias[spot] + hourBias + lenBias + (music ? 3 : 0) + (group ? -2 : 0) + (r() - .5) * 16), 22, 99);
+      out.push({ id: "h" + d + k, sample: true, start: +start, dur, end: +start + dur, spot, cls, score, music, group, intensity: ["Light", "Normal", "Heavy"][Math.floor(r() * 3)] });
+    }
+  }
+  return out;
+}
+const HISTORY = makeHistory();
+
+// ---------- Generative timelapse scene (used for friends' posts and when no camera is available) ----------
+function sceneDraw(ctx, w, h, t, seed, startTs, durMs) {
+  const r = rng(seed); const skin = ["#F2C9A0", "#C68E62", "#8D5A3B", "#E8B48A", "#5E3B28"][seed % 5];
+  const shirt = ["#2D5BFF", "#FF5B3A", "#10B27F", "#A24BFF", "#FFB81F", "#0FA3C9"][seed % 6];
+  const hair = ["#1D1A2B", "#4A2E1A", "#2B1B10", "#B67A3C", "#111"][seed % 5];
+  const clock = new Date(startTs + t * durMs), hr = clock.getHours() + clock.getMinutes() / 60;
+  const day = clamp(1 - Math.abs(hr - 13) / 7, 0, 1); // 1 at 1 PM, 0 after 8 PM
+  const q = Math.floor(t * 600); const jr = rng(seed * 1000 + q); // quantized jitter makes it read as a timelapse
+  // wall
+  const wall = `rgb(${Math.round(40 + 190 * day)},${Math.round(42 + 180 * day)},${Math.round(70 + 160 * day)})`;
+  ctx.fillStyle = wall; ctx.fillRect(0, 0, w, h);
+  // window with sky
+  const wx = w * .56, wy = h * .1, ww = w * .36, wh = h * .3;
+  const sky = ctx.createLinearGradient(0, wy, 0, wy + wh);
+  sky.addColorStop(0, day > .5 ? "#7EC3FF" : day > .15 ? "#FF9A6B" : "#0E1438"); sky.addColorStop(1, day > .5 ? "#CDE8FF" : day > .15 ? "#FFD39A" : "#232A5C");
+  ctx.fillStyle = sky; ctx.fillRect(wx, wy, ww, wh);
+  const sunX = wx + ww * ((hr % 24) / 24), sunY = wy + wh * (.85 - .6 * day);
+  ctx.fillStyle = day > .15 ? "#FFE58A" : "#E6E9FF"; ctx.beginPath(); ctx.arc(sunX, sunY, w * .03, 0, 7); ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,.8)"; ctx.lineWidth = w * .012; ctx.strokeRect(wx, wy, ww, wh); ctx.beginPath(); ctx.moveTo(wx + ww / 2, wy); ctx.lineTo(wx + ww / 2, wy + wh); ctx.stroke();
+  // lamp glow at night
+  if (day < .4) { const g = ctx.createRadialGradient(w * .2, h * .55, 5, w * .2, h * .55, w * .6); g.addColorStop(0, `rgba(255,210,120,${.45 * (1 - day / .4)})`); g.addColorStop(1, "rgba(255,210,120,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h) }
+  // shelf + books
+  ctx.fillStyle = "rgba(0,0,0,.18)"; ctx.fillRect(w * .05, h * .3, w * .4, h * .015);
+  for (let i = 0; i < 6; i++) { ctx.fillStyle = ["#FF5B3A", "#2D5BFF", "#FFB81F", "#10B27F", "#A24BFF", "#fff"][(i + seed) % 6]; const bh = h * (.06 + r() * .04); ctx.fillRect(w * .07 + i * w * .055, h * .3 - bh, w * .045, bh) }
+  // person (bobbing / leaning, presence gaps when away)
+  const away = (Math.sin(t * 31 + seed) > .985);
+  const lean = Math.sin(t * 55 + seed) * w * .02 + (jr() - .5) * w * .03;
+  const cx = w * .42 + lean, cy = h * .5 + (jr() - .5) * h * .015;
+  if (!away) {
+    ctx.fillStyle = shirt; ctx.beginPath(); ctx.ellipse(cx, cy + h * .2, w * .22, h * .16, 0, Math.PI, 0); ctx.fill(); ctx.fillRect(cx - w * .22, cy + h * .2, w * .44, h * .1);
+    ctx.fillStyle = skin; ctx.fillRect(cx - w * .04, cy + h * .02, w * .08, h * .06);
+    ctx.beginPath(); ctx.ellipse(cx, cy - h * .03, w * .1, h * .085, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = hair; ctx.beginPath(); ctx.ellipse(cx, cy - h * .075, w * .108, h * .055, 0, Math.PI, 0); ctx.fill();
+    // headphones some of the time
+    if (seed % 3 === 0) { ctx.strokeStyle = "#222"; ctx.lineWidth = w * .018; ctx.beginPath(); ctx.arc(cx, cy - h * .04, w * .115, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke() }
+    // arm writing
+    const ax = cx + w * .1 + Math.sin(t * 900 + seed) * w * .04;
+    ctx.strokeStyle = shirt; ctx.lineWidth = w * .07; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(cx + w * .15, cy + h * .14); ctx.lineTo(ax, cy + h * .28); ctx.stroke();
+  }
+  // desk
+  ctx.fillStyle = "#B9835A"; ctx.fillRect(0, h * .78, w, h * .22); ctx.fillStyle = "rgba(0,0,0,.15)"; ctx.fillRect(0, h * .78, w, h * .012);
+  // laptop
+  ctx.fillStyle = "#C9CEDB"; ctx.fillRect(w * .58, h * .66, w * .3, h * .12); ctx.fillStyle = "#AEB4C5"; ctx.fillRect(w * .55, h * .78, w * .36, h * .015);
+  ctx.fillStyle = day < .4 ? "rgba(160,200,255,.9)" : "#E6EEFF"; ctx.fillRect(w * .6, h * .675, w * .26, h * .095);
+  // papers + mug
+  ctx.save(); ctx.translate(w * .2, h * .86); ctx.rotate(-.12 + (jr() - .5) * .05); ctx.fillStyle = "#fff"; ctx.fillRect(-w * .12, -h * .04, w * .24, h * .07); ctx.restore();
+  ctx.fillStyle = ["#FF5B3A", "#2D5BFF", "#10B27F"][seed % 3]; ctx.fillRect(w * .07, h * .73, w * .065, h * .07);
+}
+// Overlay drawn on every timelapse: clock, elapsed, class tag, song.
+function overlayDraw(ctx, w, h, t, meta) {
+  const s = w / 300;
+  const clock = new Date(meta.start + t * meta.dur);
+  const pill = (x, y, txt, align = "left", bg = "rgba(10,12,30,.62)") => {
+    ctx.font = `700 ${12 * s}px JetBrains Mono, monospace`; const tw = ctx.measureText(txt).width + 16 * s;
+    const px = align === "right" ? x - tw : x; ctx.fillStyle = bg; ctx.beginPath(); ctx.roundRect(px, y, tw, 22 * s, 11 * s); ctx.fill();
+    ctx.fillStyle = "#fff"; ctx.fillText(txt, px + 8 * s, y + 15.5 * s);
+  };
+  pill(10 * s, 10 * s, clock.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }));
+  pill(w - 10 * s, 10 * s, fmtClock(t * meta.dur), "right");
+  if (meta.cls) pill(10 * s, h - 32 * s, meta.cls, "left", "rgba(45,91,255,.9)");
+  if (meta.song) { ctx.font = `600 ${11 * s}px Inter, sans-serif`; const txt = "♪ " + meta.song.t + " · " + meta.song.a; ctx.fillStyle = "rgba(10,12,30,.62)"; const tw = Math.min(ctx.measureText(txt).width + 16 * s, w - 20 * s); ctx.beginPath(); ctx.roundRect(10 * s, h - 60 * s, tw, 22 * s, 11 * s); ctx.fill(); ctx.save(); ctx.beginPath(); ctx.rect(10 * s, h - 60 * s, tw - 6 * s, 22 * s); ctx.clip(); ctx.fillStyle = "#fff"; ctx.fillText(txt, 18 * s, h - 45 * s); ctx.restore() }
+  // progress bar
+  ctx.fillStyle = "rgba(255,255,255,.25)"; ctx.fillRect(0, h - 3 * s, w, 3 * s); ctx.fillStyle = "#fff"; ctx.fillRect(0, h - 3 * s, w * t, 3 * s);
+}
+function cardDraw(ctx, w, h, text) {
+  ctx.fillStyle = "#0B0D1E"; ctx.fillRect(0, 0, w, h); const s = w / 300;
+  ctx.fillStyle = "#FFB81F"; ctx.beginPath(); ctx.roundRect(w / 2 - 70 * s, h / 2 - 26 * s, 140 * s, 52 * s, 14 * s); ctx.fill();
+  ctx.fillStyle = "#121430"; ctx.font = `800 ${17 * s}px Bricolage Grotesque, sans-serif`; ctx.textAlign = "center"; ctx.fillText(text, w / 2, h / 2 + 6 * s); ctx.textAlign = "left";
+}
+
+// ---------- Players: one animation loop drives every visible timelapse ----------
+const PLAYERS = new Map(); let playerSeq = 0;
+const LOOP_MS = 20000; // every timelapse is exactly 20 seconds
+function playerHTML(spec) {
+  const id = "pl" + (++playerSeq); PLAYERS.set(id, { ...spec, t0: performance.now(), paused: false, visible: false, pausedAt: 0 });
+  return `<div class="player" data-player="${id}"><canvas width="600" height="800"></canvas><div class="pp">${ICON.play}</div></div>`;
+}
+const playerObserver = "IntersectionObserver" in window ? new IntersectionObserver(es => es.forEach(e => { const p = PLAYERS.get(e.target.dataset.player); if (p) p.visible = e.isIntersecting }), { threshold: .2 }) : null;
+function bindPlayers(root) {
+  $$("[data-player]", root).forEach(el => {
+    const p = PLAYERS.get(el.dataset.player); if (!p || p.el) return; p.el = el; p.ctx = el.querySelector("canvas").getContext("2d");
+    if (playerObserver) playerObserver.observe(el); else p.visible = true;
+    el.addEventListener("click", () => { p.paused = !p.paused; if (p.paused) p.pausedAt = performance.now(); else p.t0 += performance.now() - p.pausedAt; el.classList.toggle("paused", p.paused) });
+    drawPlayer(p, 0.02);
+  });
+}
+function drawPlayer(p, t) {
+  const c = p.ctx, w = 600, h = 800;
+  if (p.frames && p.frames.length) {
+    const f = p.frames[Math.min(p.frames.length - 1, Math.floor(t * p.frames.length))];
+    if (f.card) cardDraw(c, w, h, f.card);
+    else if (f.img && f.img.complete !== false) { const iw = f.img.naturalWidth || f.img.width, ih = f.img.naturalHeight || f.img.height, sc = Math.max(w / iw, h / ih); c.drawImage(f.img, (w - iw * sc) / 2, (h - ih * sc) / 2, iw * sc, ih * sc) }
+  } else {
+    const pc = p.pauseAt && p.pauseAt.find(pt => Math.abs(t - pt) < .012);
+    if (pc !== undefined && pc !== null && p.pauseAt.length) cardDraw(c, w, h, "Paused " + (p.pauseMin || 7) + " min"); else sceneDraw(c, w, h, t, p.seed, p.start, p.dur);
+  }
+  overlayDraw(c, w, h, t, p);
+}
+function playerLoop(now) {
+  for (const [id, p] of PLAYERS) {
+    if (!p.el || !document.body.contains(p.el)) { if (p.el) { playerObserver?.unobserve(p.el); PLAYERS.delete(id) } continue }
+    if (!p.visible || p.paused) continue;
+    drawPlayer(p, ((now - p.t0) % LOOP_MS) / LOOP_MS);
+  }
+  requestAnimationFrame(playerLoop);
+}
+requestAnimationFrame(playerLoop);
+function framesFromData(arr) { return arr.map(f => { if (f.card) return f; const im = new Image(); im.src = f.src; return { img: im } }) }
+// ---------- Shell: tabs, layers, sheets ----------
+const view = $("#view"), layers = $("#layers"), sheets = $("#sheets");
+function setTab(t) { state.tab = t; $$(".tab").forEach(b => b.classList.toggle("on", b.dataset.tab === t)); render() }
+function render() {
+  const fn = { feed: renderFeed, map: renderMap, chats: renderChats, stats: renderStats }[state.tab];
+  view.innerHTML = fn(); bindPlayers(view); afterRender[state.tab]?.(); view.scrollTop = view._keep || 0; view._keep = 0;
+  $("#meAv").innerHTML = av("me", 32);
+  const unread = notifications().filter(n => !n.read).length; $("#bellBtn .dot")?.remove(); if (unread) $("#bellBtn").insertAdjacentHTML("beforeend", `<span class="dot">${unread}</span>`);
+}
+const afterRender = {};
+function rerenderKeepScroll() { view._keep = view.scrollTop; render() }
+function openLayer(html, cls = "layer") { const d = document.createElement("div"); d.className = cls; d.innerHTML = html; layers.appendChild(d); bindPlayers(d); return d }
+function closeLayer(el) { (el || layers.lastElementChild)?.remove() }
+function layerHead(title, extra = "") { return `<div class="layer-h"><button class="iconbtn" data-act="closeLayer" aria-label="Back">${ICON.back}</button><h2>${title}</h2>${extra}</div>` }
+function openSheet(html) { const d = document.createElement("div"); d.className = "scrim"; d.innerHTML = `<div class="sheet" role="dialog"><div class="grab"></div>${html}</div>`; d.addEventListener("click", e => { if (e.target === d) d.remove() }); sheets.appendChild(d); bindPlayers(d); return d }
+function closeSheet() { sheets.lastElementChild?.remove() }
+
+// One click handler for the whole app: elements declare data-act="name" and data-* args.
+const ACTS = {};
+document.addEventListener("click", e => {
+  const tab = e.target.closest("[data-tab]"); if (tab && tab.classList.contains("tab")) { setTab(tab.dataset.tab); return }
+  const el = e.target.closest("[data-act]"); if (!el) return;
+  const fn = ACTS[el.dataset.act]; if (fn) { e.preventDefault(); fn(el, e) }
+});
+ACTS.closeLayer = el => closeLayer(el.closest(".layer,.reels,.story,.session"));
+ACTS.closeSheet = () => closeSheet();
+ACTS.tab = el => { closeAllLayers(); setTab(el.dataset.to) };
+function closeAllLayers() { layers.innerHTML = ""; sheets.innerHTML = "" }
+
+// ---------- Feed ----------
+function allPosts() {
+  const mine = state.myPosts.filter(p => !p.private);
+  return mine.concat(MOCK_POSTS).filter(p => !state.hiddenPosts.includes(p.id) && !state.blocked.includes(p.uid)).sort((a, b) => b.end - a.end);
+}
+function renderFeed() {
+  const posts = allPosts().filter(p => state.feedTab === "friends" ? (p.uid === "me" || state.friends.includes(p.uid)) : (p.classShare && state.myClasses.includes(p.cls)));
+  return `<div class="stack">
+    <div class="row" style="justify-content:space-between">${logoSVG(28)}<span class="chip gray tnum">${liveFriends().length} friends locked in now</span></div>
+    <div class="seg" role="tablist"><button class="${state.feedTab === "friends" ? "on" : ""}" data-act="feedTab" data-v="friends">Friends</button><button class="${state.feedTab === "classes" ? "on" : ""}" data-act="feedTab" data-v="classes">My classes</button></div>
+    ${reelsCTA()}
+    ${state.feedTab === "classes" ? `<div class="small muted">Posts your classmates shared to ${state.myClasses.map(esc).join(", ")}. Manage classes in your profile.</div>` : ""}
+    ${posts.length ? posts.map(postHTML).join("") : `<div class="empty">No posts yet. Tap + to start your first session.</div>`}
+  </div>`;
+}
+ACTS.feedTab = el => { state.feedTab = el.dataset.v; render() };
+function liveFriends() { return ["priya", "sam", "zoe"].filter(u => state.friends.includes(u)) }
+function reelsCTA() {
+  const open = reelsOpen();
+  return `<button class="reelcta" data-act="openReels"><span style="color:var(--coral)">${ICON.film}</span><span class="grow"><b>Break Reels</b><br><span class="small ink2">${open ? `Unlocked: ${fmtClock(state.breakUntil - Date.now())} of break left` : "Unlock on your break or after you finish a session"}</span></span><span class="chip ${open ? "mint" : "coral"}">${open ? "Open" : ICON.lock + " Locked"}</span></button>`;
+}
+function postHTML(p) {
+  const people = [p.uid, ...(p.with || [])];
+  const names = people.length > 1 ? `${esc(uname(p.uid))} <span class="muted">with</span> ${p.with.map(u => esc(uname(u).split(" ")[0])).join(", ")}` : esc(uname(p.uid));
+  const keyed = state.keys[p.id], kc = (p.keys || 0) + (keyed ? 1 : 0);
+  const cc = (p.comments || 0) + (state.comments[p.id]?.length || 0);
+  const pl = playerHTML(p.frames ? { frames: p.frames, start: p.start, dur: p.dur, cls: p.cls, song: p.song } : { seed: p.seed, start: p.start, dur: p.dur, cls: p.cls, song: p.song, pauseAt: [.33, .71].slice(0, p.pauses), pauseMin: 4 + (p.seed % 6) });
+  return `<article class="post">
+    <div class="post-h"><div class="avs">${people.slice(0, 3).map(u => av(u, 36)).join("")}</div>
+      <div class="grow"><div class="name">${names}</div><div class="tiny muted row" style="gap:4px">${ICON.pin}<span>${esc(spotName(p.spot))} · ${ago(p.end)}</span></div></div>
+      <button class="iconbtn" data-act="postMenu" data-id="${p.id}" aria-label="Post options">${ICON.more}</button></div>
+    ${pl}
+    <div class="post-stats">
+      <div class="stat"><div class="v">${fmtDur(p.dur)}</div><div class="k">Locked time</div></div>
+      <div class="stat"><div class="v">${p.goalsDone}/${p.goalsTotal}</div><div class="k">Goals done</div></div>
+      ${p.uid === "me" ? `<div class="stat"><div class="v" style="color:var(--blue)">${p.score}</div><div class="k row" style="gap:3px">${ICON.lock} Only you see this</div></div>` : `<div class="stat"><div class="v">${p.pauses}</div><div class="k">Pauses</div></div>`}
+    </div>
+    <div class="post-b">
+      ${p.caption ? `<div>${esc(p.caption)}</div>` : ""}
+      <div class="row wrap" style="gap:6px"><button class="chip" data-act="openClass" data-code="${esc(p.cls)}">${esc(p.cls)}</button>${p.classShare ? `<span class="chip gray">Shared to class</span>` : ""}${p.status === "review" ? `<span class="chip sun">In review</span>` : ""}</div>
+      ${p.song ? songHTML(p.song) : ""}
+    </div>
+    <div class="post-a">
+      <button class="${keyed ? "on" : ""}" data-act="key" data-id="${p.id}" aria-pressed="${!!keyed}">${ICON.key}<span class="tnum">${kc}</span></button>
+      <button data-act="comments" data-id="${p.id}">${ICON.chat}<span class="tnum">${cc}</span></button>
+      <span class="grow"></span>
+      ${p.uid !== "me" ? `<button data-act="lockInvite" data-uid="${p.uid}">Lock in with ${esc(uname(p.uid).split(" ")[0])}</button>` : ""}
+    </div></article>`;
+}
+function songHTML(s) {
+  const h = [...(s.t + s.a)].reduce((a, c) => a + c.charCodeAt(0), 0);
+  return `<div class="song"><span class="art" style="background:linear-gradient(135deg,hsl(${h % 360} 85% 60%),hsl(${(h + 70) % 360} 80% 50%))"></span><span class="grow" style="min-width:0"><b>${esc(s.t)}</b><br><span class="muted">${esc(s.a)} · most locked-in song</span></span><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span></div>`;
+}
+ACTS.key = el => { const id = el.dataset.id; state.keys[id] = !state.keys[id]; save(); rerenderKeepScroll() };
+ACTS.lockInvite = el => { const u = el.dataset.uid; sendDM(u, "", { lockIn: true }); toast(`Lock-in invite sent to ${uname(u).split(" ")[0]}: your timers start together when they accept`) };
+ACTS.comments = el => {
+  const id = el.dataset.id, p = allPosts().find(x => x.id === id) || state.myPosts.find(x => x.id === id);
+  const seeded = Array.from({ length: Math.min(p?.comments || 0, 3) }, (_, i) => ({ uid: ["jordan", "ava", "leo"][i], text: ["locked in fr", "what floor were you on?", "this timelapse is insane"][i] }));
+  const list = seeded.concat(state.comments[id] || []);
+  const sh = openSheet(`<h3 style="font-size:19px;margin-bottom:10px">Comments</h3>
+   <div class="stack" id="clist">${list.map(c => `<div class="row" style="align-items:flex-start">${av(c.uid, 30)}<div class="grow"><b class="small">${esc(uname(c.uid))}</b><div>${esc(c.text)}</div></div><button class="iconbtn" data-act="report" data-kind="comment" aria-label="Report comment">${ICON.more}</button></div>`).join("") || `<div class="muted small">No comments yet.</div>`}</div>
+   <div class="hr" style="margin:14px 0"></div>
+   <div id="cerr"></div>
+   <div class="row"><input class="input" id="cin" placeholder="Add a comment" maxlength="300"><button class="btn sm" data-act="addComment" data-id="${id}">Post</button></div>`);
+  setTimeout(() => $("#cin", sh)?.focus(), 50);
+};
+ACTS.addComment = el => {
+  const inp = $("#cin"), text = inp.value.trim(); if (!text) return;
+  const m = moderate(text); if (m.lvl === "block") { $("#cerr").innerHTML = `<div class="banner danger" style="margin-bottom:10px">${ICON.shield}<span>${esc(modMessage(m))}</span></div>`; return }
+  (state.comments[el.dataset.id] ||= []).push({ uid: "me", text }); save(); closeSheet(); rerenderKeepScroll(); toast("Comment posted");
+};
+ACTS.postMenu = el => {
+  const id = el.dataset.id, p = allPosts().find(x => x.id === id) || state.myPosts.find(x => x.id === id); if (!p) return;
+  if (p.uid === "me") openSheet(`<h3 style="font-size:19px;margin-bottom:12px">Your post</h3><div class="stack"><button class="btn line block" data-act="deletePost" data-id="${id}">Delete post</button><button class="btn ghost block" data-act="closeSheet">Cancel</button></div>`);
+  else openReport("post", id, p.uid);
+};
+ACTS.deletePost = el => { const id = el.dataset.id; state.myPosts = state.myPosts.filter(p => p.id !== id); idb.del(id); closeSheet(); render(); toast("Post deleted") };
+
+// ---------- Reporting & blocking (every post, comment, message and Reel) ----------
+const REPORT_REASONS = ["Nudity or sexual content", "Harassment or bullying", "Hate speech or symbols", "Violence, threats or self-harm", "Drugs or illegal sales", "Academic dishonesty", "Spam or fake", "Something else"];
+function openReport(kind, id, uid) {
+  openSheet(`<h3 style="font-size:19px">Report this ${kind}</h3><p class="small muted" style="margin:6px 0 12px">Reports are anonymous. Anything reported by 3 people is hidden right away until a reviewer checks it.</p>
+  <div class="stack" style="gap:6px">${REPORT_REASONS.map(r => `<button class="listrow" style="padding:11px 8px;border:1px solid var(--line)" data-act="doReport" data-kind="${kind}" data-id="${id || ""}" data-uid="${uid || ""}">${esc(r)}</button>`).join("")}</div>
+  ${uid ? `<div class="hr" style="margin:14px 0"></div><button class="btn line block" data-act="blockUser" data-uid="${uid}">Block ${esc(uname(uid))}</button>` : ""}`);
+}
+ACTS.report = el => openReport(el.dataset.kind || "item", el.dataset.id, el.dataset.uid);
+ACTS.doReport = el => { if (el.dataset.kind === "post" && el.dataset.id) { state.hiddenPosts.push(el.dataset.id); save() } closeSheet(); rerenderKeepScroll(); toast("Thanks. It's hidden for you and sent for review.") };
+ACTS.blockUser = el => { const u = el.dataset.uid; state.blocked.push(u); state.friends = state.friends.filter(f => f !== u); save(); closeSheet(); rerenderKeepScroll(); toast(`${uname(u)} is blocked. They can't see your posts or message you.`) };
+// ---------- Study score ----------
+// Lock Score (0–100) measures quality only. Length is reported separately as Locked time.
+//   Presence 45%   share of checks where you were at your desk (micro-motion required, so a photo or empty chair fails)
+//   Continuity 30% starts at 100: free pause = under 10 min, one per started hour; extra short pause −8, long pause −12,
+//                  leaving the app −5, emergency unlock −20
+//   Goals 25%      share of the goals you set before starting that you checked off
+// If you set no goals, presence and continuity are reweighted to 60/40.
+function scoreSession(s) {
+  const activeMin = s.activeMs / MIN, hours = Math.max(1, Math.ceil(activeMin / 60));
+  const presence = s.checks ? s.present / s.checks : 1;
+  let cont = 100, free = hours; const notes = [];
+  for (const p of s.pauses) {
+    const m = ((p.end || s.endAt) - p.start) / MIN * s.speed;
+    if (m < 10 && free > 0) { free--; notes.push(`Pause ${Math.round(m)} min: free (1 per hour)`) }
+    else if (m < 10) { cont -= 8; notes.push(`Extra short pause: −8`) }
+    else { cont -= 12; notes.push(`Pause over 10 min: −12`) }
+  }
+  if (s.leftApp) { cont -= 5 * s.leftApp; notes.push(`Left the app ${s.leftApp}×: −${5 * s.leftApp}`) }
+  if (s.emergency) { cont -= 20 * s.emergency; notes.push(`Emergency unlock: −${20 * s.emergency}`) }
+  cont = clamp(cont, 0, 100);
+  const total = s.goals.length, done = s.goals.filter(g => g.done).length, goals = total ? done / total : null;
+  const score = goals === null ? Math.round(.6 * presence * 100 + .4 * cont) : Math.round(.45 * presence * 100 + .30 * cont + .25 * goals * 100);
+  return { score: clamp(score, 0, 100), presence, cont, goals, done, total, notes };
+}
+
+// ---------- Session setup ----------
+let draft = null;
+ACTS.newSession = () => {
+  if (S) { showSession(); return }
+  draft = { cls: state.myClasses[0] || "General", goals: [], spot: "green", lock: true, with: [], intensity: "Normal", fast: true };
+  renderSetup();
+};
+function renderSetup() {
+  closeAllLayers();
+  const late = lateNight();
+  openLayer(`${layerHead("New session")}
+  <div class="layer-b"><div class="stack" style="gap:18px">
+    ${late ? `<div class="banner sun"><b>It's ${fmtTime(Date.now())}.</b>&nbsp;Sleep counts too. Your streak is safe until 4 AM.</div>` : ""}
+    <div class="field"><label>Class</label><button class="input row" style="text-align:left" data-act="pickClass"><span class="chip">${esc(draft.cls)}</span><span class="grow small muted">${esc(findTag(draft.cls)?.title || "")}</span><span class="muted small">Change</span></button></div>
+    <div class="field"><label>Goals for this session</label>
+      <div class="small muted">Set them now. You can check them off while you study, but you can't edit them after you start.</div>
+      <div class="stack" style="gap:6px" id="goalList">${draft.goals.map((g, i) => `<div class="row card" style="padding:9px 12px"><span class="grow">${esc(g.t)}</span><button class="iconbtn" style="width:28px;height:28px" data-act="rmGoal" data-i="${i}" aria-label="Remove goal">${ICON.close}</button></div>`).join("")}</div>
+      <div class="row"><input class="input" id="goalIn" placeholder="e.g. Finish problems 1–3" maxlength="80"><button class="btn sm ghost" data-act="addGoal">Add</button></div></div>
+    <div class="field"><label for="spotSel">Where are you?</label>
+      <select class="input" id="spotSel">${SPOTS.concat(state.customSpots).map(s => `<option value="${s.id}" ${s.id === draft.spot ? "selected" : ""}>${esc(s.name)}</option>`).join("")}<option value="home" ${draft.spot === "home" ? "selected" : ""}>Home / dorm (never shown on the map)</option></select></div>
+    <div class="field"><label>Studying with</label><div class="row wrap" style="gap:6px">${state.friends.slice(0, 8).map(u => `<button class="chip ${draft.with.includes(u) ? "sel" : "gray"}" data-act="toggleWith" data-uid="${u}">${esc(uname(u).split(" ")[0])}</button>`).join("")}</div><div class="tiny muted">They'll get a request to make this a joint post.</div></div>
+    <div class="field"><label>How heavy is this work? <span class="muted">(optional, used only in your stats, never in your score)</span></label><div class="seg">${["Light", "Normal", "Heavy"].map(x => `<button class="${draft.intensity === x ? "on" : ""}" data-act="setInt" data-v="${x}">${x}</button>`).join("")}</div></div>
+    <div class="card row" style="align-items:flex-start"><div class="grow"><b>Lock me in</b><div class="small muted">Blocks other apps until you end. An emergency unlock is always there, but costs 20 points.</div></div><button class="toggle ${draft.lock ? "on" : ""}" data-act="tglLock" role="switch" aria-checked="${draft.lock}" aria-label="Lock me in"></button></div>
+    <div class="card row" style="align-items:flex-start;background:var(--sun-soft);border-color:transparent"><div class="grow"><b>Demo clock</b><div class="small ink2">1 real second counts as 1 minute, so you can see breaks, pauses and the score quickly. Turn off for a real session.</div></div><button class="toggle ${draft.fast ? "on" : ""}" data-act="tglFast" role="switch" aria-checked="${draft.fast}" aria-label="Demo clock"></button></div>
+    <button class="btn block" data-act="startSession" style="padding:16px">Lock in</button>
+    <p class="tiny muted" style="text-align:center">Front camera records one frame every few seconds. Raw frames stay on your phone; only the 20-second timelapse you choose to post is uploaded.</p>
+  </div></div>`);
+  $("#spotSel").onchange = e => draft.spot = e.target.value;
+  $("#goalIn").onkeydown = e => { if (e.key === "Enter") ACTS.addGoal() };
+}
+ACTS.addGoal = () => { const v = $("#goalIn").value.trim(); if (!v) return; draft.goals.push({ t: v, done: false }); renderSetup(); setTimeout(() => $("#goalIn")?.focus(), 0) };
+ACTS.rmGoal = el => { draft.goals.splice(+el.dataset.i, 1); renderSetup() };
+ACTS.toggleWith = el => { const u = el.dataset.uid; draft.with = draft.with.includes(u) ? draft.with.filter(x => x !== u) : [...draft.with, u]; renderSetup() };
+ACTS.setInt = el => { draft.intensity = el.dataset.v; renderSetup() };
+ACTS.tglLock = () => { draft.lock = !draft.lock; renderSetup() };
+ACTS.tglFast = () => { draft.fast = !draft.fast; renderSetup() };
+ACTS.pickClass = () => tagPicker(code => { draft.cls = code; renderSetup() });
+function tagPicker(cb, title = "Tag a class") {
+  const sh = openSheet(`<h3 style="font-size:19px;margin-bottom:10px">${title}</h3><input class="input" id="tagQ" placeholder="Search CS 161, Psych, MCAT…" autocomplete="off"><div class="stack" style="gap:2px;margin-top:10px" id="tagRes"></div>`);
+  const draw = q => { q = q.trim().toLowerCase(); const mine = state.myClasses.map(findTag).filter(Boolean); let list = q ? ALL_TAGS.filter(c => (c.code + " " + c.title + " " + c.cross.join(" ")).toLowerCase().includes(q)) : mine.concat(EXTRA_TAGS);
+    list = list.slice(0, 40);
+    $("#tagRes", sh).innerHTML = (q ? "" : `<div class="eyebrow" style="margin:4px 0">Your classes and other tags</div>`) + list.map(c => `<button class="listrow" data-code="${esc(c.code)}"><span class="chip ${c.kind === "tag" ? "gray" : ""}">${esc(c.code)}</span><span class="grow small" style="min-width:0">${esc(c.kind === "tag" ? "Non-course tag" : c.title)}${c.cross.length ? `<span class="muted"> · also ${esc(c.cross.join(", "))}</span>` : ""}</span></button>`).join("") + (q && !list.length ? `<div class="muted small">No match. The full app searches every course in ExploreCourses.</div>` : "") };
+  draw(""); const qi = $("#tagQ", sh); qi.oninput = () => draw(qi.value); setTimeout(() => qi.focus(), 50);
+  $("#tagRes", sh).addEventListener("click", e => { const b = e.target.closest("[data-code]"); if (b) { closeSheet(); cb(b.dataset.code) } });
+}
+function lateNight() { const h = new Date().getHours(); return state.lateGuard && h >= 2 && h < 4 }
+
+// ---------- Session engine ----------
+let S = null, tickTimer = null, wakeLock = null;
+const cap = document.createElement("canvas"); cap.width = 270; cap.height = 360; const capx = cap.getContext("2d", { willReadFrequently: true });
+const tiny = document.createElement("canvas"); tiny.width = 16; tiny.height = 20; const tinyx = tiny.getContext("2d", { willReadFrequently: true });
+const MAX_FRAMES = 480;
+ACTS.startSession = async () => {
+  S = {
+    ...draft, startAt: Date.now(), lastTick: Date.now(), activeMs: 0, mode: "running", pauses: [], breaks: [], leftApp: 0, emergency: 0,
+    frames: [], interval: 2500, lastCap: 0, checks: 0, present: 0, prevSig: null, stillRun: 0, speed: draft.fast ? 60 : 1, nextBreakAt: 60, cam: null, video: null, seed: Math.floor(Math.random() * 1e6),
+  };
+  closeAllLayers();
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } }, audio: false });
+    const v = document.createElement("video"); v.muted = true; v.playsInline = true; v.srcObject = stream; await v.play(); S.cam = stream; S.video = v;
+  } catch { S.cam = null; toast("Camera isn't available here, so this demo uses a simulated camera") }
+  try { wakeLock = await navigator.wakeLock?.request("screen") } catch { }
+  showSession(); tickTimer = setInterval(tick, 1000); tick();
+};
+function sessionNow() { return S.startAt + (Date.now() - S.startAt) * S.speed } // the "clock" in demo mode runs 60× fast
+function tick() {
+  if (!S) return; const now = Date.now(), dt = (now - S.lastTick) * S.speed; S.lastTick = now;
+  if (S.mode === "running") {
+    S.activeMs += dt;
+    if (now - S.lastCap >= (S.speed > 1 ? 1000 : S.interval)) { capture(); S.lastCap = now }
+    if (S.activeMs / MIN >= S.nextBreakAt) { S.nextBreakAt += 60; S.breakOffer = true }
+  } else if (S.mode === "paused") {
+    const p = S.pauses[S.pauses.length - 1]; if ((now - p.start) * S.speed >= 30 * MIN) { p.end = now; S.autoEnded = true; endSession(); return }
+  } else if (S.mode === "break") {
+    if (now >= state.breakUntil) { S.mode = "running"; S.breaks[S.breaks.length - 1].end = now; toast("Break's over. Back to locked.") }
+  }
+  updateSessionUI();
+}
+function capture() {
+  const w = cap.width, h = cap.height;
+  if (S.video) { const v = S.video, vw = v.videoWidth || 640, vh = v.videoHeight || 480, sc = Math.max(w / vw, h / vh); capx.save(); capx.translate(w, 0); capx.scale(-1, 1); capx.drawImage(v, (w - vw * sc) / 2, (h - vh * sc) / 2, vw * sc, vh * sc); capx.restore() }
+  else sceneDraw(capx, w, h, (S.activeMs / (4 * HOUR)) % 1, S.seed, S.startAt, 4 * HOUR);
+  // presence: a person at a desk makes small movements; an empty chair or a photo makes none
+  tinyx.drawImage(cap, w * .2, h * .1, w * .6, h * .6, 0, 0, 16, 20); const d = tinyx.getImageData(0, 0, 16, 20).data;
+  const sig = []; for (let i = 0; i < d.length; i += 4) sig.push((d[i] + d[i + 1] + d[i + 2]) / 3);
+  let diff = 0; if (S.prevSig) for (let i = 0; i < sig.length; i++) diff += Math.abs(sig[i] - S.prevSig[i]); diff /= sig.length; S.prevSig = sig;
+  const mean = sig.reduce((a, b) => a + b, 0) / sig.length;
+  const moving = S.video ? diff > 1.2 : !(Math.sin((S.activeMs / (4 * HOUR)) * 31 + S.seed) > .985);
+  S.stillRun = moving ? 0 : S.stillRun + 1;
+  S.checks++; const here = mean > 14 && S.stillRun < 8; if (here) S.present++; S.here = here;
+  S.frames.push({ src: cap.toDataURL("image/jpeg", .62) });
+  if (S.frames.length > MAX_FRAMES) { S.frames = S.frames.filter((f, i) => f.card || i % 2 === 0); S.interval *= 2 } // keep the timelapse at a fixed size
+}
+function showSession() {
+  if (!S) return; $(".session")?.remove();
+  const el = openLayer(`<div class="row" style="width:100%;justify-content:space-between"><span class="rec" id="recLbl"><i></i>Recording</span><span class="tiny" style="color:#6F7398">${esc(S.cls)} · ${esc(spotName(S.spot))}</span></div>
+   <div style="text-align:center;width:100%" id="sMid"></div>
+   <div style="width:100%" class="stack" id="sBot"></div>`, "session");
+  el.id = "sessionLayer"; updateSessionUI();
+}
+function updateSessionUI() {
+  const el = $("#sessionLayer"); if (!el || !S) return;
+  const mid = $("#sMid", el), bot = $("#sBot", el), drift = (Math.floor(Date.now() / 20000) % 5) * 6; // nudge text so the dark screen doesn't burn in
+  $("#recLbl", el).innerHTML = S.mode === "running" ? `<i></i>Recording · ${S.frames.length} frames${S.here === false ? " · <span style='color:#FFB81F'>can't see you</span>" : ""}` : S.mode === "paused" ? "Paused" : "On break";
+  let midHTML = "";
+  if (S.mode === "running") midHTML = `<div class="clock" style="transform:translateY(${drift}px)">${fmtClock(S.activeMs)}</div><div class="tiny" style="color:#6F7398;margin-top:6px">${S.speed > 1 ? "Demo clock: 1 sec = 1 min" : "Locked in"}${S.lock ? " · other apps blocked" : ""}</div>`;
+  else if (S.mode === "paused") { const p = S.pauses[S.pauses.length - 1], pm = (Date.now() - p.start) * S.speed; midHTML = `<div class="clock" style="color:#FFB81F">${fmtClock(pm)}</div><div class="small" style="color:#8F93B8;margin-top:6px">Paused. Ends automatically at 30:00.<br>${pm < 10 * MIN ? "Under 10 minutes: free once per hour." : "Over 10 minutes: this pause costs 12 points."}</div>` }
+  else midHTML = `<div class="clock" style="color:#10B27F">${fmtClock(Math.max(0, state.breakUntil - Date.now()) * S.speed)}</div><div class="small" style="color:#8F93B8;margin-top:6px">Break time doesn't count as a pause.</div><button class="sbtn" style="margin-top:14px" data-act="openReels">Open Break Reels</button>`;
+  if (S.breakOffer && S.mode === "running") midHTML += `<div style="margin-top:22px;background:#15172B;border:1px solid #23264A;border-radius:16px;padding:14px;color:#E8EAF6"><b>${Math.floor(S.activeMs / HOUR)} hour locked.</b> Take a 10-minute break? Reels unlock while you rest.<div class="row" style="justify-content:center;margin-top:10px"><button class="sbtn end" data-act="takeBreak">Take a break</button><button class="sbtn" data-act="skipBreak">Keep going</button></div></div>`;
+  if (lateNight()) midHTML += `<div class="small" style="margin-top:18px;color:#FFB81F">It's ${fmtTime(Date.now())}. Sleep counts too. Your streak is safe until 4 AM.</div>`;
+  if (mid.innerHTML !== midHTML) mid.innerHTML = midHTML;
+  const goals = S.goals.length ? `<div>${S.goals.map((g, i) => `<button class="sgoal ${g.done ? "done" : ""}" data-act="checkGoal" data-i="${i}"><span class="box">${g.done ? "✓" : ""}</span><span>${esc(g.t)}</span></button>`).join("")}</div>` : "";
+  const btns = `<div class="row" style="justify-content:center;flex-wrap:wrap">${S.mode === "paused" ? `<button class="sbtn end" data-act="resume">Resume</button>` : S.mode === "running" ? `<button class="sbtn" data-act="pause">Pause</button>` : `<button class="sbtn" data-act="endBreak">End break</button>`}<button class="sbtn end" data-act="endSession">End & post</button></div>
+    ${S.lock ? `<button class="sbtn em" style="align-self:center" data-act="emergency">Emergency unlock (−20)</button>` : ""}`;
+  const botHTML = goals + btns; if (bot._h !== botHTML) { bot.innerHTML = botHTML; bot._h = botHTML }
+}
+ACTS.checkGoal = el => { const g = S.goals[+el.dataset.i]; g.done = !g.done; updateSessionUI() };
+ACTS.pause = () => { S.mode = "paused"; S.pauses.push({ start: Date.now() }); updateSessionUI() };
+ACTS.resume = () => { const p = S.pauses[S.pauses.length - 1]; p.end = Date.now(); const m = Math.max(1, Math.round((p.end - p.start) * S.speed / MIN)); S.frames.push({ card: `Paused ${m} min` }, { card: `Paused ${m} min` }); S.mode = "running"; updateSessionUI() };
+ACTS.takeBreak = () => { S.breakOffer = false; S.mode = "break"; state.breakUntil = Date.now() + 10 * MIN / S.speed; S.breaks.push({ start: Date.now() }); S.frames.push({ card: "Break" }); updateSessionUI() };
+ACTS.skipBreak = () => { S.breakOffer = false; updateSessionUI() };
+ACTS.endBreak = () => { state.breakUntil = Date.now(); S.mode = "running"; S.breaks[S.breaks.length - 1].end = Date.now(); updateSessionUI() };
+ACTS.emergency = () => openSheet(`<h3 style="font-size:19px">Emergency unlock?</h3><p class="small ink2" style="margin:8px 0 14px">Your session keeps running, but this costs 20 points from today's Lock Score. Calls to emergency services always work without unlocking.</p><div class="stack"><button class="btn danger block" data-act="doEmergency">Unlock for 2 minutes (−20)</button><button class="btn ghost block" data-act="closeSheet">Stay locked</button></div>`);
+ACTS.doEmergency = () => { S.emergency++; closeSheet(); toast("Unlocked. In the iPhone app, other apps open for 2 minutes.") };
+document.addEventListener("visibilitychange", () => { if (document.hidden && S && S.mode === "running") { S.leftApp++; S.pendingLeft = true } else if (!document.hidden && S?.pendingLeft) { S.pendingLeft = false; toast(S.lock ? "You left Locked: −5. The iPhone app blocks this when Lock me in is on." : "You left Locked: −5") } });
+function stopCamera() { S?.cam?.getTracks().forEach(t => t.stop()); try { wakeLock?.release() } catch { } wakeLock = null }
+ACTS.endSession = () => endSession();
+function endSession() {
+  if (!S) return; clearInterval(tickTimer); S.endAt = Date.now();
+  if (S.mode === "paused") S.pauses[S.pauses.length - 1].end ||= Date.now();
+  stopCamera(); if (S.mode === "break") S.breaks[S.breaks.length - 1].end = Date.now();
+  if (!S.frames.length) capture();
+  const res = scoreSession(S); const fin = S; S = null; closeAllLayers();
+  state.breakUntil = Date.now() + 10 * MIN; // finishing a session unlocks Reels for 10 minutes
+  openComposer(fin, res);
+}
+
+// ---------- Post composer ----------
+function openComposer(s, res) {
+  const frames = framesFromData(s.frames);
+  const suggested = state.spotify ? SONGS[s.seed % SONGS.length] : null;
+  const c = { s, res, frames, caption: "", song: suggested, spot: s.spot, newSpot: "", classShare: false, rating: 0, with: [...s.with] };
+  const durReal = s.activeMs;
+  const layer = openLayer(`${layerHead("Post your session")}<div class="layer-b"><div class="stack" style="gap:16px" id="comp"></div></div>`);
+  const draw = () => {
+    const parts = [["Presence", Math.round(res.presence * 100), "At your desk in each camera check"], ["Continuity", Math.round(res.cont), "Pauses, exits and unlocks"], ...(res.goals !== null ? [["Goals", Math.round(res.goals * 100), `${res.done} of ${res.total} done`]] : [])];
+    $("#comp", layer).innerHTML = `
+    ${s.autoEnded ? `<div class="banner sun">This session ended automatically after a 30-minute pause.</div>` : ""}
+    <div style="border-radius:18px;overflow:hidden">${playerHTML({ frames, start: s.startAt, dur: Math.max(durReal, MIN), cls: s.cls, song: c.song })}</div>
+    <div class="card"><div class="row"><div class="grow"><div class="eyebrow row" style="gap:4px">${ICON.lock} Lock Score · only you see this</div><div style="font-family:var(--f-display);font-weight:800;font-size:44px;line-height:1;color:var(--blue)" class="tnum">${res.score}</div></div><div style="text-align:right"><div class="eyebrow">Locked time</div><div style="font-family:var(--f-display);font-weight:800;font-size:24px" class="tnum">${fmtDur(durReal)}</div></div></div>
+      <div class="bars" style="margin-top:12px">${parts.map(([k, v, d]) => `<div class="barrow" title="${esc(d)}"><span class="lbl">${k}</span><span class="bartrack" style="background:var(--surface-2)"><span class="barfill" style="width:${v}%;display:block"></span></span><span class="val">${v}</span></div>`).join("")}</div>
+      ${res.notes.length ? `<div class="tiny muted" style="margin-top:10px">${res.notes.map(esc).join(" · ")}</div>` : ""}</div>
+    <div class="card"><b>How focused did it feel?</b><div class="small muted">This doesn't change your score. It's a check that the score matches how the session felt.</div>
+      <div class="row" style="margin-top:10px;gap:6px">${[1, 2, 3, 4, 5].map(n => `<button class="chip ${c.rating === n ? "sel" : "gray"}" style="flex:1;justify-content:center;padding:9px" data-r="${n}">${n}</button>`).join("")}</div></div>
+    <div class="field"><label for="capIn">Caption</label><textarea class="input" id="capIn" maxlength="280" placeholder="What did you get done?">${esc(c.caption)}</textarea><div id="capWarn"></div></div>
+    <div class="field"><label>Class</label><div class="row"><span class="chip">${esc(s.cls)}</span>${findTag(s.cls)?.kind === "course" ? `<span class="grow"></span><span class="small ink2">Also share to the ${esc(s.cls)} feed</span><button class="toggle ${c.classShare ? "on" : ""}" id="csT" role="switch" aria-checked="${c.classShare}" aria-label="Share to class feed"></button>` : ""}</div></div>
+    <div class="field"><label for="cSpot">Location</label><select class="input" id="cSpot">${SPOTS.concat(state.customSpots).map(x => `<option value="${x.id}" ${x.id === c.spot ? "selected" : ""}>${esc(x.name)}</option>`).join("")}<option value="home" ${c.spot === "home" ? "selected" : ""}>Home / dorm (private)</option><option value="__new">+ Add a new spot</option></select>
+      ${c.spot === "__new" ? `<input class="input" id="newSpot" placeholder="Name the spot, e.g. Hume Writing Center" value="${esc(c.newSpot)}">` : ""}
+      <div class="tiny muted" id="geo">${c.spot === "home" ? "Home sessions never appear on the map." : "Checking that you're near this spot…"}</div></div>
+    <div class="field"><label>Locked-in song</label>
+      ${c.song ? songHTML(c.song) : ""}
+      <div class="row"><button class="btn sm ghost" id="songBtn">${c.song ? "Change song" : "Add a song"}</button>${c.song ? `<button class="btn sm line" id="songRm">Remove</button>` : ""}${!state.spotify ? `<span class="tiny muted grow">Connect Spotify in your profile and Locked picks the song you played during your most focused stretch.</span>` : `<span class="tiny muted grow">Picked from what you played during your most focused stretch.</span>`}</div></div>
+    <div class="field"><label>Studied with</label><div class="row wrap" style="gap:6px">${state.friends.slice(0, 8).map(u => `<button class="chip ${c.with.includes(u) ? "sel" : "gray"}" data-w="${u}">${esc(uname(u).split(" ")[0])}</button>`).join("")}</div><div class="tiny muted">Tagged friends have to accept before the joint post shows on their profile.</div></div>
+    <div class="banner blue">${ICON.shield}<span>Before anything goes live, Locked checks your caption and timelapse for inappropriate content. Your friends see this post; ${c.classShare ? `classmates in ${esc(s.cls)} will too.` : "it isn't shared to the class feed."}</span></div>
+    <div id="postErr"></div>
+    <button class="btn block" id="postBtn" style="padding:15px">Post</button>
+    <button class="btn ghost block" id="privBtn">Save privately (still counts for your streak and stats)</button>`;
+    bindPlayers(layer);
+    const capIn = $("#capIn", layer); capIn.oninput = () => { c.caption = capIn.value; const m = moderate(c.caption); $("#capWarn", layer).innerHTML = m.lvl === "ok" ? "" : `<div class="banner ${m.lvl === "block" ? "danger" : "sun"}" style="margin-top:6px">${ICON.shield}<span>${esc(modMessage(m))}</span></div>` }; capIn.oninput();
+    $$("[data-r]", layer).forEach(b => b.onclick = () => { c.rating = +b.dataset.r; draw() });
+    $$("[data-w]", layer).forEach(b => b.onclick = () => { const u = b.dataset.w; c.with = c.with.includes(u) ? c.with.filter(x => x !== u) : [...c.with, u]; draw() });
+    const csT = $("#csT", layer); if (csT) csT.onclick = () => { c.classShare = !c.classShare; draw() };
+    $("#cSpot", layer).onchange = e => { c.spot = e.target.value; draw() };
+    const ns = $("#newSpot", layer); if (ns) ns.oninput = () => c.newSpot = ns.value;
+    $("#songBtn", layer).onclick = () => songPicker(sng => { c.song = sng; draw() });
+    const rm = $("#songRm", layer); if (rm) rm.onclick = () => { c.song = null; draw() };
+    $("#postBtn", layer).onclick = () => publish(c, false, layer);
+    $("#privBtn", layer).onclick = () => publish(c, true, layer);
+    verifyGeo(c.spot);
+  };
+  draw();
+}
+function verifyGeo(spotId) {
+  const el = $("#geo"); if (!el || spotId === "home" || spotId === "__new") return;
+  if (!navigator.geolocation) { el.textContent = "Location check unavailable here."; return }
+  navigator.geolocation.getCurrentPosition(pos => {
+    const sp = SPOTS.find(s => s.id === spotId); const ref = sp?.ll || CAMPUS;
+    const dLat = (pos.coords.latitude - ref[0]) * 111000, dLng = (pos.coords.longitude - ref[1]) * 88000, dist = Math.hypot(dLat, dLng);
+    el.innerHTML = dist < 400 ? `<span style="color:var(--mint)">✓ Verified: you're near ${esc(spotName(spotId))}</span>` : `<span style="color:#8A5A00">You don't seem to be near ${esc(spotName(spotId))}. The post will show the spot as "unverified".</span>`;
+  }, () => { el.textContent = "Couldn't check your location in this preview. The iPhone app verifies it before posting." }, { timeout: 6000 });
+}
+function songPicker(cb) {
+  const sh = openSheet(`<h3 style="font-size:19px;margin-bottom:10px">Most locked-in song</h3><input class="input" id="songQ" placeholder="Search songs"><div class="stack" style="gap:2px;margin-top:10px" id="songRes"></div><p class="tiny muted" style="margin-top:10px">Viewers hear a 30-second preview through Apple Music or open the full song in their own Spotify. That keeps the music licensed.</p>`);
+  const drawS = q => { q = q.toLowerCase(); $("#songRes", sh).innerHTML = SONGS.filter(s => (s.t + " " + s.a).toLowerCase().includes(q)).map(s => `<button class="listrow" data-t="${esc(s.t)}"><b class="small">${esc(s.t)}</b><span class="small muted">${esc(s.a)}</span></button>`).join("") };
+  drawS(""); $("#songQ", sh).oninput = e => drawS(e.target.value);
+  $("#songRes", sh).addEventListener("click", e => { const b = e.target.closest("[data-t]"); if (b) { closeSheet(); cb(SONGS.find(s => s.t === b.dataset.t)) } });
+}
+async function publish(c, priv, layer) {
+  const err = $("#postErr", layer);
+  if (c.spot === "__new") { const n = c.newSpot.trim(); const m = moderate(n); if (!n || m.lvl === "block") { err.innerHTML = `<div class="banner danger">Give the new spot an appropriate name.</div>`; return } const id = "c" + Date.now(); state.customSpots.push({ id, name: n, x: 500, y: 520 }); c.spot = id }
+  const m = moderate(c.caption);
+  if (m.lvl === "block") { err.innerHTML = `<div class="banner danger">${ICON.shield}<span>${esc(modMessage(m))}</span></div>`; return }
+  if (!priv) {
+    err.innerHTML = `<div class="banner blue">${ICON.shield}<span>Checking your caption and timelapse…</span></div>`;
+    const scan = scanFrames(c.frames); await new Promise(r => setTimeout(r, 700));
+    if (scan.flagged) { err.innerHTML = `<div class="banner danger">${ICON.shield}<span>Some frames may show inappropriate content, so this post can't go to the feed. You can still save it privately. If this is a mistake, request a review.</span></div>`; return }
+  }
+  const p = {
+    id: "p" + Date.now(), uid: "me", with: c.with, cls: c.s.cls, spot: c.spot, start: c.s.startAt, end: c.s.startAt + c.s.activeMs, dur: c.s.activeMs,
+    caption: c.caption.trim(), song: c.song, goalsDone: c.res.done, goalsTotal: c.res.total, pauses: c.s.pauses.length, keys: 0, comments: 0, score: c.res.score, rating: c.rating,
+    classShare: c.classShare && !priv, private: priv, intensity: c.s.intensity, music: !!c.song, group: c.with.length > 0, status: m.lvl === "warn" ? "review" : "live",
+    frameData: c.s.frames,
+  };
+  p.frames = c.frames; state.myPosts.unshift(p); const { frames, ...rest } = p; idb.put(rest); save();
+  closeLayer(layer); state.feedTab = "friends"; setTab(priv ? "stats" : "feed");
+  toast(priv ? "Saved privately. It counts for your streak and stats." : m.lvl === "warn" ? "Posted. A reviewer will take a quick look because of the flagged wording." : c.with.length ? "Posted! Tagged friends got a request to join the post." : "Posted to your friends' feeds");
+}
+// ---------- Map: 24-hour heat map + live layer ----------
+const MIN_POSTS_SHOWN = 3; // spots with fewer posts stay hidden so nobody can be pinpointed
+function spotCounts() {
+  const c = {}; for (const s of SPOTS) c[s.id] = [...(SPOT_ACTIVITY[s.id] || [0, 0])];
+  for (const p of state.myPosts) if (!p.private && p.spot !== "home" && Date.now() - p.end < DAY && c[p.spot]) c[p.spot][0]++;
+  if (S && S.spot !== "home" && c[S.spot]) c[S.spot][1]++;
+  return c;
+}
+function campusSVG() {
+  return `<svg viewBox="0 0 1000 1080" aria-hidden="true">
+  <rect width="1000" height="1080" fill="#EEF2EA"/>
+  <path d="M0 0H1000V150C820 130 700 170 560 120 420 70 240 140 0 110Z" fill="#D9EBCF"/>
+  <path d="M60 270c40-60 170-70 210-10s10 150-70 160S20 330 60 270Z" fill="#CFE2F6"/><text x="150" y="335" font-size="22" fill="#6C88A8" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">Lake Lag</text>
+  <path d="M40 880C200 800 360 980 560 900S900 980 1000 900V1080H0Z" fill="#E3EEDC"/>
+  <path d="M590 0 L515 270" stroke="#fff" stroke-width="20" stroke-linecap="round"/><path d="M590 0 L515 270" stroke="#E2DCCB" stroke-width="4" stroke-dasharray="2 22" stroke-linecap="round"/>
+  <text x="575" y="80" font-size="16" fill="#8F94A8" font-family="Inter,sans-serif" font-weight="600" transform="rotate(-74 575 80)">Palm Drive</text>
+  <path d="M120 230 C 300 120 760 120 940 300 C 1010 520 960 800 760 900 C 540 990 260 960 130 800 C 40 640 40 380 120 230Z" fill="none" stroke="#fff" stroke-width="18"/>
+  <path d="M150 560H900" stroke="#fff" stroke-width="12"/><text x="200" y="550" font-size="15" fill="#8F94A8" font-family="Inter,sans-serif" font-weight="600">Jane Stanford Way</text>
+  <ellipse cx="515" cy="320" rx="70" ry="48" fill="#CFE6C4"/><text x="515" y="326" font-size="15" fill="#5E8A55" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">The Oval</text>
+  <rect x="425" y="395" width="180" height="140" rx="6" fill="#F1E3C8" stroke="#E2CFA8" stroke-width="3"/><rect x="465" y="430" width="100" height="70" fill="#EEF2EA"/><text x="515" y="472" font-size="14" fill="#9C7F4F" text-anchor="middle" font-family="Inter,sans-serif" font-weight="700">Main Quad</text>
+  <circle cx="712" cy="525" r="14" fill="#F1E3C8" stroke="#E2CFA8" stroke-width="3"/><text x="712" y="560" font-size="13" fill="#9C7F4F" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">Hoover Tower</text>
+  <rect x="290" y="370" width="130" height="90" rx="6" fill="#E6E9F3"/><text x="355" y="485" font-size="12" fill="#8F94A8" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">Science &amp; Engineering Quad</text>
+  <rect x="250" y="120" width="170" height="90" rx="8" fill="#E6E9F3"/><text x="335" y="232" font-size="12" fill="#8F94A8" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">Medical Center</text>
+  <rect x="470" y="600" width="140" height="80" rx="8" fill="#E6E9F3"/><text x="540" y="700" font-size="12" fill="#8F94A8" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">White Plaza</text>
+  </svg>`;
+}
+function renderMap() {
+  const counts = spotCounts();
+  const shown = SPOTS.filter(s => counts[s.id][0] >= MIN_POSTS_SHOWN);
+  const live = state.mapMode === "live";
+  return `<div class="stack">
+   <div class="row" style="justify-content:space-between"><h2 style="font-size:22px">Where Stanford is locked in</h2></div>
+   <div class="seg"><button class="${!live ? "on" : ""}" data-act="mapMode" data-v="heat">Last 24 hours</button><button class="${live ? "on" : ""}" data-act="mapMode" data-v="live">Live now</button></div>
+   <div class="mapwrap" id="mapwrap">${campusSVG()}<canvas id="heat" width="500" height="540"></canvas>
+     <svg viewBox="0 0 1000 1080" style="z-index:2">${shown.map(s => {
+    const [n, l] = counts[s.id]; const r = live ? 9 + Math.sqrt(l) * 4 : 8;
+    return `<g data-act="spot" data-id="${s.id}" style="cursor:pointer">${live && l ? `<circle cx="${s.x}" cy="${s.y}" r="8" fill="var(--blue)" class="pulse"/>` : ""}
+       <circle cx="${s.x}" cy="${s.y}" r="${r + 18}" fill="transparent"/>
+       <circle cx="${s.x}" cy="${s.y}" r="${r}" fill="${live ? "var(--blue)" : "#fff"}" stroke="${live ? "#fff" : "var(--ink)"}" stroke-width="3"/>
+       ${live ? `<text x="${s.x}" y="${s.y + 5}" font-size="14" font-weight="800" fill="#fff" text-anchor="middle" font-family="Inter,sans-serif">${l}</text>` : ""}
+       <text x="${s.x}" y="${s.y - r - 9}" font-size="17" font-weight="700" fill="var(--ink)" text-anchor="middle" font-family="Inter,sans-serif" paint-order="stroke" stroke="#fff" stroke-width="5">${esc(s.name.replace(/ \(.*\)/, "").replace("Engineering Center", "").replace("Computer Science", "").replace("Knight Management Center", "GSB").trim())}</text></g>`
+  }).join("")}</svg></div>
+   ${!live ? `<div class="row small"><span class="muted">Fewer posts</span><span class="legend-ramp grow"></span><span class="muted">More posts</span></div>` : `<div class="small ink2">${Object.values(counts).reduce((a, b) => a + b[1], 0)} people are in a session right now. Tap a spot to see who's there.</div>`}
+   <div class="tiny muted">Spots with fewer than ${MIN_POSTS_SHOWN} posts stay hidden, and home or dorm sessions never appear, so nobody can be pinpointed.</div>
+   <div class="eyebrow" style="margin-top:6px">Hottest spots, last 24 hours</div>
+   <div class="card bars">${shown.sort((a, b) => counts[b.id][0] - counts[a.id][0]).slice(0, 6).map(s => { const n = counts[s.id][0], max = Math.max(...Object.values(counts).map(c => c[0])); return `<button class="barrow" style="text-align:left" data-act="spot" data-id="${s.id}"><span class="lbl">${esc(s.name)}</span><span class="bartrack"><span class="barfill" style="display:block;width:${n / max * 100}%;background:var(--coral)"></span></span><span class="val">${n}</span></button>` }).join("")}</div>
+  </div>`;
+}
+afterRender.map = () => {
+  if (state.mapMode !== "heat") { $("#heat").hidden = true; return }
+  const cv = $("#heat"), x = cv.getContext("2d"), counts = spotCounts(), max = Math.max(...Object.values(counts).map(c => c[0]));
+  const w = cv.width, h = cv.height; x.clearRect(0, 0, w, h);
+  for (const s of SPOTS) { const n = counts[s.id][0]; if (n < MIN_POSTS_SHOWN) continue; const px = s.x / 2, py = s.y / 2, rad = 30 + 45 * (n / max); const g = x.createRadialGradient(px, py, 0, px, py, rad); g.addColorStop(0, `rgba(0,0,0,${.25 + .75 * n / max})`); g.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = g; x.fillRect(px - rad, py - rad, rad * 2, rad * 2) }
+  const img = x.getImageData(0, 0, w, h), d = img.data;
+  const ramp = [[191, 211, 255], [110, 139, 255], [255, 184, 31], [255, 91, 58], [211, 20, 58]];
+  for (let i = 0; i < d.length; i += 4) { const a = d[i + 3] / 255; if (!a) continue; const p = Math.min(.999, a) * (ramp.length - 1), k = Math.floor(p), f = p - k, c0 = ramp[k], c1 = ramp[k + 1]; d[i] = c0[0] + (c1[0] - c0[0]) * f; d[i + 1] = c0[1] + (c1[1] - c0[1]) * f; d[i + 2] = c0[2] + (c1[2] - c0[2]) * f; d[i + 3] = Math.min(235, a * 330) }
+  x.putImageData(img, 0, 0); cv.style.mixBlendMode = "normal"; cv.style.opacity = ".78";
+};
+ACTS.mapMode = el => { state.mapMode = el.dataset.v; render() };
+ACTS.spot = el => {
+  const s = SPOTS.find(x => x.id === el.dataset.id), [n, l] = spotCounts()[s.id];
+  const posts = allPosts().filter(p => p.spot === s.id).slice(0, 3);
+  const classes = {}; allPosts().filter(p => p.spot === s.id).forEach(p => classes[p.cls] = (classes[p.cls] || 0) + 1);
+  const top = Object.entries(classes).sort((a, b) => b[1] - a[1]).slice(0, 3).map(e => e[0]).concat(["CS 106B", "MATH 51", "CHEM 33"]).slice(0, 3);
+  openSheet(`<h3 style="font-size:21px">${esc(s.name)}</h3>
+  <div class="kpis" style="margin:12px 0"><div class="kpi"><div class="v">${n}</div><div class="k">Posts, 24h</div></div><div class="kpi"><div class="v">${l}</div><div class="k">Here now</div></div><div class="kpi"><div class="v" style="color:var(--blue)">${SPOT_SCORE[s.id]}</div><div class="k">Avg Lock Score</div></div></div>
+  <div class="eyebrow">Top classes here</div><div class="row wrap" style="margin:6px 0 12px;gap:6px">${top.map(c => `<button class="chip" data-act="openClass" data-code="${esc(c)}">${esc(c)}</button>`).join("")}</div>
+  ${posts.length ? `<div class="eyebrow">Friends' recent posts here</div><div class="stack" style="margin-top:6px">${posts.map(p => `<div class="row">${av(p.uid, 30)}<span class="grow small"><b>${esc(uname(p.uid))}</b> · ${esc(p.cls)} · ${fmtDur(p.dur)}</span><span class="tiny muted">${ago(p.end)}</span></div>`).join("")}</div>` : ""}
+  <button class="btn block" style="margin-top:16px" data-act="studyHere" data-id="${s.id}">Lock in here</button>`);
+};
+ACTS.studyHere = el => { closeSheet(); ACTS.newSession(); if (draft) { draft.spot = el.dataset.id; renderSetup() } };
+// ---------- Chats: class group chats (one per class per term), messages, friends ----------
+function renderChats() {
+  const t = state.chatTab;
+  const reqN = state.requests.length;
+  let body = "";
+  if (t === "classes") {
+    const joined = state.joinedChats;
+    body = `<div class="small muted">One chat per class per term, open to students who list the class. Find more classes with the search bar.</div>
+    <div class="card" style="padding:4px 10px">${joined.length ? joined.map(c => { const m = (state.chats.classes[c] || []).slice(-1)[0]; return `<button class="listrow" data-act="openThread" data-kind="class" data-id="${esc(c)}"><span class="av" style="width:42px;height:42px;border-radius:12px;background:var(--blue-soft);color:var(--blue-ink);font-size:12px">${esc(c.split(" ")[0])}</span><span class="grow" style="min-width:0"><b>${esc(c)} · ${TERM}</b><br><span class="small muted" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m ? esc(uname(m.from).split(" ")[0] + ": " + (m.text || (m.poll ? "Poll" : "Lock-in invite"))) : "Say hi to your classmates"}</span></span></button>` }).join("") : `<div class="empty">No class chats yet.</div>`}</div>
+    ${state.myClasses.filter(c => !joined.includes(c)).length ? `<div class="eyebrow">Your classes without a chat</div><div class="row wrap" style="gap:6px">${state.myClasses.filter(c => !joined.includes(c)).map(c => `<button class="chip" data-act="joinChat" data-code="${esc(c)}">Join ${esc(c)}</button>`).join("")}</div>` : ""}`;
+  } else if (t === "messages") {
+    body = `<div class="card" style="padding:4px 10px">${state.chats.dms.filter(d => !d.with.some(u => state.blocked.includes(u))).map(d => { const m = d.msgs.slice(-1)[0]; return `<button class="listrow" data-act="openThread" data-kind="dm" data-id="${d.id}"><span class="avs">${d.with.slice(0, 2).map(u => av(u, 40)).join("")}</span><span class="grow" style="min-width:0"><b>${esc(d.name || d.with.map(uname).join(", "))}</b><br><span class="small muted" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m ? esc((m.from === "me" ? "You: " : "") + (m.lockIn ? "Lock-in invite" : m.text)) : ""}</span></span><span class="tiny muted">${m ? ago(m.ts) : ""}</span></button>` }).join("")}</div>
+    <button class="btn line block" data-act="newGroup">New group chat</button>`;
+  } else {
+    const sugg = ["ben", "isla", "marcus"].filter(u => !state.friends.includes(u) && !state.requests.includes(u) && !state.blocked.includes(u));
+    body = `<button class="searchbox" data-act="friendSearch" style="background:var(--surface);border:1px solid var(--line)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Find friends by name or @handle</button>
+    <div class="row"><button class="btn sm ghost grow" data-act="inviteLink">Copy invite link</button><button class="btn sm ghost grow" data-act="myQR">My QR code</button></div>
+    ${reqN ? `<div class="eyebrow">Friend requests</div><div class="card" style="padding:4px 10px">${state.requests.map(u => `<div class="listrow">${av(u, 40)}<span class="grow"><b>${esc(uname(u))}</b><br><span class="small muted">@${esc(USERS[u].handle)} · ${u === "hana" ? "3 mutual friends" : "1 mutual friend"}</span></span><button class="btn sm" data-act="acceptReq" data-uid="${u}">Accept</button><button class="btn sm ghost" data-act="declineReq" data-uid="${u}">Decline</button></div>`).join("")}</div>` : ""}
+    ${sugg.length ? `<div class="eyebrow">People you may know</div><div class="card" style="padding:4px 10px">${sugg.map(u => `<div class="listrow">${av(u, 40)}<span class="grow"><b>${esc(uname(u))}</b><br><span class="small muted">In CS 161 with you · 2 mutual</span></span>${state.sent.includes(u) ? `<span class="chip gray">Requested</span>` : `<button class="btn sm ghost" data-act="addFriend" data-uid="${u}">Add</button>`}</div>`).join("")}</div>` : ""}
+    <div class="eyebrow">Friends · ${state.friends.length}</div><div class="card" style="padding:4px 10px">${state.friends.map(u => `<div class="listrow">${av(u, 40)}<span class="grow"><b>${esc(uname(u))}</b><br><span class="small muted">${liveFriends().includes(u) ? `<span style="color:var(--mint);font-weight:600">● Locked in now</span>` : "@" + esc(USERS[u].handle)}</span></span><button class="btn sm ghost" data-act="dmUser" data-uid="${u}">Message</button></div>`).join("")}</div>`;
+  }
+  return `<div class="stack"><h2 style="font-size:22px">Chats</h2>
+    <div class="seg"><button class="${t === "classes" ? "on" : ""}" data-act="chatTab" data-v="classes">Classes</button><button class="${t === "messages" ? "on" : ""}" data-act="chatTab" data-v="messages">Messages</button><button class="${t === "friends" ? "on" : ""}" data-act="chatTab" data-v="friends">Friends${reqN ? ` (${reqN})` : ""}</button></div>${body}</div>`;
+}
+ACTS.chatTab = el => { state.chatTab = el.dataset.v; render() };
+ACTS.acceptReq = el => { const u = el.dataset.uid; state.requests = state.requests.filter(x => x !== u); state.friends.push(u); save(); render(); toast(`You and ${uname(u)} are now friends`) };
+ACTS.declineReq = el => { state.requests = state.requests.filter(x => x !== el.dataset.uid); save(); render() };
+ACTS.addFriend = el => { state.sent.push(el.dataset.uid); save(); rerenderKeepScroll(); toast("Request sent. You'll be friends once they accept.") };
+ACTS.inviteLink = async () => { const link = "https://locked.app/add/you-7Q2K"; try { await navigator.clipboard.writeText(link); toast("Invite link copied") } catch { openSheet(`<h3 style="font-size:19px">Your invite link</h3><input class="input" style="margin-top:10px" value="${link}" readonly onclick="this.select()">`) } };
+ACTS.myQR = () => {
+  let svg = "";
+  try { const q = qrcode(0, "M"); q.addData("https://locked.app/add/you-7Q2K"); q.make(); svg = q.createSvgTag({ cellSize: 6, margin: 2, scalable: true }) } catch { svg = `<div class="empty">QR code unavailable offline.</div>` }
+  openSheet(`<div style="text-align:center"><h3 style="font-size:19px">Scan to add me</h3><div style="width:220px;margin:14px auto;padding:10px;border-radius:18px;border:1px solid var(--line)">${svg}</div><div class="small muted">@you · Friends have to accept each other</div></div>`);
+};
+ACTS.friendSearch = () => openSearch("people");
+ACTS.joinChat = el => joinChat(el.dataset.code);
+function joinChat(code) {
+  if (!state.myClasses.includes(code)) {
+    openSheet(`<h3 style="font-size:19px">Join the ${esc(code)} chat</h3><p class="small ink2" style="margin:8px 0 14px">Class chats are for students taking the class. Adding ${esc(code)} to your classes also puts it first when you tag sessions.</p><button class="btn block" data-act="addClassJoin" data-code="${esc(code)}">Add ${esc(code)} to my classes and join</button>`);
+    return;
+  }
+  if (!state.joinedChats.includes(code)) state.joinedChats.push(code); state.chats.classes[code] ||= []; save(); openThread("class", code);
+}
+ACTS.addClassJoin = el => { const c = el.dataset.code; closeSheet(); state.myClasses.push(c); save(); joinChat(c) };
+ACTS.dmUser = el => { const u = el.dataset.uid; let d = state.chats.dms.find(x => x.with.length === 1 && x.with[0] === u); if (!d) { d = { id: "dm_" + u + Date.now(), with: [u], msgs: [] }; state.chats.dms.unshift(d); save() } openThread("dm", d.id) };
+ACTS.newGroup = () => {
+  const pick = [];
+  const sh = openSheet(`<h3 style="font-size:19px">New group chat</h3><input class="input" id="gname" style="margin:10px 0" placeholder="Group name" maxlength="40"><div class="row wrap" style="gap:6px" id="gpick">${state.friends.map(u => `<button class="chip gray" data-u="${u}">${esc(uname(u))}</button>`).join("")}</div><button class="btn block" style="margin-top:14px" id="gmake">Create</button>`);
+  $("#gpick", sh).onclick = e => { const b = e.target.closest("[data-u]"); if (!b) return; const u = b.dataset.u; const i = pick.indexOf(u); i < 0 ? pick.push(u) : pick.splice(i, 1); b.className = "chip " + (pick.includes(u) ? "sel" : "gray") };
+  $("#gmake", sh).onclick = () => { const n = $("#gname", sh).value.trim(); if (!pick.length) { toast("Pick at least one friend"); return } if (moderate(n).lvl === "block") { toast("Choose a different group name"); return } const d = { id: "g" + Date.now(), name: n || null, with: pick, msgs: [] }; state.chats.dms.unshift(d); save(); closeSheet(); openThread("dm", d.id) };
+};
+function sendDM(u, text, extra = {}) { let d = state.chats.dms.find(x => x.with.length === 1 && x.with[0] === u); if (!d) { d = { id: "dm_" + u, with: [u], msgs: [] }; state.chats.dms.unshift(d) } d.msgs.push({ from: "me", text, ts: Date.now(), ...extra }); save() }
+
+function threadMsgs(kind, id) { return kind === "class" ? (state.chats.classes[id] ||= []) : state.chats.dms.find(d => d.id === id).msgs }
+ACTS.openThread = el => openThread(el.dataset.kind, el.dataset.id);
+function openThread(kind, id) {
+  const d = kind === "dm" ? state.chats.dms.find(x => x.id === id) : null;
+  const title = kind === "class" ? `${id} · ${TERM}` : esc(d.name || d.with.map(uname).join(", "));
+  const layer = openLayer(`${layerHead(title, kind === "class" ? `<button class="btn sm ghost" data-act="openClass" data-code="${esc(id)}">Class page</button>` : "")}
+   <div class="layer-b" id="thr" style="display:flex;flex-direction:column;gap:8px"></div>
+   <div id="thrWarn" style="padding:0 12px"></div>
+   <div class="composer"><button class="iconbtn" id="thrPlus" aria-label="More options" style="background:var(--surface-2)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button><textarea class="input" id="thrIn" rows="1" placeholder="Message" style="min-height:40px;max-height:110px;resize:none" maxlength="1000"></textarea><button class="iconbtn" id="thrSend" aria-label="Send" style="background:var(--blue);color:#fff">${ICON.send}</button></div>`);
+  const draw = () => {
+    const msgs = threadMsgs(kind, id).filter(m => !state.blocked.includes(m.from));
+    $("#thr", layer).innerHTML = (kind === "class" ? `<div class="banner blue small" style="align-self:stretch">${ICON.shield}<span><b>Pinned:</b> Help each other learn. Don't share graded answers, exam questions or solution code. That breaks the Stanford Honor Code, and messages that look like it are flagged.</span></div>` : "") +
+      msgs.map((m, i) => {
+        const me = m.from === "me";
+        let inner = esc(m.text);
+        if (m.poll) inner = `<b>${esc(m.text)}</b>${m.poll.opts.map((o, k) => { const tot = m.poll.votes.reduce((a, b) => a + b, 0) || 1; return `<button data-vote="${i}:${k}" style="display:block;width:100%;text-align:left;margin-top:6px;padding:7px 9px;border-radius:9px;background:${me ? "rgba(255,255,255,.18)" : "var(--surface-2)"};position:relative;overflow:hidden"><span style="position:absolute;inset:0;width:${m.poll.votes[k] / tot * 100}%;background:${me ? "rgba(255,255,255,.2)" : "var(--blue-soft)"}"></span><span style="position:relative" class="small">${esc(o)} · ${m.poll.votes[k]}</span></button>` }).join("")}`;
+        if (m.invite) inner = `${esc(m.text)}<div style="margin-top:8px;padding:10px;border-radius:12px;background:${me ? "rgba(255,255,255,.16)" : "var(--blue-soft)"}"><b>Lock in at ${esc(spotName(m.invite.spot))}</b><br><span class="small">${esc(m.invite.time)} · ${m.invite.going.length} going</span><br><button class="btn sm" style="margin-top:8px" data-going="${i}">${m.invite.going.includes("me") ? "You're going" : "I'm in"}</button></div>`;
+        if (m.lockIn) inner = `<b>Lock in with me?</b><div class="small">Our timers start together when you accept, wherever you are.</div>`;
+        if (m.photo) inner = `<img src="${m.photo}" alt="Shared photo" style="border-radius:10px;max-height:220px">`;
+        return `<div style="display:flex;flex-direction:column;align-items:${me ? "flex-end" : "flex-start"};gap:2px">${!me && kind === "class" ? `<span class="msgmeta">${esc(uname(m.from))}</span>` : ""}<div class="msg ${me ? "me" : ""}" ${!me ? `data-rep="${esc(m.from)}"` : ""}>${inner}</div></div>`;
+      }).join("") || `<div class="empty">No messages yet.</div>`;
+    const b = $("#thr", layer); b.scrollTop = b.scrollHeight;
+  };
+  draw();
+  $("#thr", layer).addEventListener("click", e => {
+    const v = e.target.closest("[data-vote]"); if (v) { const [i, k] = v.dataset.vote.split(":").map(Number); threadMsgs(kind, id)[i].poll.votes[k]++; save(); draw(); return }
+    const g = e.target.closest("[data-going]"); if (g) { const m = threadMsgs(kind, id)[+g.dataset.going]; if (!m.invite.going.includes("me")) m.invite.going.push("me"); save(); draw(); return }
+    const r = e.target.closest("[data-rep]"); if (r) openReport("message", null, r.dataset.rep);
+  });
+  const inp = $("#thrIn", layer), warn = $("#thrWarn", layer); let pendingWarn = null;
+  const send = (force) => {
+    const text = inp.value.trim(); if (!text) return; const m = moderate(text);
+    if (m.lvl === "block") { warn.innerHTML = `<div class="banner danger" style="margin:8px 0">${ICON.shield}<span>${esc(modMessage(m))}</span></div>`; return }
+    if (m.lvl === "warn" && !force) { pendingWarn = text; warn.innerHTML = `<div class="banner sun" style="margin:8px 0;flex-wrap:wrap">${ICON.shield}<span class="grow">${esc(modMessage(m))}</span><button class="btn sm ghost" id="sendAnyway">Send anyway</button></div>`; $("#sendAnyway", warn).onclick = () => send(true); return }
+    threadMsgs(kind, id).push({ from: "me", text, ts: Date.now() }); save(); inp.value = ""; warn.innerHTML = ""; draw();
+  };
+  inp.onkeydown = e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send() } };
+  $("#thrSend", layer).onclick = () => send();
+  $("#thrPlus", layer).onclick = () => {
+    const sh = openSheet(`<div class="stack"><button class="btn line block" id="opPoll">Poll</button><button class="btn line block" id="opInv">Lock-in session invite</button><label class="btn line block" for="opPhoto">Photo<input type="file" id="opPhoto" accept="image/*" hidden></label></div>`);
+    $("#opPoll", sh).onclick = () => { closeSheet(); const sh2 = openSheet(`<h3 style="font-size:19px">New poll</h3><input class="input" id="pq" style="margin-top:10px" placeholder="Question"><input class="input" id="p1" style="margin-top:8px" placeholder="Option 1"><input class="input" id="p2" style="margin-top:8px" placeholder="Option 2"><input class="input" id="p3" style="margin-top:8px" placeholder="Option 3 (optional)"><button class="btn block" style="margin-top:12px" id="pgo">Send poll</button>`); $("#pgo", sh2).onclick = () => { const q = $("#pq", sh2).value.trim(), opts = ["#p1", "#p2", "#p3"].map(s => $(s, sh2).value.trim()).filter(Boolean); if (!q || opts.length < 2) { toast("Add a question and two options"); return } if ([q, ...opts].some(t => moderate(t).lvl === "block")) { toast("That poll can't be posted"); return } threadMsgs(kind, id).push({ from: "me", text: q, poll: { opts, votes: opts.map(() => 0) }, ts: Date.now() }); save(); closeSheet(); draw() } };
+    $("#opInv", sh).onclick = () => { closeSheet(); const sh2 = openSheet(`<h3 style="font-size:19px">Lock-in session</h3><select class="input" id="is" style="margin-top:10px">${SPOTS.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join("")}</select><input class="input" id="it" type="time" value="19:00" style="margin-top:8px"><button class="btn block" style="margin-top:12px" id="igo">Send invite</button>`); $("#igo", sh2).onclick = () => { const [hh, mm] = $("#it", sh2).value.split(":").map(Number); const t = new Date(); t.setHours(hh, mm); threadMsgs(kind, id).push({ from: "me", text: "Who's locking in?", invite: { spot: $("#is", sh2).value, time: fmtTime(+t), going: ["me"] }, ts: Date.now() }); save(); closeSheet(); draw() } };
+    $("#opPhoto", sh).onchange = e => { const f = e.target.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => { const im = new Image(); im.onload = () => { const sc = scanFrames([{ img: im }]); closeSheet(); if (sc.flagged) { toast("This photo may be inappropriate, so it wasn't sent"); return } threadMsgs(kind, id).push({ from: "me", photo: rd.result, ts: Date.now() }); try { save() } catch { } draw() }; im.src = rd.result }; rd.readAsDataURL(f) };
+  };
+}
+// ---------- Stats, Flow State streak, analytics ----------
+function mySessions() {
+  const mine = state.myPosts.map(p => ({ start: p.start, end: p.end, dur: p.dur, spot: p.spot, cls: p.cls, score: p.score, music: p.music, group: p.group, intensity: p.intensity }));
+  return HISTORY.concat(mine).sort((a, b) => a.start - b.start);
+}
+function dayKeyOffset(off) { return studyDay(Date.now() - off * DAY) }
+// Flow State: consecutive study days with at least 30 Locked minutes. Days run 4 AM–4 AM.
+// One streak freeze per week covers a missed day automatically.
+function flowState() {
+  const mins = {}; for (const s of mySessions()) { const k = studyDay(s.start); mins[k] = (mins[k] || 0) + s.dur / MIN }
+  const qualifies = off => (mins[dayKeyOffset(off)] || 0) >= 30;
+  const todayDone = qualifies(0); let off = todayDone ? 0 : 1, streak = 0; const freezes = new Set(), used = [];
+  while (off < 400) {
+    if (qualifies(off)) { streak++; off++; continue }
+    const wk = Math.floor(off / 7); if (!freezes.has(wk) && qualifies(off + 1)) { freezes.add(wk); used.push(off); off++; continue }
+    break;
+  }
+  const freezeThisWeek = !freezes.has(0);
+  return { streak, todayDone, todayMin: Math.round(mins[dayKeyOffset(0)] || 0), freezesUsed: used.length, freezeAvailable: freezeThisWeek };
+}
+const TIERS = [
+  { at: 0, name: "Iron", a: "#A4ABBF", b: "#5B6275" }, { at: 3, name: "Bronze", a: "#F0B07A", b: "#9C5B2E" }, { at: 7, name: "Silver", a: "#F4F6FB", b: "#98A2B8" },
+  { at: 14, name: "Gold", a: "#FFE58A", b: "#D99A00" }, { at: 30, name: "Engraved Gold", a: "#FFE58A", b: "#C78300" }, { at: 50, name: "Ruby", a: "#FF8FA6", b: "#B5123A" },
+  { at: 100, name: "Diamond", a: "#D6F7FF", b: "#3D9BFF" }, { at: 365, name: "Legend", a: "#FFD1F0", b: "#6B5BFF" }
+];
+function tierFor(n) { let t = TIERS[0], i = 0; TIERS.forEach((x, k) => { if (n >= x.at) { t = x; i = k } }); return { ...t, i, next: TIERS[i + 1] } }
+// The Flow State lock gets bigger and more detailed as the streak grows.
+function lockSVG(n, size = 170) {
+  const t = tierFor(n), i = t.i, id = "lk" + Math.random().toString(36).slice(2, 7);
+  const prism = i >= 7 ? `<linearGradient id="${id}p" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF8FD8"/><stop offset=".35" stop-color="#FFD36B"/><stop offset=".65" stop-color="#6BE5FF"/><stop offset="1" stop-color="#8B7BFF"/></linearGradient>` : "";
+  const bodyFill = i >= 7 ? `url(#${id}p)` : `url(#${id}g)`;
+  const scale = .78 + Math.min(i, 7) * .032;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 200 200" role="img" aria-label="${t.name} lock, ${n} day streak"><defs>
+   <linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${t.a}"/><stop offset="1" stop-color="${t.b}"/></linearGradient>${prism}
+   <radialGradient id="${id}f" cx=".5" cy=".8" r=".7"><stop offset="0" stop-color="#FFF4B0"/><stop offset=".45" stop-color="#FFB81F"/><stop offset="1" stop-color="#FF5B3A"/></radialGradient>
+   <radialGradient id="${id}glow"><stop offset="0" stop-color="${t.a}" stop-opacity=".9"/><stop offset="1" stop-color="${t.a}" stop-opacity="0"/></radialGradient></defs>
+   ${i >= 6 ? `<g class="spin">${Array.from({ length: 12 }, (_, k) => `<path d="M100 100 L${100 + 98 * Math.cos(k * Math.PI / 6 - .07)} ${100 + 98 * Math.sin(k * Math.PI / 6 - .07)} L${100 + 98 * Math.cos(k * Math.PI / 6 + .07)} ${100 + 98 * Math.sin(k * Math.PI / 6 + .07)}Z" fill="${t.a}" opacity=".35"/>`).join("")}</g>` : ""}
+   ${i >= 3 ? `<circle cx="100" cy="112" r="${60 + i * 5}" fill="url(#${id}glow)"/>` : ""}
+   <g transform="translate(100 108) scale(${scale}) translate(-100 -108)">
+   ${i >= 5 ? `<g stroke="${t.b}" stroke-width="5" fill="none" opacity=".85">${[0, 1, 2].map(k => `<ellipse cx="${30 - k * 14}" cy="${120 + k * 9}" rx="9" ry="6"/><ellipse cx="${170 + k * 14}" cy="${120 + k * 9}" rx="9" ry="6"/>`).join("")}</g>` : ""}
+   <path d="M64 92 V66 a36 36 0 0 1 72 0 V92" fill="none" stroke="${i >= 7 ? "#B9B3FF" : t.b}" stroke-width="17" stroke-linecap="round"/>
+   <path d="M64 92 V66 a36 36 0 0 1 72 0 V92" fill="none" stroke="${t.a}" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+   <rect x="38" y="86" width="124" height="98" rx="22" fill="${bodyFill}" stroke="${t.b}" stroke-width="4"/>
+   <rect x="48" y="94" width="104" height="10" rx="5" fill="#fff" opacity=".35"/>
+   ${i >= 4 ? `<g stroke="${t.b}" stroke-width="2" fill="none" opacity=".55"><path d="M52 170 q12 -14 24 0 t24 0 t24 0 t24 0"/><path d="M52 116 q12 10 24 0 t24 0 t24 0 t24 0"/><circle cx="58" cy="143" r="5"/><circle cx="142" cy="143" r="5"/></g>` : ""}
+   ${i >= 3 ? `<path class="flame" d="M100 116 c-16 18 -14 30 -8 38 c2 3 1 -8 8 -12 c7 4 6 15 8 12 c6 -8 8 -20 -8 -38z" fill="url(#${id}f)"/><rect x="94" y="150" width="12" height="18" rx="4" fill="${t.b}"/>`
+      : `<circle cx="100" cy="128" r="11" fill="${t.b}"/><rect x="94" y="132" width="12" height="26" rx="5" fill="${t.b}"/>`}
+   </g>
+   ${i >= 5 ? Array.from({ length: 6 }, (_, k) => `<circle class="twinkle" style="animation-delay:${k * .3}s" cx="${[40, 165, 30, 172, 70, 135][k]}" cy="${[50, 60, 150, 150, 30, 28][k]}" r="${[3, 4, 2.5, 3, 2, 3][k]}" fill="${i >= 7 ? "#FF8FD8" : "#FFB81F"}"/>`).join("") : ""}
+  </svg>`;
+}
+function avg(a) { return a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0 }
+function groupScore(list, keyFn) { const g = {}; for (const s of list) { const k = keyFn(s); if (k == null) continue; (g[k] ||= []).push(s.score) } return Object.entries(g).map(([k, v]) => ({ k, v: Math.round(avg(v)), n: v.length })) }
+function barsHTML(rows, color = "var(--blue)", fmt = v => v, maxV = 100) {
+  return `<div class="bars">${rows.map(r => `<div class="barrow" data-tip="${esc(r.k)}: ${fmt(r.v)}${r.n ? ` · ${r.n} sessions` : ""}"><span class="lbl">${esc(r.k)}</span><span class="bartrack"><span class="barfill" style="display:block;width:${clamp(r.v / maxV * 100, 1, 100)}%;background:${color}"></span></span><span class="val">${fmt(r.v)}</span></div>`).join("")}</div>`;
+}
+function renderStats() {
+  const f = flowState(), t = tierFor(f.streak), all = mySessions(), week = all.filter(s => Date.now() - s.start < 7 * DAY);
+  const weekMin = week.reduce((a, s) => a + s.dur / MIN, 0), load = Math.round(week.reduce((a, s) => a + s.dur / MIN * s.score / 100, 0)), wAvg = Math.round(avg(week.map(s => s.score)));
+  const tod = h => h >= 4 && h < 12 ? "Morning" : h < 17 ? "Afternoon" : h < 22 ? "Evening" : "Late night";
+  const byTime = ["Morning", "Afternoon", "Evening", "Late night"].map(k => groupScore(all, s => tod(new Date(s.start).getHours())).find(r => r.k === k) || { k, v: 0, n: 0 });
+  const bySpot = groupScore(all, s => spotName(s.spot).replace(" (private)", "")).sort((a, b) => b.v - a.v).slice(0, 6);
+  const byLen = ["Under 1 h", "1–2 h", "2–3 h", "3 h +"].map(k => groupScore(all, s => s.dur < HOUR ? "Under 1 h" : s.dur < 2 * HOUR ? "1–2 h" : s.dur < 3 * HOUR ? "2–3 h" : "3 h +").find(r => r.k === k) || { k, v: 0, n: 0 });
+  const byCls = groupScore(all, s => s.cls).sort((a, b) => b.v - a.v);
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], byDay = days.map((k, i) => groupScore(all.filter(s => new Date(s.start).getDay() === i), () => k)[0] || { k, v: 0, n: 0 });
+  const music = groupScore(all, s => s.music ? "With music" : "No music"), group = groupScore(all, s => s.group ? "With friends" : "Solo"), inten = groupScore(all, s => s.intensity);
+  const last14 = Array.from({ length: 14 }, (_, i) => { const off = 13 - i, k = dayKeyOffset(off); return { off, k, m: Math.round(all.filter(s => studyDay(s.start) === k).reduce((a, s) => a + s.dur / MIN, 0)) } });
+  const maxM = Math.max(60, ...last14.map(d => d.m));
+  const bestT = [...byTime].sort((a, b) => b.v - a.v)[0], best = bySpot[0], worst = bySpot[bySpot.length - 1];
+  const upcoming = state.exams.filter(e => e.ts > Date.now()).sort((a, b) => a.ts - b.ts);
+  return `<div class="stack" style="gap:14px">
+   <div class="row" style="justify-content:space-between"><h2 style="font-size:22px">Your stats</h2>${all.some(s => s.sample) ? `<span class="chip sun">Includes sample data</span>` : ""}</div>
+   <div class="flowhero"><div class="eyebrow">Flow State</div>
+     <div style="display:grid;place-items:center;margin:4px 0">${lockSVG(f.streak, 150 + Math.min(t.i, 7) * 8)}</div>
+     <div style="font-family:var(--f-display);font-weight:800;font-size:46px;line-height:1" class="tnum">${f.streak}</div>
+     <div class="small ink2"><b>day streak · ${t.name} lock</b></div>
+     <div class="small muted" style="margin-top:6px">${f.todayDone ? "Today counts. Nice." : `Study ${Math.max(0, 30 - f.todayMin)} more minutes before 4 AM to keep it going.`}</div>
+     <div class="row" style="justify-content:center;gap:6px;margin-top:10px;flex-wrap:wrap"><span class="chip ${f.freezeAvailable ? "mint" : "gray"}">${f.freezeAvailable ? "1 streak freeze ready this week" : "This week's freeze is used"}</span>${t.next ? `<span class="chip gray">${t.next.at - f.streak} days to ${t.next.name}</span>` : ""}</div>
+     <button class="btn sm ghost" style="margin-top:12px" data-act="tierPreview">See every lock tier</button></div>
+   <div class="kpis"><div class="kpi"><div class="v">${fmtDur(weekMin * MIN)}</div><div class="k">Locked this week</div></div><div class="kpi"><div class="v" style="color:var(--blue)">${wAvg || "–"}</div><div class="k">Avg Lock Score</div></div><div class="kpi" data-tip="Locked Load = minutes × Lock Score ÷ 100, summed over the week"><div class="v">${load}</div><div class="k">Locked Load</div></div></div>
+   ${best && worst && best.k !== worst.k ? `<div class="banner blue"><span>You score <b>${best.v - worst.v} points higher</b> at ${esc(best.k)} than at ${esc(worst.k)}, and your best time of day is <b>${bestT.k.toLowerCase()}</b> (avg ${bestT.v}).</span></div>` : ""}
+   <div class="card"><div class="row" style="justify-content:space-between"><b>Locked minutes, last 14 days</b><span class="tiny muted">Goal line: 30 min</span></div>
+     <div class="vbars" style="margin-top:10px;position:relative">${last14.map(d => `<div class="vb ${d.m < 30 ? "dim" : ""}" style="height:${d.m / maxM * 100}%" data-tip="${d.off === 0 ? "Today" : d.off === 1 ? "Yesterday" : d.off + " days ago"}: ${d.m} min"></div>`).join("")}<div style="position:absolute;left:0;right:0;bottom:${30 / maxM * 100}%;border-top:1.5px dashed var(--coral)"></div></div>
+     <div class="row tiny muted" style="justify-content:space-between;margin-top:4px"><span>2 weeks ago</span><span>Today</span></div></div>
+   <div class="card"><b>When you study best</b><div class="tiny muted" style="margin-bottom:10px">Average Lock Score by time of day</div>${barsHTML(byTime)}</div>
+   <div class="card"><b>Where you study best</b><div class="tiny muted" style="margin-bottom:10px">Average Lock Score by spot</div>${barsHTML(bySpot)}</div>
+   <div class="card"><b>Best day of the week</b><div class="tiny muted" style="margin-bottom:10px">Average Lock Score</div>${barsHTML(byDay)}</div>
+   <div class="card"><b>Ideal session length</b><div class="tiny muted" style="margin-bottom:10px">Average Lock Score by length</div>${barsHTML(byLen)}</div>
+   <div class="card"><b>By class</b><div class="tiny muted" style="margin-bottom:10px">Average Lock Score</div>${barsHTML(byCls)}</div>
+   <div class="card"><b>What helps you focus</b><div class="tiny muted" style="margin-bottom:10px">Average Lock Score</div>${barsHTML(music.concat(group).concat(inten.map(r => ({ ...r, k: r.k + " work" }))))}</div>
+   <div class="card"><div class="row" style="justify-content:space-between"><b>Exam countdown</b><button class="btn sm ghost" data-act="addExam">Add exam</button></div>
+     <div class="stack" style="margin-top:10px">${upcoming.length ? upcoming.map(e => { const hrs = all.filter(s => s.cls === e.cls && s.start > Date.now() - 14 * DAY).reduce((a, s) => a + s.dur, 0); return `<div class="row"><span class="chip coral">${Math.ceil((e.ts - Date.now()) / DAY)} days</span><span class="grow"><b>${esc(e.cls)} ${esc(e.label)}</b><br><span class="small muted">${fmtDur(hrs)} locked for ${esc(e.cls)} in the last 2 weeks</span></span></div>` }).join("") : `<div class="small muted">Add your exams to see how much you've studied for each.</div>`}</div></div>
+   <button class="card" style="text-align:left;background:linear-gradient(135deg,#2D5BFF,#6B3CFF);color:#fff;border:0" data-act="wrapped"><div class="eyebrow" style="color:rgba(255,255,255,.75)">End of ${TERM}</div><div style="font-family:var(--f-display);font-weight:800;font-size:24px">Your Locked Wrapped</div><div class="small" style="opacity:.85">Your term in study: hours, spots, songs, streaks. Tap to preview.</div></button>
+   <div class="card row" style="align-items:flex-start"><span style="color:var(--blue)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg></span><div class="grow"><b>Locked for your laptop</b><div class="small muted">A Mac and Windows companion that pairs with your phone session and tracks which apps and sites are in front, so focus time counts toward a more objective score.</div><button class="btn sm ghost" style="margin-top:8px" data-act="laptop">Join the beta list</button></div></div>
+   <div class="tiny muted">How your Lock Score works: Presence 45% (at your desk in each camera check), Continuity 30% (pauses, exits, emergency unlocks), Goals 25% (goals you set before starting). Length isn't in the score; it's shown as Locked time.</div>
+  </div>`;
+}
+ACTS.tierPreview = () => openSheet(`<h3 style="font-size:19px;margin-bottom:10px">Flow State locks</h3><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">${TIERS.map(t => `<div class="card" style="text-align:center;padding:10px">${lockSVG(Math.max(t.at, 0), 110)}<div><b>${t.name}</b></div><div class="tiny muted">${t.at ? t.at + "+ days" : "Start"}</div></div>`).join("")}</div>`);
+ACTS.laptop = () => toast("You're on the list. We'll email your Stanford address when the beta opens.");
+ACTS.addExam = () => {
+  const sh = openSheet(`<h3 style="font-size:19px">Add an exam</h3><select class="input" id="ec" style="margin-top:10px">${state.myClasses.map(c => `<option>${esc(c)}</option>`).join("")}</select><input class="input" id="el" style="margin-top:8px" value="Midterm" maxlength="30"><input class="input" id="ed" type="date" style="margin-top:8px"><button class="btn block" style="margin-top:12px" id="ego">Add</button>`);
+  $("#ego", sh).onclick = () => { const d = $("#ed", sh).value; if (!d) { toast("Pick a date"); return } state.exams.push({ cls: $("#ec", sh).value, label: $("#el", sh).value || "Exam", ts: +new Date(d + "T09:00") }); save(); closeSheet(); rerenderKeepScroll() };
+};
+ACTS.wrapped = () => {
+  const all = mySessions(), hrs = Math.round(all.reduce((a, s) => a + s.dur, 0) / HOUR);
+  const spot = groupScore(all, s => spotName(s.spot)).sort((a, b) => b.n - a.n)[0];
+  const cls = groupScore(all, s => s.cls).sort((a, b) => b.n - a.n)[0];
+  const best = [...all].sort((a, b) => b.score - a.score)[0];
+  const slides = [
+    ["#2D5BFF", "This term you locked in for", `${hrs} hours`, `across ${all.length} sessions`],
+    ["#FF5B3A", "Your home base", esc(spot?.k || "Green Library"), `${spot?.n || 0} sessions there`],
+    ["#10B27F", "The class that got the most of you", esc(cls?.k || "CS 161"), `${cls?.n || 0} sessions`],
+    ["#6B3CFF", "Your best session scored", `${best?.score || 90}`, `on ${new Date(best?.start || Date.now()).toLocaleDateString([], { month: "short", day: "numeric" })}`],
+    ["#121430", "Your top locked-in song", "Experience", "Ludovico Einaudi · played in 9 sessions"],
+  ];
+  let i = 0; const el = openLayer("", "story");
+  const draw = () => { const [bg, a, b, c] = slides[i]; el.style.background = bg; el.innerHTML = `<div class="bars2">${slides.map((_, k) => `<i class="${k <= i ? "on" : ""}"></i>`).join("")}</div><div class="row" style="justify-content:space-between;margin-top:12px">${logoSVG(22, "#fff", "rgba(255,255,255,.25)")}<button class="iconbtn" data-act="closeLayer" aria-label="Close" style="color:#fff">${ICON.close}</button></div><div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px"><div style="font-size:18px;opacity:.85">${a}</div><div class="big">${b}</div><div style="font-size:16px;opacity:.85">${c}</div></div><div class="tiny" style="opacity:.7;text-align:center">Tap to continue</div>` };
+  el.addEventListener("click", e => { if (e.target.closest("[data-act]")) return; i++; if (i >= slides.length) el.remove(); else draw() }); draw();
+};
+// Hover / tap tooltips for chart marks
+(() => {
+  let tip = null;
+  const show = (el, x, y) => { if (!tip) { tip = document.createElement("div"); tip.className = "tip"; document.body.appendChild(tip) } tip.textContent = el.dataset.tip; tip.hidden = false; const w = tip.offsetWidth; tip.style.left = clamp(x - w / 2, 8, innerWidth - w - 8) + "px"; tip.style.top = (y - 40) + "px" };
+  document.addEventListener("pointermove", e => { const el = e.target.closest("[data-tip]"); if (el) show(el, e.clientX, e.clientY); else if (tip) tip.hidden = true });
+  document.addEventListener("pointerdown", e => { const el = e.target.closest("[data-tip]"); if (el) show(el, e.clientX, e.clientY) });
+})();
+// ---------- Search (places, classes, people, posts) ----------
+ACTS.search = () => openSearch("all");
+function openSearch(tab) {
+  let cur = tab;
+  const layer = openLayer(`<div class="layer-h"><button class="iconbtn" data-act="closeLayer" aria-label="Back">${ICON.back}</button><input class="input" id="sq" placeholder="Search places, classes, people, keywords" autocomplete="off" style="border-radius:999px"></div>
+   <div style="padding:10px 16px 0"><div class="seg" id="stabs">${["all", "people", "classes", "places", "posts"].map(t => `<button data-t="${t}" class="${t === cur ? "on" : ""}">${t[0].toUpperCase() + t.slice(1)}</button>`).join("")}</div></div>
+   <div class="layer-b" id="sres"></div>`);
+  const q = $("#sq", layer);
+  const draw = () => {
+    const s = q.value.trim().toLowerCase(), out = [];
+    const people = Object.values(USERS).filter(u => u.id !== "me" && !state.blocked.includes(u.id) && (!s || (u.name + " " + u.handle).toLowerCase().includes(s)));
+    const classes = ALL_TAGS.filter(c => s && (c.code + " " + c.title + " " + c.cross.join(" ")).toLowerCase().includes(s)).slice(0, 20);
+    const places = SPOTS.concat(state.customSpots).filter(p => !s || p.name.toLowerCase().includes(s));
+    const posts = allPosts().filter(p => s && ((p.caption || "") + " " + p.cls + " " + spotName(p.spot) + " " + uname(p.uid)).toLowerCase().includes(s));
+    const sec = (title, html) => out.push(`<div class="eyebrow" style="margin:14px 0 6px">${title}</div><div class="card" style="padding:4px 10px">${html}</div>`);
+    if ((cur === "all" || cur === "classes") && (classes.length || cur === "classes")) sec("Classes", classes.map(c => `<button class="listrow" data-act="openClass" data-code="${esc(c.code)}"><span class="chip ${c.kind === "tag" ? "gray" : ""}">${esc(c.code)}</span><span class="grow small" style="min-width:0">${esc(c.title)}</span>${state.joinedChats.includes(c.code) ? `<span class="chip mint">Joined</span>` : ""}</button>`).join("") || `<div class="small muted" style="padding:10px 4px">Type a course code or name, like "106B" or "orgo".</div>`);
+    if ((cur === "all" || cur === "people") && people.length) sec("People", people.slice(0, cur === "all" ? 4 : 30).map(u => `<div class="listrow">${av(u.id, 38)}<span class="grow"><b>${esc(u.name)}</b><br><span class="small muted">@${esc(u.handle)}</span></span>${state.friends.includes(u.id) ? `<button class="btn sm ghost" data-act="dmUser" data-uid="${u.id}">Message</button>` : state.requests.includes(u.id) ? `<button class="btn sm" data-act="acceptReq" data-uid="${u.id}">Accept</button>` : state.sent.includes(u.id) ? `<span class="chip gray">Requested</span>` : `<button class="btn sm" data-act="addFriend" data-uid="${u.id}">Add friend</button>`}</div>`).join(""));
+    if ((cur === "all" || cur === "places") && places.length) sec("Places", places.slice(0, cur === "all" ? 4 : 30).map(p => `<button class="listrow" ${SPOTS.includes(p) ? `data-act="spot" data-id="${p.id}"` : ""}><span class="av" style="width:38px;height:38px;border-radius:12px;background:var(--coral-soft);color:var(--coral)">${ICON.pin}</span><span class="grow"><b>${esc(p.name)}</b><br><span class="small muted">${SPOT_ACTIVITY[p.id] ? `${SPOT_ACTIVITY[p.id][1]} studying now · ${SPOT_ACTIVITY[p.id][0]} posts today` : "Added by students"}</span></span></button>`).join(""));
+    if ((cur === "all" || cur === "posts") && posts.length) sec("Posts", posts.slice(0, 10).map(p => `<div class="listrow">${av(p.uid, 34)}<span class="grow small"><b>${esc(uname(p.uid))}</b> · ${esc(p.cls)} · ${esc(spotName(p.spot))}<br><span class="muted">${esc(p.caption || fmtDur(p.dur))}</span></span></div>`).join(""));
+    $("#sres", layer).innerHTML = out.join("") || `<div class="empty">${s ? "Nothing matches that yet." : "Search for a class to find its group chat and posts."}</div>`;
+  };
+  q.oninput = draw; $("#stabs", layer).onclick = e => { const b = e.target.closest("[data-t]"); if (!b) return; cur = b.dataset.t; $$("#stabs button", layer).forEach(x => x.classList.toggle("on", x === b)); draw() };
+  draw(); setTimeout(() => q.focus(), 60);
+}
+// Class page: the chat, posts and live activity for one class
+ACTS.openClass = el => {
+  closeSheet(); const code = el.dataset.code, c = findTag(code) || { code, title: "", cross: [] };
+  const posts = allPosts().filter(p => p.cls === code && (p.classShare || state.friends.includes(p.uid) || p.uid === "me"));
+  const live = (code.length * 7) % 19 + 3, inClass = state.myClasses.includes(code), joined = state.joinedChats.includes(code);
+  const layer = openLayer(`${layerHead(esc(code))}<div class="layer-b"><div class="stack">
+    <div><h2 style="font-size:24px">${esc(code)}</h2><div class="ink2">${esc(c.title)}</div>${c.cross.length ? `<div class="small muted">Same class as ${esc(c.cross.join(", "))}</div>` : ""}</div>
+    <div class="kpis"><div class="kpi"><div class="v">${live}</div><div class="k">Locked in now</div></div><div class="kpi"><div class="v">${posts.length + 12}</div><div class="k">Posts this week</div></div><div class="kpi"><div class="v">${(code.length * 13) % 140 + 60}</div><div class="k">In the chat</div></div></div>
+    ${joined ? `<button class="btn block" data-act="openThread" data-kind="class" data-id="${esc(code)}">Open ${esc(code)} chat</button>` : `<button class="btn block" data-act="joinChat" data-code="${esc(code)}">${inClass ? "Join" : "Join"} the ${esc(code)} chat · ${TERM}</button>`}
+    ${!inClass ? `<button class="btn line block" data-act="addMyClass" data-code="${esc(code)}">Add to my classes</button>` : ""}
+    <div class="eyebrow">Posts about ${esc(code)}</div>
+    ${posts.length ? posts.map(postHTML).join("") : `<div class="empty">No posts for this class yet. Be the first.</div>`}
+  </div></div>`);
+  bindPlayers(layer);
+};
+ACTS.addMyClass = el => { state.myClasses.push(el.dataset.code); save(); closeLayer(); toast(`${el.dataset.code} added to your classes`) };
+
+// ---------- Notifications ----------
+function notifications() {
+  const r = state.notifsRead;
+  return [
+    { id: "n1", read: r, html: `<b>Maya</b> tagged you in a joint post from Bender Room`, act: `<button class="btn sm" data-act="acceptJoint">Accept</button>` },
+    ...state.requests.map(u => ({ id: "r" + u, read: false, html: `<b>${esc(uname(u))}</b> sent you a friend request`, act: `<button class="btn sm" data-act="acceptReq" data-uid="${u}">Accept</button>` })),
+    { id: "n2", read: r, html: `<b>Sam</b> invited you to lock in at Huang at 7:00 PM`, act: `<button class="btn sm ghost" data-act="tab" data-to="chats">View</button>` },
+    { id: "n3", read: r, html: `<b>Jordan</b> and 4 others gave your post a key` },
+    { id: "n4", read: r, html: `Your streak freeze for this week is ready` },
+  ];
+}
+ACTS.notifs = () => { const list = notifications(); state.notifsRead = true; save(); openSheet(`<h3 style="font-size:19px;margin-bottom:8px">Notifications</h3><div class="stack" style="gap:2px">${list.map(n => `<div class="listrow"><span class="grow small">${n.html}</span>${n.act || ""}</div>`).join("")}</div>`); render() };
+ACTS.acceptJoint = () => { closeSheet(); toast("Joint post accepted. It's on your profile now.") };
+
+// ---------- Profile ----------
+ACTS.profile = () => {
+  const layer = openLayer(`${layerHead("Profile")}<div class="layer-b" id="prof"></div>`);
+  const draw = () => {
+    const f = flowState();
+    $("#prof", layer).innerHTML = `<div class="stack" style="gap:16px">
+     <div class="row">${av("me", 64)}<div class="grow"><h2 style="font-size:22px">You</h2><div class="small muted">@you · Stanford</div></div><div style="text-align:center">${lockSVG(f.streak, 64)}<div class="tiny"><b>${f.streak} days</b></div></div></div>
+     <div class="field"><label>My classes · ${TERM}</label><div class="row wrap" style="gap:6px">${state.myClasses.map(c => `<span class="chip">${esc(c)} <button data-rm="${esc(c)}" aria-label="Remove ${esc(c)}" style="color:inherit;opacity:.7">×</button></span>`).join("")}<button class="chip gray" id="addCls">+ Add class</button></div></div>
+     <div class="card stack" style="gap:14px">
+      <div class="row"><div class="grow"><b>Spotify</b><div class="small muted">Locked picks your most locked-in song from what played during your most focused stretch.</div></div><button class="toggle ${state.spotify ? "on" : ""}" id="tSp" role="switch" aria-checked="${state.spotify}" aria-label="Connect Spotify"></button></div>
+      <div class="row"><div class="grow"><b>Late-night guard</b><div class="small muted">A gentle reminder after 2 AM that your streak is safe until 4 AM.</div></div><button class="toggle ${state.lateGuard ? "on" : ""}" id="tLg" role="switch" aria-checked="${state.lateGuard}" aria-label="Late-night guard"></button></div>
+     </div>
+     <div class="card"><b>Privacy</b><ul class="small ink2" style="margin:8px 0 0;padding-left:18px;display:grid;gap:4px"><li>Your Lock Score is private. Friends see your time, goals and pauses.</li><li>Posts go to friends only, plus a class feed when you choose to share there.</li><li>Raw camera frames never leave your phone. Only the 20-second timelapse you post is uploaded.</li><li>Home and dorm sessions never show on the map.</li></ul></div>
+     <div class="card"><b>Safety</b><ul class="small ink2" style="margin:8px 0 0;padding-left:18px;display:grid;gap:4px"><li>Captions, comments, messages and Reels are checked before anyone sees them.</li><li>Timelapses and clips are scanned for nudity and violence.</li><li>Anything 3 people report is hidden until reviewed.</li><li>Blocked: ${state.blocked.length ? state.blocked.map(u => esc(uname(u))).join(", ") + ` <button class="chip gray" id="unb">Unblock all</button>` : "nobody"}</li></ul></div>
+     <button class="btn line block" id="resetDemo">Reset demo data</button>
+    </div>`;
+    $$("[data-rm]", layer).forEach(b => b.onclick = () => { state.myClasses = state.myClasses.filter(c => c !== b.dataset.rm); save(); draw() });
+    $("#addCls", layer).onclick = () => tagPicker(code => { if (!state.myClasses.includes(code)) state.myClasses.push(code); save(); draw() }, "Add a class");
+    $("#tSp", layer).onclick = () => { state.spotify = !state.spotify; save(); draw() };
+    $("#tLg", layer).onclick = () => { state.lateGuard = !state.lateGuard; save(); draw() };
+    const ub = $("#unb", layer); if (ub) ub.onclick = () => { state.blocked = []; save(); draw() };
+    $("#resetDemo", layer).onclick = async () => { try { Object.keys(localStorage).filter(k => k.startsWith("locked.")).forEach(k => localStorage.removeItem(k)) } catch { } for (const p of state.myPosts) await idb.del(p.id); location.reload() };
+  };
+  draw();
+};
+
+// ---------- Break Reels ----------
+function reelsOpen() { return state.breakUntil && Date.now() < state.breakUntil }
+ACTS.openReels = () => {
+  if (!reelsOpen()) { openSheet(`<div style="text-align:center"><div style="color:var(--coral);display:grid;place-items:center">${ICON.film}</div><h3 style="font-size:20px;margin-top:6px">Reels are locked</h3><p class="small ink2" style="margin:8px 0 14px">Reels open for 10 minutes on your hourly break or right after you finish a session, so they never become the distraction.</p><button class="btn block" data-act="newSession">Start a session</button></div>`); return }
+  let tab = "friends";
+  const el = openLayer("", "reels");
+  const draw = () => {
+    const clips = REEL_PROMPTS.map((p, i) => ({ p, uid: tab === "friends" ? state.friends[i % state.friends.length] : ["ben", "isla", "marcus", "hana"][i % 4], seed: i + (tab === "friends" ? 0 : 50), keys: 12 + i * 7 })).concat(state.myReels || []);
+    el.innerHTML = `<div class="row" style="padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px;gap:8px"><button class="iconbtn" data-act="closeLayer" aria-label="Close" style="color:#fff">${ICON.close}</button><div class="seg grow" style="background:rgba(255,255,255,.12)"><button class="${tab === "friends" ? "on" : ""}" data-rt="friends">Friends</button><button class="${tab === "everyone" ? "on" : ""}" data-rt="everyone">Everyone</button></div><span class="chip mint mono" id="rTimer"></span></div>
+     <div class="reel-feed" id="rfeed">${clips.map((c, i) => `<div class="reel"><canvas width="400" height="700" data-reel="${i}"></canvas><div class="cap"><div class="chip coral" style="margin-bottom:6px">Prompt</div><div style="font-family:var(--f-display);font-weight:800;font-size:20px">${esc(c.p)}</div><div class="small" style="margin-top:4px">@${esc(USERS[c.uid]?.handle || "you")}</div></div><div class="side"><button>${ICON.key}<span>${c.keys}</span></button><button data-act="report" data-kind="clip" data-uid="${c.uid}">${ICON.more}<span>Report</span></button></div></div>`).join("")}</div>
+     <div style="padding:10px 16px calc(12px + env(safe-area-inset-bottom,0px))"><button class="btn coral block" id="recReel">Record a clip for today's prompt</button></div>`;
+    $$("[data-rt]", el).forEach(b => b.onclick = () => { tab = b.dataset.rt; draw() });
+    $("#recReel", el).onclick = () => recordReel();
+    const cvs = $$("[data-reel]", el);
+    const loop = () => { if (!document.body.contains(el)) return; const tl = state.breakUntil - Date.now(); const tm = $("#rTimer", el); if (tm) tm.textContent = tl > 0 ? fmtClock(tl * (S?.speed || 1)) + " left" : "Break over"; if (tl <= 0) { el.remove(); toast("Break's over. Reels are locked again."); return }
+      const ft = performance.now() / 1000; cvs.forEach(cv => { const r = cv.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return; reelDraw(cv.getContext("2d"), 400, 700, ft, +cv.dataset.reel + (tab === "friends" ? 0 : 50)) }); requestAnimationFrame(loop) };
+    loop();
+  };
+  draw();
+};
+function reelDraw(x, w, h, t, seed) {
+  const hue = (seed * 47) % 360; const g = x.createLinearGradient(0, 0, w, h); g.addColorStop(0, `hsl(${hue} 85% 58%)`); g.addColorStop(1, `hsl(${(hue + 60) % 360} 80% 45%)`); x.fillStyle = g; x.fillRect(0, 0, w, h);
+  for (let i = 0; i < 6; i++) { x.fillStyle = `rgba(255,255,255,${.08 + i * .02})`; x.beginPath(); x.arc(w / 2 + Math.sin(t * (1 + i * .3) + i) * 140, h * .4 + Math.cos(t * (1.2 + i * .2) + i * 2) * 160, 30 + i * 12, 0, 7); x.fill() }
+  const bx = w / 2 + Math.sin(t * 3 + seed) * 50, by = h * .45 + Math.abs(Math.sin(t * 5 + seed)) * -60;
+  x.fillStyle = "#121430"; x.beginPath(); x.ellipse(bx, by + 110, 70, 90, 0, Math.PI, 0); x.fill(); x.fillRect(bx - 70, by + 110, 140, 60);
+  x.fillStyle = "#F2C9A0"; x.beginPath(); x.arc(bx, by, 52, 0, 7); x.fill();
+  x.fillStyle = "#121430"; x.beginPath(); x.arc(bx - 18, by - 6, 6, 0, 7); x.arc(bx + 18, by - 6, 6, 0, 7); x.fill();
+  x.strokeStyle = "#121430"; x.lineWidth = 5; x.beginPath(); x.arc(bx, by + 12, 18, .15 * Math.PI, .85 * Math.PI); x.stroke();
+  x.strokeStyle = "#121430"; x.lineWidth = 22; x.lineCap = "round"; const wave = Math.sin(t * 8 + seed) * .8;
+  x.beginPath(); x.moveTo(bx - 60, by + 90); x.lineTo(bx - 110, by + 30 + wave * 40); x.stroke(); x.beginPath(); x.moveTo(bx + 60, by + 90); x.lineTo(bx + 110, by + 30 - wave * 40); x.stroke();
+}
+async function recordReel() {
+  const prompt = REEL_PROMPTS[new Date().getDate() % REEL_PROMPTS.length];
+  const sh = openSheet(`<h3 style="font-size:19px">Today's prompt</h3><div style="font-family:var(--f-display);font-weight:800;font-size:22px;margin:6px 0 12px">${esc(prompt)}</div><div id="rr" class="stack"><div class="small muted">Up to 20 seconds. Clips are checked automatically before anyone sees them.</div><button class="btn coral block" id="rgo">Start recording</button><label class="btn line block" for="rfile">Or upload a clip<input type="file" id="rfile" accept="video/*" hidden></label></div>`);
+  const done = () => { closeSheet(); state.myReels = [...(state.myReels || []), { p: prompt, uid: "me", seed: 99, keys: 0 }]; toast("Clip passed the safety check and was posted to Reels") };
+  $("#rfile", sh).onchange = e => { if (e.target.files[0]) { if (e.target.files[0].size > 60e6) { toast("That clip is too long. Keep it under 20 seconds."); return } done() } };
+  $("#rgo", sh).onclick = async () => {
+    let stream; try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true }) } catch { $("#rr", sh).innerHTML = `<div class="banner sun">The camera isn't available in this preview. Upload a clip instead, or open the app on your phone.</div>`; return }
+    const v = document.createElement("video"); v.muted = true; v.playsInline = true; v.srcObject = stream; v.style.cssText = "width:100%;border-radius:14px;transform:scaleX(-1)"; await v.play();
+    const box = $("#rr", sh); box.innerHTML = ""; box.appendChild(v); const lbl = document.createElement("div"); lbl.className = "mono"; box.appendChild(lbl);
+    let left = 20; lbl.textContent = "Recording · 0:20"; const stopBtn = document.createElement("button"); stopBtn.className = "btn block"; stopBtn.textContent = "Stop"; box.appendChild(stopBtn);
+    const iv = setInterval(() => { left--; lbl.textContent = "Recording · 0:" + String(left).padStart(2, "0"); if (left <= 0) fin() }, 1000);
+    const fin = () => { clearInterval(iv); stream.getTracks().forEach(t => t.stop()); done() }; stopBtn.onclick = fin;
+  };
+}
+
+// ---------- Boot ----------
+(async function boot() {
+  const saved = await idb.all();
+  state.myPosts = saved.sort((a, b) => b.end - a.end).map(p => ({ ...p, frames: framesFromData(p.frameData || []) }));
+  setTab("feed");
+})();
+</script>
+</body></html>
