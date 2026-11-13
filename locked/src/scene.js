@@ -112,15 +112,15 @@ function overlayDraw(ctx, w, h, t, meta) {
   };
   pill(10 * s, 10 * s, clock.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }));
   pill(w - 10 * s, 10 * s, fmtClock(t * meta.dur), "right");
-  if (meta.cls) pill(10 * s, h - 32 * s, meta.cls, "left", "rgba(45,91,255,.9)");
+  if (meta.cls) pill(10 * s, h - 32 * s, meta.cls, "left", "rgba(123,92,255,.92)");
   if (meta.song) { ctx.font = `600 ${11 * s}px Inter, sans-serif`; const txt = "♪ " + meta.song.t + " · " + meta.song.a; ctx.fillStyle = "rgba(10,12,30,.62)"; const tw = Math.min(ctx.measureText(txt).width + 16 * s, w - 20 * s); ctx.beginPath(); ctx.roundRect(10 * s, h - 60 * s, tw, 22 * s, 11 * s); ctx.fill(); ctx.save(); ctx.beginPath(); ctx.rect(10 * s, h - 60 * s, tw - 6 * s, 22 * s); ctx.clip(); ctx.fillStyle = "#fff"; ctx.fillText(txt, 18 * s, h - 45 * s); ctx.restore() }
   // progress bar
   ctx.fillStyle = "rgba(255,255,255,.25)"; ctx.fillRect(0, h - 3 * s, w, 3 * s); ctx.fillStyle = "#fff"; ctx.fillRect(0, h - 3 * s, w * t, 3 * s);
 }
 function cardDraw(ctx, w, h, text) {
   ctx.fillStyle = "#0B0D1E"; ctx.fillRect(0, 0, w, h); const s = w / 300;
-  ctx.fillStyle = "#FFB81F"; ctx.beginPath(); ctx.roundRect(w / 2 - 70 * s, h / 2 - 26 * s, 140 * s, 52 * s, 14 * s); ctx.fill();
-  ctx.fillStyle = "#121430"; ctx.font = `800 ${17 * s}px Bricolage Grotesque, sans-serif`; ctx.textAlign = "center"; ctx.fillText(text, w / 2, h / 2 + 6 * s); ctx.textAlign = "left";
+  ctx.fillStyle = "#FFC86B"; ctx.beginPath(); ctx.roundRect(w / 2 - 70 * s, h / 2 - 26 * s, 140 * s, 52 * s, 14 * s); ctx.fill();
+  ctx.fillStyle = "#121430"; ctx.font = `800 ${17 * s}px Plus Jakarta Sans, sans-serif`; ctx.textAlign = "center"; ctx.fillText(text, w / 2, h / 2 + 6 * s); ctx.textAlign = "left";
 }
 
 // ---------- Players: one animation loop drives every visible timelapse ----------

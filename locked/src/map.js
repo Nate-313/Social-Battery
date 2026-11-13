@@ -8,15 +8,15 @@ function spotCounts() {
 }
 function campusSVG() {
   return `<svg viewBox="0 0 1000 1080" aria-hidden="true">
-  <rect width="1000" height="1080" fill="#EEF2EA"/>
-  <path d="M0 0H1000V150C820 130 700 170 560 120 420 70 240 140 0 110Z" fill="#D9EBCF"/>
-  <path d="M60 270c40-60 170-70 210-10s10 150-70 160S20 330 60 270Z" fill="#CFE2F6"/><text x="150" y="335" font-size="22" fill="#6C88A8" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">Lake Lag</text>
-  <path d="M40 880C200 800 360 980 560 900S900 980 1000 900V1080H0Z" fill="#E3EEDC"/>
+  <rect width="1000" height="1080" fill="#F3F0FB"/>
+  <path d="M0 0H1000V150C820 130 700 170 560 120 420 70 240 140 0 110Z" fill="#DDF5EC"/>
+  <path d="M60 270c40-60 170-70 210-10s10 150-70 160S20 330 60 270Z" fill="#DCE6FF"/><text x="150" y="335" font-size="22" fill="#6C88A8" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">Lake Lag</text>
+  <path d="M40 880C200 800 360 980 560 900S900 980 1000 900V1080H0Z" fill="#E3F6EF"/>
   <path d="M590 0 L515 270" stroke="#fff" stroke-width="20" stroke-linecap="round"/><path d="M590 0 L515 270" stroke="#E2DCCB" stroke-width="4" stroke-dasharray="2 22" stroke-linecap="round"/>
   <text x="575" y="80" font-size="16" fill="#8F94A8" font-family="Inter,sans-serif" font-weight="600" transform="rotate(-74 575 80)">Palm Drive</text>
   <path d="M120 230 C 300 120 760 120 940 300 C 1010 520 960 800 760 900 C 540 990 260 960 130 800 C 40 640 40 380 120 230Z" fill="none" stroke="#fff" stroke-width="18"/>
   <path d="M150 560H900" stroke="#fff" stroke-width="12"/><text x="200" y="550" font-size="15" fill="#8F94A8" font-family="Inter,sans-serif" font-weight="600">Jane Stanford Way</text>
-  <ellipse cx="515" cy="320" rx="70" ry="48" fill="#CFE6C4"/><text x="515" y="326" font-size="15" fill="#5E8A55" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">The Oval</text>
+  <ellipse cx="515" cy="320" rx="70" ry="48" fill="#D4F2E6"/><text x="515" y="326" font-size="15" fill="#5E8A55" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">The Oval</text>
   <rect x="425" y="395" width="180" height="140" rx="6" fill="#F1E3C8" stroke="#E2CFA8" stroke-width="3"/><rect x="465" y="430" width="100" height="70" fill="#EEF2EA"/><text x="515" y="472" font-size="14" fill="#9C7F4F" text-anchor="middle" font-family="Inter,sans-serif" font-weight="700">Main Quad</text>
   <circle cx="712" cy="525" r="14" fill="#F1E3C8" stroke="#E2CFA8" stroke-width="3"/><text x="712" y="560" font-size="13" fill="#9C7F4F" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">Hoover Tower</text>
   <rect x="290" y="370" width="130" height="90" rx="6" fill="#E6E9F3"/><text x="355" y="485" font-size="12" fill="#8F94A8" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">Science &amp; Engineering Quad</text>
@@ -52,7 +52,7 @@ afterRender.map = () => {
   const w = cv.width, h = cv.height; x.clearRect(0, 0, w, h);
   for (const s of SPOTS) { const n = counts[s.id][0]; if (n < MIN_POSTS_SHOWN) continue; const px = s.x / 2, py = s.y / 2, rad = 30 + 45 * (n / max); const g = x.createRadialGradient(px, py, 0, px, py, rad); g.addColorStop(0, `rgba(0,0,0,${.25 + .75 * n / max})`); g.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = g; x.fillRect(px - rad, py - rad, rad * 2, rad * 2) }
   const img = x.getImageData(0, 0, w, h), d = img.data;
-  const ramp = [[191, 211, 255], [110, 139, 255], [255, 184, 31], [255, 91, 58], [211, 20, 58]];
+  const ramp = [[201, 218, 255], [161, 140, 255], [123, 92, 255], [255, 122, 198], [255, 79, 142]];
   for (let i = 0; i < d.length; i += 4) { const a = d[i + 3] / 255; if (!a) continue; const p = Math.min(.999, a) * (ramp.length - 1), k = Math.floor(p), f = p - k, c0 = ramp[k], c1 = ramp[k + 1]; d[i] = c0[0] + (c1[0] - c0[0]) * f; d[i + 1] = c0[1] + (c1[1] - c0[1]) * f; d[i + 2] = c0[2] + (c1[2] - c0[2]) * f; d[i + 3] = Math.min(235, a * 330) }
   x.putImageData(img, 0, 0); cv.style.mixBlendMode = "normal"; cv.style.opacity = ".78";
 };

@@ -36,12 +36,12 @@ const ICON = {
 
 // ---------- Logo: "lo" + a sideways shackle forming the c, locked into a box holding the k, then "ed" ----------
 function logoSVG(h = 30, color = "var(--ink)", accent = "var(--blue)") {
-  return `<svg height="${h}" viewBox="0 0 276 84" role="img" aria-label="locked"><g fill="${color}" font-family="Bricolage Grotesque, Avenir Next, system-ui, sans-serif" font-weight="800">
+  return `<svg height="${h}" viewBox="0 0 276 84" role="img" aria-label="locked"><g fill="${color}" font-family="Plus Jakarta Sans, Avenir Next, system-ui, sans-serif" font-weight="800">
   <text x="0" y="66" font-size="78" letter-spacing="-3">lo</text>
   <text x="193" y="66" font-size="78" letter-spacing="-3">ed</text></g>
   <path d="M135 28 H112 a19 19 0 0 0 0 38 H135" fill="none" stroke="${color}" stroke-width="11.5"/>
   <rect x="129" y="16" width="56" height="62" rx="11" fill="${accent}"/>
-  <text x="157" y="66" text-anchor="middle" fill="#fff" font-family="Bricolage Grotesque, Avenir Next, system-ui, sans-serif" font-weight="800" font-size="56">k</text></svg>`;
+  <text x="157" y="66" text-anchor="middle" fill="#fff" font-family="Plus Jakarta Sans, Avenir Next, system-ui, sans-serif" font-weight="800" font-size="56">k</text></svg>`;
 }
 
 // ---------- Content safety ----------

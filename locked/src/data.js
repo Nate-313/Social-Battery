@@ -19,7 +19,7 @@ function findTag(code){ return ALL_TAGS.find(c=>c.code===code||c.cross.includes(
 const TERM = "Autumn 2026";
 
 const USERS = {
- me:{id:"me",name:"You",handle:"you",color:"#2D5BFF"},
+ me:{id:"me",name:"You",handle:"you",color:"#7B5CFF"},
  maya:{id:"maya",name:"Maya Chen",handle:"mayac",color:"#FF5B3A",dorm:"Branner"},
  jordan:{id:"jordan",name:"Jordan Okafor",handle:"jokafor",color:"#10B27F",dorm:"FroSoCo"},
  priya:{id:"priya",name:"Priya Raman",handle:"priyar",color:"#A24BFF",dorm:"Roble"},

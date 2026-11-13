@@ -90,7 +90,7 @@ function renderStats() {
    <div class="card"><b>What helps you focus</b><div class="tiny muted" style="margin-bottom:10px">Average Lock Score</div>${barsHTML(music.concat(group).concat(inten.map(r => ({ ...r, k: r.k + " work" }))))}</div>
    <div class="card"><div class="row" style="justify-content:space-between"><b>Exam countdown</b><button class="btn sm ghost" data-act="addExam">Add exam</button></div>
      <div class="stack" style="margin-top:10px">${upcoming.length ? upcoming.map(e => { const hrs = all.filter(s => s.cls === e.cls && s.start > Date.now() - 14 * DAY).reduce((a, s) => a + s.dur, 0); return `<div class="row"><span class="chip coral">${Math.ceil((e.ts - Date.now()) / DAY)} days</span><span class="grow"><b>${esc(e.cls)} ${esc(e.label)}</b><br><span class="small muted">${fmtDur(hrs)} locked for ${esc(e.cls)} in the last 2 weeks</span></span></div>` }).join("") : `<div class="small muted">Add your exams to see how much you've studied for each.</div>`}</div></div>
-   <button class="card" style="text-align:left;background:linear-gradient(135deg,#2D5BFF,#6B3CFF);color:#fff;border:0" data-act="wrapped"><div class="eyebrow" style="color:rgba(255,255,255,.75)">End of ${TERM}</div><div style="font-family:var(--f-display);font-weight:800;font-size:24px">Your Locked Wrapped</div><div class="small" style="opacity:.85">Your term in study: hours, spots, songs, streaks. Tap to preview.</div></button>
+   <button class="card" style="text-align:left;background:linear-gradient(135deg,#FF7AC6,#7B5CFF 55%,#3DD6C4);color:#fff;border:0" data-act="wrapped"><div class="eyebrow" style="color:rgba(255,255,255,.75)">End of ${TERM}</div><div style="font-family:var(--f-display);font-weight:800;font-size:24px">Your Locked Wrapped</div><div class="small" style="opacity:.85">Your term in study: hours, spots, songs, streaks. Tap to preview.</div></button>
    <div class="card row" style="align-items:flex-start"><span style="color:var(--blue)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg></span><div class="grow"><b>Locked for your laptop</b><div class="small muted">A Mac and Windows companion that pairs with your phone session and tracks which apps and sites are in front, so focus time counts toward a more objective score.</div><button class="btn sm ghost" style="margin-top:8px" data-act="laptop">Join the beta list</button></div></div>
    <div class="tiny muted">How your Lock Score works: Presence 45% (at your desk in each camera check), Continuity 30% (pauses, exits, emergency unlocks), Goals 25% (goals you set before starting). Length isn't in the score; it's shown as Locked time.</div>
   </div>`;
@@ -107,11 +107,11 @@ ACTS.wrapped = () => {
   const cls = groupScore(all, s => s.cls).sort((a, b) => b.n - a.n)[0];
   const best = [...all].sort((a, b) => b.score - a.score)[0];
   const slides = [
-    ["#2D5BFF", "This term you locked in for", `${hrs} hours`, `across ${all.length} sessions`],
-    ["#FF5B3A", "Your home base", esc(spot?.k || "Green Library"), `${spot?.n || 0} sessions there`],
-    ["#10B27F", "The class that got the most of you", esc(cls?.k || "CS 161"), `${cls?.n || 0} sessions`],
-    ["#6B3CFF", "Your best session scored", `${best?.score || 90}`, `on ${new Date(best?.start || Date.now()).toLocaleDateString([], { month: "short", day: "numeric" })}`],
-    ["#121430", "Your top locked-in song", "Experience", "Ludovico Einaudi · played in 9 sessions"],
+    ["#7B5CFF", "This term you locked in for", `${hrs} hours`, `across ${all.length} sessions`],
+    ["#FF5FB7", "Your home base", esc(spot?.k || "Green Library"), `${spot?.n || 0} sessions there`],
+    ["#1FB8A3", "The class that got the most of you", esc(cls?.k || "CS 161"), `${cls?.n || 0} sessions`],
+    ["#5636D9", "Your best session scored", `${best?.score || 90}`, `on ${new Date(best?.start || Date.now()).toLocaleDateString([], { month: "short", day: "numeric" })}`],
+    ["#1E1B3A", "Your top locked-in song", "Experience", "Ludovico Einaudi · played in 9 sessions"],
   ];
   let i = 0; const el = openLayer("", "story");
   const draw = () => { const [bg, a, b, c] = slides[i]; el.style.background = bg; el.innerHTML = `<div class="bars2">${slides.map((_, k) => `<i class="${k <= i ? "on" : ""}"></i>`).join("")}</div><div class="row" style="justify-content:space-between;margin-top:12px">${logoSVG(22, "#fff", "rgba(255,255,255,.25)")}<button class="iconbtn" data-act="closeLayer" aria-label="Close" style="color:#fff">${ICON.close}</button></div><div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px"><div style="font-size:18px;opacity:.85">${a}</div><div class="big">${b}</div><div style="font-size:16px;opacity:.85">${c}</div></div><div class="tiny" style="opacity:.7;text-align:center">Tap to continue</div>` };
