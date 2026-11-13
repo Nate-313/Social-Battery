@@ -8,12 +8,12 @@ function makeMockPosts() {
     ["leo", "CS 106B", "gates", 1.6, "recursion is a lifestyle", [], 4, false],
     ["sam", "CS 161", "huang", 2.8, "midterm prep w/ the crew", ["leo", "priya"], 5.5, true],
     ["ava", "CHEM 33", "lathrop", 1.9, "orgo mechanisms on repeat", [], 7, false],
-    ["noor", "PSYCH 1", "coho", 1.2, "", [], 9, true],
+    ["noor", "PSYCH 1", "tresidder", 1.2, "", [], 9, true],
     ["diego", "ECON 50", "tresidder", 2.4, "lagrangians at tresidder", [], 11, false],
     ["zoe", "MATH 51", "green", 3.6, "4am-to-4am kind of day", ["noor"], 14, true],
     ["ethan", "MCAT", "lane", 4.2, "CARS passages all afternoon", [], 18, false],
     ["priya", "CS 229", "y2e2", 2.0, "backprop by hand", [], 21, false],
-    ["maya", "PSYCH 1", "meyer", 1.1, "reading on the grass", [], 23, true],
+    ["maya", "PSYCH 1", "branner", 1.1, "quiet floor at branner", [], 23, true],
   ];
   plan.forEach(([uid, cls, spot, hrs, cap, withU, hAgo, classShare], i) => {
     const end = NOW - hAgo * HOUR - r() * 40 * MIN, dur = hrs * HOUR;
@@ -28,13 +28,13 @@ function makeMockPosts() {
 }
 const MOCK_POSTS = makeMockPosts();
 // Campus-wide post counts in the last 24 hours and people studying right now, per spot.
-const SPOT_ACTIVITY = { green: [46, 19], bender: [28, 11], lathrop: [17, 6], huang: [39, 22], gates: [24, 9], y2e2: [21, 7], tresidder: [15, 4], coho: [12, 5], meyer: [8, 2], law: [11, 3], gsb: [9, 2], lane: [26, 13], arrillaga: [6, 1], cantor: [2, 0] };
-const SPOT_SCORE = { green: 81, bender: 86, lathrop: 77, huang: 79, gates: 74, y2e2: 69, tresidder: 61, coho: 58, meyer: 64, law: 84, gsb: 72, lane: 83, arrillaga: 55, cantor: 70 };
+const SPOT_ACTIVITY = { green: [46, 19], bender: [28, 11], lathrop: [24, 10], huang: [39, 22], gates: [24, 9], y2e2: [21, 7], lima: [19, 8], branner: [9, 3], tresidder: [17, 5], law: [11, 3], gsb: [9, 2], lane: [26, 13], arrillaga: [6, 1], artlib: [2, 0] };
+const SPOT_SCORE = { green: 81, bender: 86, lathrop: 78, huang: 79, gates: 74, y2e2: 69, lima: 82, branner: 85, tresidder: 59, law: 84, gsb: 72, lane: 83, arrillaga: 55, artlib: 80 };
 
 // Sample history for "You" so Stats has something to show before you log your own sessions.
 function makeHistory() {
-  const r = rng(7), out = [], spots = ["green", "bender", "huang", "lathrop", "tresidder", "home", "coho", "y2e2"];
-  const spotBias = { green: 8, bender: 12, huang: 4, lathrop: 2, tresidder: -9, home: -14, coho: -11, y2e2: -4 };
+  const r = rng(7), out = [], spots = ["green", "bender", "huang", "lathrop", "tresidder", "home", "lima", "y2e2"];
+  const spotBias = { green: 8, bender: 12, huang: 4, lathrop: 2, tresidder: -10, home: -14, lima: 6, y2e2: -4 };
   for (let d = 44; d >= 1; d--) {
     if (d === 9 || d === 23 || d === 30 || d === 31) continue; // missed days
     const n = r() > .7 ? 2 : 1;

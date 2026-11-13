@@ -1,71 +1,123 @@
 // ---------- Map: 24-hour heat map + live layer ----------
+// Real street map (OpenStreetMap data, CARTO light tiles, drawn with Leaflet) when tiles can load.
+// Otherwise a simplified campus drawing projected from the same coordinates, so positions stay true.
 const MIN_POSTS_SHOWN = 3; // spots with fewer posts stay hidden so nobody can be pinpointed
+const TILE_URL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+const TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+// Simplified drawing bounds (south, west, north, east)
+const BOUNDS = { s: 37.4205, w: -122.1820, n: 37.4350, e: -122.1595 };
+const KX = 88.4, KY = 111.0; // km per degree of longitude / latitude at Stanford
+const VW = 1000, VH = Math.round(VW * ((BOUNDS.n - BOUNDS.s) * KY) / ((BOUNDS.e - BOUNDS.w) * KX));
+function proj([lat, lng]) { return [(lng - BOUNDS.w) / (BOUNDS.e - BOUNDS.w) * VW, (BOUNDS.n - lat) / (BOUNDS.n - BOUNDS.s) * VH] }
+
 function spotCounts() {
   const c = {}; for (const s of SPOTS) c[s.id] = [...(SPOT_ACTIVITY[s.id] || [0, 0])];
   for (const p of state.myPosts) if (!p.private && p.spot !== "home" && Date.now() - p.end < DAY && c[p.spot]) c[p.spot][0]++;
   if (S && S.spot !== "home" && c[S.spot]) c[S.spot][1]++;
   return c;
 }
+function smoothPath(pts) {
+  if (pts.length < 3) return "M" + pts.map(p => p.join(" ")).join(" L");
+  let d = `M${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) { const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2; d += ` C${p1[0] + (p2[0] - p0[0]) / 6} ${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6} ${p2[1] - (p3[1] - p1[1]) / 6} ${p2[0]} ${p2[1]}` }
+  return d;
+}
 function campusSVG() {
-  return `<svg viewBox="0 0 1000 1080" aria-hidden="true">
-  <rect width="1000" height="1080" fill="#F3F0FB"/>
-  <path d="M0 0H1000V150C820 130 700 170 560 120 420 70 240 140 0 110Z" fill="#DDF5EC"/>
-  <path d="M60 270c40-60 170-70 210-10s10 150-70 160S20 330 60 270Z" fill="#DCE6FF"/><text x="150" y="335" font-size="22" fill="#6C88A8" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">Lake Lag</text>
-  <path d="M40 880C200 800 360 980 560 900S900 980 1000 900V1080H0Z" fill="#E3F6EF"/>
-  <path d="M590 0 L515 270" stroke="#fff" stroke-width="20" stroke-linecap="round"/><path d="M590 0 L515 270" stroke="#E2DCCB" stroke-width="4" stroke-dasharray="2 22" stroke-linecap="round"/>
-  <text x="575" y="80" font-size="16" fill="#8F94A8" font-family="Inter,sans-serif" font-weight="600" transform="rotate(-74 575 80)">Palm Drive</text>
-  <path d="M120 230 C 300 120 760 120 940 300 C 1010 520 960 800 760 900 C 540 990 260 960 130 800 C 40 640 40 380 120 230Z" fill="none" stroke="#fff" stroke-width="18"/>
-  <path d="M150 560H900" stroke="#fff" stroke-width="12"/><text x="200" y="550" font-size="15" fill="#8F94A8" font-family="Inter,sans-serif" font-weight="600">Jane Stanford Way</text>
-  <ellipse cx="515" cy="320" rx="70" ry="48" fill="#D4F2E6"/><text x="515" y="326" font-size="15" fill="#5E8A55" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">The Oval</text>
-  <rect x="425" y="395" width="180" height="140" rx="6" fill="#F1E3C8" stroke="#E2CFA8" stroke-width="3"/><rect x="465" y="430" width="100" height="70" fill="#EEF2EA"/><text x="515" y="472" font-size="14" fill="#9C7F4F" text-anchor="middle" font-family="Inter,sans-serif" font-weight="700">Main Quad</text>
-  <circle cx="712" cy="525" r="14" fill="#F1E3C8" stroke="#E2CFA8" stroke-width="3"/><text x="712" y="560" font-size="13" fill="#9C7F4F" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">Hoover Tower</text>
-  <rect x="290" y="370" width="130" height="90" rx="6" fill="#E6E9F3"/><text x="355" y="485" font-size="12" fill="#8F94A8" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">Science &amp; Engineering Quad</text>
-  <rect x="250" y="120" width="170" height="90" rx="8" fill="#E6E9F3"/><text x="335" y="232" font-size="12" fill="#8F94A8" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">Medical Center</text>
-  <rect x="470" y="600" width="140" height="80" rx="8" fill="#E6E9F3"/><text x="540" y="700" font-size="12" fill="#8F94A8" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">White Plaza</text>
-  </svg>`;
+  const roads = Object.entries(STREETS).map(([name, pts]) => { const pp = pts.map(proj).map(p => p.map(v => +v.toFixed(1))); return `<path d="${smoothPath(pp)}" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>` }).join("");
+  const lm = LANDMARKS.map(l => {
+    const [x, y] = proj(l.ll); let g = "";
+    if (l.box) { const [a, b] = [proj(l.box[0]), proj(l.box[1])]; g += `<rect x="${Math.min(a[0], b[0])}" y="${Math.min(a[1], b[1])}" width="${Math.abs(b[0] - a[0])}" height="${Math.abs(b[1] - a[1])}" rx="8" fill="#ECE6FA" stroke="#DCD3F5" stroke-width="3"/>` }
+    if (l.name === "The Oval") g += `<ellipse cx="${x}" cy="${y}" rx="34" ry="22" fill="#D4F2E6"/>`;
+    if (l.dot) g += `<circle cx="${x}" cy="${y}" r="7" fill="#DCD3F5"/>`;
+    return g + `<text x="${x}" y="${y + (l.dot ? 24 : 5)}" font-size="15" fill="#9A93BE" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-weight="700">${l.name}</text>`;
+  }).join("");
+  const labels = Object.keys(STREETS).filter(n => !n.startsWith("Campus Drive E")).map(n => { const pts = STREETS[n].map(proj), m = pts[n === "Jane Stanford Way" ? pts.length - 4 : Math.floor(pts.length / 2)]; return `<text x="${m[0]}" y="${m[1] - 12}" font-size="13" fill="#A9A3C8" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-weight="600">${n}</text>` }).join("");
+  return `<svg viewBox="0 0 ${VW} ${VH}" aria-hidden="true"><rect width="${VW}" height="${VH}" fill="#F3F0FB"/>${roads}${lm}${labels}</svg>`;
+}
+const shortName = s => s.short || s.name;
+function markersSVG(shown, counts, live) {
+  return `<svg viewBox="0 0 ${VW} ${VH}" style="z-index:2">${shown.map(s => {
+    const [x, y] = proj(s.ll), l = counts[s.id][1], r = live ? 10 + Math.sqrt(l) * 4 : 8;
+    return `<g data-act="spot" data-id="${s.id}" style="cursor:pointer">${live && l ? `<circle cx="${x}" cy="${y}" r="8" fill="var(--blue)" class="pulse"/>` : ""}
+     <circle cx="${x}" cy="${y}" r="${r + 18}" fill="transparent"/>
+     <circle cx="${x}" cy="${y}" r="${r}" fill="${live ? "var(--blue)" : "#fff"}" stroke="${live ? "#fff" : "var(--ink)"}" stroke-width="3"/>
+     ${live ? `<text x="${x}" y="${y + 5}" font-size="14" font-weight="800" fill="#fff" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">${l}</text>` : ""}
+     <text x="${x}" y="${s.below ? y + r + 20 : y - r - 9}" font-size="16" font-weight="700" fill="var(--ink)" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" paint-order="stroke" stroke="#fff" stroke-width="5">${esc(shortName(s))}</text></g>`;
+  }).join("")}</svg>`;
 }
 function renderMap() {
-  const counts = spotCounts();
+  const counts = spotCounts(), live = state.mapMode === "live";
   const shown = SPOTS.filter(s => counts[s.id][0] >= MIN_POSTS_SHOWN);
-  const live = state.mapMode === "live";
+  const max = Math.max(...Object.values(counts).map(c => c[0]));
   return `<div class="stack">
-   <div class="row" style="justify-content:space-between"><h2 style="font-size:22px">Where Stanford is locked in</h2></div>
+   <h2 style="font-size:22px">Where Stanford is locked in</h2>
    <div class="seg"><button class="${!live ? "on" : ""}" data-act="mapMode" data-v="heat">Last 24 hours</button><button class="${live ? "on" : ""}" data-act="mapMode" data-v="live">Live now</button></div>
-   <div class="mapwrap" id="mapwrap">${campusSVG()}<canvas id="heat" width="500" height="540"></canvas>
-     <svg viewBox="0 0 1000 1080" style="z-index:2">${shown.map(s => {
-    const [n, l] = counts[s.id]; const r = live ? 9 + Math.sqrt(l) * 4 : 8;
-    return `<g data-act="spot" data-id="${s.id}" style="cursor:pointer">${live && l ? `<circle cx="${s.x}" cy="${s.y}" r="8" fill="var(--blue)" class="pulse"/>` : ""}
-       <circle cx="${s.x}" cy="${s.y}" r="${r + 18}" fill="transparent"/>
-       <circle cx="${s.x}" cy="${s.y}" r="${r}" fill="${live ? "var(--blue)" : "#fff"}" stroke="${live ? "#fff" : "var(--ink)"}" stroke-width="3"/>
-       ${live ? `<text x="${s.x}" y="${s.y + 5}" font-size="14" font-weight="800" fill="#fff" text-anchor="middle" font-family="Inter,sans-serif">${l}</text>` : ""}
-       <text x="${s.x}" y="${s.y - r - 9}" font-size="17" font-weight="700" fill="var(--ink)" text-anchor="middle" font-family="Inter,sans-serif" paint-order="stroke" stroke="#fff" stroke-width="5">${esc(s.name.replace(/ \(.*\)/, "").replace("Engineering Center", "").replace("Computer Science", "").replace("Knight Management Center", "GSB").trim())}</text></g>`
-  }).join("")}</svg></div>
+   <div class="mapwrap" id="mapwrap" style="aspect-ratio:${VW}/${VH}">
+     <div id="schem">${campusSVG()}<canvas id="heat" width="${VW / 2}" height="${Math.round(VH / 2)}"></canvas>${markersSVG(shown, counts, live)}</div>
+     <div id="leaf" style="position:absolute;inset:0;z-index:3;visibility:hidden;background:transparent"></div>
+     <canvas id="lheat" style="position:absolute;inset:0;z-index:4;pointer-events:none;width:100%;height:100%" hidden></canvas>
+   </div>
+   <div class="tiny muted" id="mapNote"></div>
    ${!live ? `<div class="row small"><span class="muted">Fewer posts</span><span class="legend-ramp grow"></span><span class="muted">More posts</span></div>` : `<div class="small ink2">${Object.values(counts).reduce((a, b) => a + b[1], 0)} people are in a session right now. Tap a spot to see who's there.</div>`}
    <div class="tiny muted">Spots with fewer than ${MIN_POSTS_SHOWN} posts stay hidden, and home or dorm sessions never appear, so nobody can be pinpointed.</div>
    <div class="eyebrow" style="margin-top:6px">Hottest spots, last 24 hours</div>
-   <div class="card bars">${shown.sort((a, b) => counts[b.id][0] - counts[a.id][0]).slice(0, 6).map(s => { const n = counts[s.id][0], max = Math.max(...Object.values(counts).map(c => c[0])); return `<button class="barrow" style="text-align:left" data-act="spot" data-id="${s.id}"><span class="lbl">${esc(s.name)}</span><span class="bartrack"><span class="barfill" style="display:block;width:${n / max * 100}%;background:var(--coral)"></span></span><span class="val">${n}</span></button>` }).join("")}</div>
+   <div class="card bars">${[...shown].sort((a, b) => counts[b.id][0] - counts[a.id][0]).slice(0, 6).map(s => { const n = counts[s.id][0]; return `<button class="barrow" style="text-align:left" data-act="spot" data-id="${s.id}"><span class="lbl">${esc(s.name)}</span><span class="bartrack"><span class="barfill" style="display:block;width:${n / max * 100}%;background:var(--coral)"></span></span><span class="val">${n}</span></button>` }).join("")}</div>
   </div>`;
 }
+// Heat: soft blobs per spot, colored through a violet-to-pink ramp
+function paintHeat(cv, pts) {
+  const x = cv.getContext("2d"), w = cv.width, h = cv.height; x.clearRect(0, 0, w, h);
+  for (const p of pts) { const g = x.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r); g.addColorStop(0, `rgba(0,0,0,${p.a})`); g.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = g; x.fillRect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2) }
+  const img = x.getImageData(0, 0, w, h), d = img.data, ramp = [[201, 218, 255], [161, 140, 255], [123, 92, 255], [255, 122, 198], [255, 79, 142]];
+  for (let i = 0; i < d.length; i += 4) { const a = d[i + 3] / 255; if (!a) continue; const q = Math.min(.999, a) * (ramp.length - 1), k = Math.floor(q), f = q - k, c0 = ramp[k], c1 = ramp[k + 1]; d[i] = c0[0] + (c1[0] - c0[0]) * f; d[i + 1] = c0[1] + (c1[1] - c0[1]) * f; d[i + 2] = c0[2] + (c1[2] - c0[2]) * f; d[i + 3] = Math.min(220, a * 320) }
+  x.putImageData(img, 0, 0);
+}
+function heatPoints(toXY, metersToPx) {
+  const counts = spotCounts(), max = Math.max(...Object.values(counts).map(c => c[0]));
+  return SPOTS.filter(s => counts[s.id][0] >= MIN_POSTS_SHOWN).map(s => { const n = counts[s.id][0], [x, y] = toXY(s.ll); return { x, y, r: metersToPx(70 + 110 * n / max), a: .3 + .7 * n / max } });
+}
+let lmap = null;
 afterRender.map = () => {
-  if (state.mapMode !== "heat") { $("#heat").hidden = true; return }
-  const cv = $("#heat"), x = cv.getContext("2d"), counts = spotCounts(), max = Math.max(...Object.values(counts).map(c => c[0]));
-  const w = cv.width, h = cv.height; x.clearRect(0, 0, w, h);
-  for (const s of SPOTS) { const n = counts[s.id][0]; if (n < MIN_POSTS_SHOWN) continue; const px = s.x / 2, py = s.y / 2, rad = 30 + 45 * (n / max); const g = x.createRadialGradient(px, py, 0, px, py, rad); g.addColorStop(0, `rgba(0,0,0,${.25 + .75 * n / max})`); g.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = g; x.fillRect(px - rad, py - rad, rad * 2, rad * 2) }
-  const img = x.getImageData(0, 0, w, h), d = img.data;
-  const ramp = [[201, 218, 255], [161, 140, 255], [123, 92, 255], [255, 122, 198], [255, 79, 142]];
-  for (let i = 0; i < d.length; i += 4) { const a = d[i + 3] / 255; if (!a) continue; const p = Math.min(.999, a) * (ramp.length - 1), k = Math.floor(p), f = p - k, c0 = ramp[k], c1 = ramp[k + 1]; d[i] = c0[0] + (c1[0] - c0[0]) * f; d[i + 1] = c0[1] + (c1[1] - c0[1]) * f; d[i + 2] = c0[2] + (c1[2] - c0[2]) * f; d[i + 3] = Math.min(235, a * 330) }
-  x.putImageData(img, 0, 0); cv.style.mixBlendMode = "normal"; cv.style.opacity = ".78";
+  const heat = state.mapMode === "heat";
+  const cv = $("#heat"); cv.hidden = !heat; cv.style.opacity = ".8";
+  if (heat) paintHeat(cv, heatPoints(ll => proj(ll).map(v => v / 2), m => m / ((BOUNDS.e - BOUNDS.w) * KX * 1000) * VW / 2));
+  $("#mapNote").textContent = "Simplified campus map. Spot positions come from Stanford's campus map.";
+  initLeaflet();
 };
+function initLeaflet() {
+  if (lmap) { try { lmap.remove() } catch { } lmap = null }
+  const el = $("#leaf"); if (!el || !window.L) return;
+  const counts = spotCounts(), live = state.mapMode === "live", heatOn = !live;
+  const map = L.map(el, { zoomControl: false, attributionControl: true, zoomSnap: .25 }).fitBounds([[37.4228, -122.1790], [37.4335, -122.1600]]);
+  lmap = map; let loaded = 0;
+  const tiles = L.tileLayer(TILE_URL, { maxZoom: 19, attribution: TILE_ATTR, subdomains: "abcd" }).addTo(map);
+  tiles.on("tileload", () => { if (!loaded++) { el.style.visibility = "visible"; $("#schem").style.visibility = "hidden"; $("#mapNote").textContent = "Map data © OpenStreetMap contributors. Pinch to zoom."; map.invalidateSize(); drawL() } });
+  const lcv = $("#lheat");
+  const drawL = () => {
+    if (!loaded || !heatOn) { lcv.hidden = true; return } lcv.hidden = false;
+    const sz = map.getSize(); lcv.width = sz.x; lcv.height = sz.y;
+    const mpp = 40075016.686 * Math.cos(CAMPUS[0] * Math.PI / 180) / Math.pow(2, map.getZoom() + 8);
+    paintHeat(lcv, heatPoints(ll => { const p = map.latLngToContainerPoint(ll); return [p.x, p.y] }, m => m / mpp));
+  };
+  map.on("move zoom resize", drawL);
+  for (const s of SPOTS) {
+    if (counts[s.id][0] < MIN_POSTS_SHOWN) continue; const l = counts[s.id][1];
+    const html = live ? `<div style="transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center"><span style="min-width:28px;height:28px;padding:0 6px;border-radius:14px;background:#7B5CFF;color:#fff;font:800 13px 'Plus Jakarta Sans',sans-serif;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 4px 10px rgba(123,92,255,.4)">${l}</span><span style="font:700 11px 'Plus Jakarta Sans',sans-serif;color:#1E1B3A;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff">${esc(shortName(s))}</span></div>`
+      : `<div style="transform:translate(-50%,-6px);display:flex;flex-direction:${s.below ? "column" : "column-reverse"};align-items:center;${s.below ? "" : "margin-top:-14px"}"><span style="width:12px;height:12px;border-radius:50%;background:#fff;border:2.5px solid #1E1B3A"></span><span style="font:700 11px 'Plus Jakarta Sans',sans-serif;color:#1E1B3A;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff">${esc(shortName(s))}</span></div>`;
+    L.marker(s.ll, { icon: L.divIcon({ className: "", html, iconSize: [0, 0] }), zIndexOffset: 500 }).addTo(map).on("click", () => openSpot(s.id));
+  }
+}
 ACTS.mapMode = el => { state.mapMode = el.dataset.v; render() };
-ACTS.spot = el => {
-  const s = SPOTS.find(x => x.id === el.dataset.id), [n, l] = spotCounts()[s.id];
+ACTS.spot = el => openSpot(el.dataset.id);
+function openSpot(id) {
+  const s = SPOTS.find(x => x.id === id), [n, l] = spotCounts()[s.id];
   const posts = allPosts().filter(p => p.spot === s.id).slice(0, 3);
   const classes = {}; allPosts().filter(p => p.spot === s.id).forEach(p => classes[p.cls] = (classes[p.cls] || 0) + 1);
-  const top = Object.entries(classes).sort((a, b) => b[1] - a[1]).slice(0, 3).map(e => e[0]).concat(["CS 106B", "MATH 51", "CHEM 33"]).slice(0, 3);
+  const top = Object.entries(classes).sort((a, b) => b[1] - a[1]).map(e => e[0]).concat(["CS 106B", "MATH 51", "CHEM 33"]).filter((v, i, a) => a.indexOf(v) === i).slice(0, 3);
   openSheet(`<h3 style="font-size:21px">${esc(s.name)}</h3>
   <div class="kpis" style="margin:12px 0"><div class="kpi"><div class="v">${n}</div><div class="k">Posts, 24h</div></div><div class="kpi"><div class="v">${l}</div><div class="k">Here now</div></div><div class="kpi"><div class="v" style="color:var(--blue)">${SPOT_SCORE[s.id]}</div><div class="k">Avg Lock Score</div></div></div>
   <div class="eyebrow">Top classes here</div><div class="row wrap" style="margin:6px 0 12px;gap:6px">${top.map(c => `<button class="chip" data-act="openClass" data-code="${esc(c)}">${esc(c)}</button>`).join("")}</div>
   ${posts.length ? `<div class="eyebrow">Friends' recent posts here</div><div class="stack" style="margin-top:6px">${posts.map(p => `<div class="row">${av(p.uid, 30)}<span class="grow small"><b>${esc(uname(p.uid))}</b> · ${esc(p.cls)} · ${fmtDur(p.dur)}</span><span class="tiny muted">${ago(p.end)}</span></div>`).join("")}</div>` : ""}
   <button class="btn block" style="margin-top:16px" data-act="studyHere" data-id="${s.id}">Lock in here</button>`);
-};
+}
 ACTS.studyHere = el => { closeSheet(); ACTS.newSession(); if (draft) { draft.spot = el.dataset.id; renderSetup() } };

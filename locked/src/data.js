@@ -35,25 +35,42 @@ const USERS = {
  marcus:{id:"marcus",name:"Marcus Reed",handle:"mreed",color:"#9A5B2E"},
  hana:{id:"hana",name:"Hana Sato",handle:"hanas",color:"#E0569B"},
 };
-// Map coordinates are on a 1000x1080 stylized campus drawing, north up.
+// Study spots. Coordinates come from Stanford's campus-map points of interest (building centroids).
 const SPOTS = [
- {id:"green",name:"Green Library",x:640,y:470,ll:[37.4269,-122.1670]},
- {id:"bender",name:"Bender Room (Green)",x:662,y:440,ll:[37.4271,-122.1667]},
- {id:"lathrop",name:"Lathrop Library",x:775,y:480,ll:[37.4270,-122.1655]},
- {id:"huang",name:"Huang Engineering Center",x:340,y:420,ll:[37.4277,-122.1745]},
- {id:"gates",name:"Gates Computer Science",x:285,y:500,ll:[37.4300,-122.1730]},
- {id:"y2e2",name:"Coupa Café, Y2E2",x:395,y:340,ll:[37.4285,-122.1754]},
- {id:"tresidder",name:"Tresidder Union",x:560,y:660,ll:[37.4244,-122.1707]},
- {id:"coho",name:"CoHo (Old Union)",x:470,y:620,ll:[37.4250,-122.1700]},
- {id:"meyer",name:"Meyer Green",x:600,y:575,ll:[37.4257,-122.1676]},
- {id:"law",name:"Crown Law Library",x:800,y:640,ll:[37.4238,-122.1667]},
- {id:"gsb",name:"Knight Management Center",x:915,y:700,ll:[37.4284,-122.1617]},
- {id:"lane",name:"Lane Medical Library",x:330,y:175,ll:[37.4318,-122.1756]},
- {id:"arrillaga",name:"Arrillaga Family Dining",x:250,y:720,ll:[37.4254,-122.1785]},
- {id:"cantor",name:"Cantor Arts Center",x:690,y:300,ll:[37.4332,-122.1703]},
+ {id:"green",name:"Green Library",ll:[37.42673,-122.16678],below:true},
+ {id:"bender",name:"Bender Room (Bing Wing)",short:"Bender Room",ll:[37.42691,-122.16760]},
+ {id:"lathrop",name:"Lathrop Library",ll:[37.42922,-122.16730]},
+ {id:"huang",name:"Huang Engineering Center",short:"Huang",ll:[37.42797,-122.17427]},
+ {id:"gates",name:"Gates Computer Science",short:"Gates",ll:[37.43011,-122.17342]},
+ {id:"y2e2",name:"Coupa Café, Y2E2",short:"Y2E2",ll:[37.42834,-122.17554]},
+ {id:"lima",name:"Li & Ma Science Library",short:"Li & Ma Library",ll:[37.43066,-122.17144]},
+ {id:"branner",name:"Branner Earth Sciences Library",short:"Branner Library",ll:[37.42642,-122.17265]},
+ {id:"tresidder",name:"Tresidder Union & CoHo",short:"Tresidder",ll:[37.42424,-122.17093]},
+ {id:"law",name:"Crown Law Library",short:"Law Library",ll:[37.42405,-122.16772]},
+ {id:"gsb",name:"Knight Management Center",short:"GSB",ll:[37.42857,-122.16219]},
+ {id:"lane",name:"Lane Medical Library",short:"Lane Library",ll:[37.43253,-122.17553]},
+ {id:"arrillaga",name:"Arrillaga Family Dining Commons",short:"Arrillaga Dining",ll:[37.42540,-122.16406]},
+ {id:"artlib",name:"Art & Architecture Library",short:"Art Library",ll:[37.43255,-122.17172]},
+];
+// Street lines traced through Marguerite shuttle stops on each street (same campus-map source).
+const STREETS = {
+ "Jane Stanford Way":[[37.43025,-122.17594],[37.42966,-122.17249],[37.42899,-122.17008],[37.42893,-122.16916],[37.42852,-122.16789],[37.42854,-122.16718],[37.42824,-122.16639],[37.42796,-122.16464],[37.42771,-122.16412],[37.42759,-122.16289],[37.42721,-122.16115],[37.42694,-122.16037]],
+ "Campus Drive":[[37.43075,-122.17801],[37.43103,-122.17916],[37.43021,-122.18029],[37.42975,-122.18031],[37.42856,-122.1807],[37.42803,-122.18112]],
+ "Campus Drive East":[[37.43078,-122.17635],[37.43251,-122.17365],[37.43084,-122.16328],[37.42864,-122.16053],[37.42812,-122.16053],[37.42628,-122.15975],[37.42472,-122.16022],[37.42377,-122.16083],[37.42255,-122.16208],[37.42234,-122.16372],[37.42265,-122.16387],[37.42297,-122.16544],[37.42264,-122.16595],[37.42163,-122.16823]],
+ "Santa Teresa St":[[37.42662,-122.18053],[37.4261,-122.17692],[37.42584,-122.17629],[37.42526,-122.1735]],
+ "Via Ortega":[[37.43025,-122.17594],[37.42886,-122.17598],[37.42852,-122.17621],[37.4261,-122.17692]],
+ "Roth Way":[[37.43251,-122.17365],[37.43231,-122.17266],[37.43191,-122.17074]],
+ "Galvez St":[[37.43196,-122.16391],[37.43701,-122.16114]],
+};
+const LANDMARKS = [
+ {name:"Main Quad",ll:[37.42750,-122.17030],box:[[37.42660,-122.17180],[37.42860,-122.16880]]},
+ {name:"Hoover Tower",ll:[37.42761,-122.16696],dot:true},
+ {name:"The Oval",ll:[37.42950,-122.16900],dot:false},
+ {name:"Stanford Stadium",ll:[37.43468,-122.16115],dot:true},
+ {name:"Medical Center",ll:[37.43360,-122.17401],dot:false},
 ];
 const HOME_SPOT = {id:"home",name:"Home / dorm (private)",private:true};
-const CAMPUS = [37.4275,-122.1697];
+const CAMPUS = [37.4280,-122.1700];
 
 const SONGS = [
  ["Weightless","Marconi Union"],["Experience","Ludovico Einaudi"],["Nuvole Bianche","Ludovico Einaudi"],["Sunset Lover","Petit Biscuit"],["Intro","The xx"],["Midnight City","M83"],["Time","Hans Zimmer"],["Clair de Lune","Claude Debussy"],["Gymnopédie No. 1","Erik Satie"],["Redbone","Childish Gambino"],["Pink + White","Frank Ocean"],["Holocene","Bon Iver"],["Space Song","Beach House"],["Electric Feel","MGMT"],["505","Arctic Monkeys"],["Kids","MGMT"],["Breathe","Télépopmusik"],["Motion Picture Soundtrack","Radiohead"],["Saturn","SZA"],["Cornfield Chase","Hans Zimmer"]

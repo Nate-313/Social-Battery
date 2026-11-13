@@ -223,7 +223,7 @@ function songPicker(cb) {
 }
 async function publish(c, priv, layer) {
   const err = $("#postErr", layer);
-  if (c.spot === "__new") { const n = c.newSpot.trim(); const m = moderate(n); if (!n || m.lvl === "block") { err.innerHTML = `<div class="banner danger">Give the new spot an appropriate name.</div>`; return } const id = "c" + Date.now(); state.customSpots.push({ id, name: n, x: 500, y: 520 }); c.spot = id }
+  if (c.spot === "__new") { const n = c.newSpot.trim(); const m = moderate(n); if (!n || m.lvl === "block") { err.innerHTML = `<div class="banner danger">Give the new spot an appropriate name.</div>`; return } const id = "c" + Date.now(); state.customSpots.push({ id, name: n, ll: CAMPUS }); c.spot = id }
   const m = moderate(c.caption);
   if (m.lvl === "block") { err.innerHTML = `<div class="banner danger">${ICON.shield}<span>${esc(modMessage(m))}</span></div>`; return }
   if (!priv) {
